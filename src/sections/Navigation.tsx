@@ -6,7 +6,6 @@ import { useBrand } from '../context/BrandContext';
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
-  const [isLightSection, setIsLightSection] = useState(true);
   const navRef = useRef<HTMLElement>(null);
   const { isTWC, toggleBrand } = useBrand();
 
@@ -15,18 +14,6 @@ export default function Navigation() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 80);
-
-      const navHeight = navRef.current?.offsetHeight ?? 0;
-      const probeY = navHeight > 0 ? navHeight * 0.6 : 60;
-      const lightSectionIds = ['menu', 'order', 'gallery', 'footer'];
-      const isInLightSection = lightSectionIds.some((id) => {
-        const el = document.getElementById(id);
-        if (!el) return false;
-        const rect = el.getBoundingClientRect();
-        return rect.top <= probeY && rect.bottom >= probeY;
-      });
-
-      setIsLightSection(isInLightSection);
     };
 
     handleScroll();
