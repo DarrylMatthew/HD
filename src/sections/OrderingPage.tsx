@@ -3,6 +3,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { orderingPageConfig } from '../config';
 import type { OrderingCategory } from '../config';
 import { ShoppingBag, X, MessageCircle, Type, Sparkles, ChevronRight, Clock } from 'lucide-react';
+import { getLenis } from '../hooks/useLenis';
 
 // ======== PRICE FORMATTING ========
 function formatRupiah(amount: number): string {
@@ -74,13 +75,17 @@ export default function OrderingPage() {
 
   // Lock body scroll when modal is open
   useEffect(() => {
+    const lenis = getLenis();
     if (activeCategory) {
       document.body.style.overflow = 'hidden';
+      lenis?.stop();
     } else {
       document.body.style.overflow = '';
+      lenis?.start();
     }
     return () => {
       document.body.style.overflow = '';
+      lenis?.start();
     };
   }, [activeCategory]);
 
@@ -449,6 +454,7 @@ function OrderModal({
       }}
     >
       <motion.div
+        data-lenis-prevent
         initial={{ opacity: 0, scale: 0.92, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 30 }}
