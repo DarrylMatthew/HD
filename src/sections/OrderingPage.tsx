@@ -618,7 +618,7 @@ function OrderModal({
                   />
                   <input
                     type="text"
-                    placeholder="e.g. SELAMAT ULANG TAHUN"
+                    placeholder="e.g. JESSICA"
                     value={state.customText}
                     onChange={(e) => onChange({ ...state, customText: e.target.value })}
                     className="input-warm"

@@ -195,7 +195,7 @@ export const orderingPageConfig: OrderingPageConfig = {
         { label: "No Rum", price: 0 },
         { label: "Add Rum", price: 25000 },
       ],
-      dustingOptions: ["Plain", "Happy Birthday", "Happy Anniversary", "Congratulations"],
+      dustingOptions: ["Plain", "Happy Birthday", "Happy Anniversary", "Congrats"],
       hasCustomText: true,
       customTextPricePerChar: 3000,
       isTBD: false,
