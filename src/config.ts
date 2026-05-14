@@ -50,6 +50,40 @@ export interface OrderConfig {
   whatsappNumber: string
 }
 
+// ======== ORDERING PAGE TYPES ========
+
+export interface OrderingSizeOption {
+  label: string
+  price: number
+}
+
+export interface OrderingAddonOption {
+  label: string
+  price: number
+}
+
+export interface OrderingCategory {
+  id: string
+  name: string
+  image: string
+  description: string
+  startingPrice: number
+  sizes: OrderingSizeOption[]
+  addons: OrderingAddonOption[]
+  dustingOptions: string[]
+  hasCustomText: boolean
+  customTextPricePerChar: number
+  isTBD: boolean
+}
+
+export interface OrderingPageConfig {
+  sectionLabel: string
+  title: string
+  subtitle: string
+  whatsappNumber: string
+  categories: OrderingCategory[]
+}
+
 export interface GalleryConfig {
   sectionLabel: string
   title: string
@@ -138,6 +172,87 @@ export const orderConfig: OrderConfig = {
   subtitle: "Fill in the details below and we'll confirm your order via WhatsApp.",
   image: "/images/order-form.jpg",
   whatsappNumber: "+1234567890", // Placeholder - replace with actual number
+}
+
+export const orderingPageConfig: OrderingPageConfig = {
+  sectionLabel: "Order Online",
+  title: "Choose Your Dessert",
+  subtitle: "Select a product, customize your order, and send it straight to our WhatsApp.",
+  whatsappNumber: "+6282111847742",
+  categories: [
+    {
+      id: "whole-cake",
+      name: "Whole Cake",
+      image: "/images/whole-cake.png",
+      description: "Our signature whole tiramisu cake, perfect for celebrations. Choose your size, add rum, pick a dusting, and personalize with custom text.",
+      startingPrice: 265000,
+      sizes: [
+        { label: "M", price: 265000 },
+        { label: "L", price: 275000 },
+        { label: "XL", price: 375000 },
+      ],
+      addons: [
+        { label: "No Rum", price: 0 },
+        { label: "Add Rum", price: 25000 },
+      ],
+      dustingOptions: ["Plain", "Happy Birthday", "Happy Anniversary", "Congratulations"],
+      hasCustomText: true,
+      customTextPricePerChar: 3000,
+      isTBD: false,
+    },
+    {
+      id: "tiramisu-bowl",
+      name: "Tiramisu Bowl",
+      image: "/images/tiramisu-bowl.png",
+      description: "Individual servings of our classic tiramisu in a bowl — perfect for gifting or personal indulgence.",
+      startingPrice: 0,
+      sizes: [],
+      addons: [],
+      dustingOptions: [],
+      hasCustomText: false,
+      customTextPricePerChar: 0,
+      isTBD: true,
+    },
+    {
+      id: "tiramisu-dessert-box",
+      name: "Tiramisu Dessert Box",
+      image: "/images/dessert-box.png",
+      description: "Beautifully packaged tiramisu dessert boxes, ideal for events, gatherings, or a luxurious treat at home.",
+      startingPrice: 0,
+      sizes: [],
+      addons: [],
+      dustingOptions: [],
+      hasCustomText: false,
+      customTextPricePerChar: 0,
+      isTBD: true,
+    },
+    {
+      id: "panna-cotta",
+      name: "Panna Cotta",
+      image: "/images/panna-cotta-product.png",
+      description: "Silky Italian panna cotta made with fresh cream and vanilla, topped with seasonal fruit compote.",
+      startingPrice: 0,
+      sizes: [],
+      addons: [],
+      dustingOptions: [],
+      hasCustomText: false,
+      customTextPricePerChar: 0,
+      isTBD: true,
+    },
+    {
+      id: "additional-category",
+      name: "More Coming Soon",
+      image: "/images/additional-dessert.png",
+      description: "We're always creating new delights. Stay tuned for exciting new additions to our dessert menu!",
+      startingPrice: 0,
+      sizes: [],
+      addons: [],
+      dustingOptions: [],
+      hasCustomText: false,
+      customTextPricePerChar: 0,
+      isTBD: true,
+    },
+  ],
 }
 
 export const galleryConfig: GalleryConfig = {

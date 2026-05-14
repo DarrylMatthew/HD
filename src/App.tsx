@@ -4,6 +4,7 @@ import { BrandProvider, useBrand } from './context/BrandContext';
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import Menu from './sections/Menu';
+import OrderingPage from './sections/OrderingPage';
 import OrderForm from './sections/OrderForm';
 import Gallery from './sections/Gallery';
 import Footer from './sections/Footer';
@@ -34,6 +35,7 @@ function AppContent() {
       <main>
         <Hero />
         <Menu />
+        {!isTWC && <OrderingPage />}
         <OrderForm />
         <Gallery />
         <Footer />
