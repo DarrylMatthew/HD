@@ -40,13 +40,13 @@ export default function OrderForm() {
     e.preventDefault();
     if (formData.items.length === 0) return;
     const message = encodeURIComponent(generateWhatsAppMessage());
-    window.open(`https://wa.me/${orderConfig.whatsappNumber.replace(/\+/g, '')}?text=${message}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${orderConfig.whatsappNumber.replace(/\+/g, '')}&text=${message}`, '_blank');
     setShowConfirmation(true);
   };
 
   const handleTWCConsultation = () => {
     const msg = encodeURIComponent(`*Wedding Cake Inquiry* 💒\n\nHi, I'd like to try the wedding cake tester and discuss my wedding dessert options.\n\nPlease let me know the available dates for a consultation. Thank you!`);
-    window.open(`https://wa.me/${twcConsultationConfig.whatsappNumber.replace(/\+/g, '')}?text=${msg}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${twcConsultationConfig.whatsappNumber.replace(/\+/g, '')}&text=${msg}`, '_blank');
   };
 
   const inputBaseStyle: React.CSSProperties = { width: '100%', padding: '14px 16px 14px 44px', fontSize: '14px', fontFamily: 'Inter, system-ui, sans-serif', background: '#fffdf7', border: '1px solid #d8c3a5', borderRadius: '12px', color: '#2f2218', outline: 'none', transition: 'border-color 0.3s, box-shadow 0.3s' };

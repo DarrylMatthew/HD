@@ -93,20 +93,26 @@ export default function OrderingPage() {
     if (!activeCategory) return;
     const total = calculateTotal(activeCategory, modalState);
 
-    let message = `Halo! Saya ingin memesan:\n\n🍰 ${activeCategory.name}`;
+    // You can customize the WhatsApp message format here:
+    let message = `Halo Hangri Dessert! Saya ingin memesan:\n\n*${activeCategory.name}*`;
+    
     if (modalState.selectedSize) message += `\n- Size: ${modalState.selectedSize}`;
     if (modalState.selectedAddon) message += `\n- Rum: ${modalState.selectedAddon}`;
     if (modalState.selectedDusting) message += `\n- Dusting: ${modalState.selectedDusting}`;
+    
     if (activeCategory.hasCustomText && modalState.customText.length > 0) {
       const charCount = modalState.customText.length;
       const textPrice = charCount * activeCategory.customTextPricePerChar;
       message += `\n- Custom Text: "${modalState.customText}" (${charCount} huruf x ${formatRupiah(activeCategory.customTextPricePerChar)} = ${formatRupiah(textPrice)})`;
     }
-    message += `\n\nTotal: ${formatRupiah(total)}`;
+    
+    message += `\n\n*Total: ${formatRupiah(total)}*`;
 
     const phoneNumber = orderingPageConfig.whatsappNumber.replace(/\+/g, '');
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/${phoneNumber}?text=${encoded}`, '_blank');
+    
+    // Using api.whatsapp.com instead of wa.me avoids a known character corruption bug on WhatsApp Desktop for Windows
+    window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encoded}`, '_blank');
   };
 
   return (
