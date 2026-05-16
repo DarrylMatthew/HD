@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X } from 'lucide-react';
 import type { CartItem } from './OrderingUtils';
 import { formatRupiah } from './OrderingUtils';

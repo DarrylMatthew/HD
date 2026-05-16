@@ -2,11 +2,11 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { orderingPageConfig } from '../config';
 import type { OrderingCategory } from '../config';
-import { ShoppingBag, ArrowLeft, Clock, Type, X } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Clock } from 'lucide-react';
 import { getLenis } from '../hooks/useLenis';
 import { formatRupiah, getInitialState, calcUnitPrice, buildWhatsAppMessage, nextCartId } from './OrderingUtils';
 import type { CustomizeState, CartItem } from './OrderingUtils';
-import { OptionGroup, OptionPill, QuantitySelector, CartFAB, CartReview } from './OrderingUI';
+import { QuantitySelector, CartFAB, CartReview } from './OrderingUI';
 
 function useIsMobile(bp = 768) {
   const [m, setM] = useState(typeof window !== 'undefined' ? window.innerWidth < bp : false);

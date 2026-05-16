@@ -113,7 +113,7 @@ export default function Navigation() {
                 <span>{config.brandName}</span>
               ) : (
                 <img 
-                  src="public/images/Hangri Dessert Logo and Text.png" 
+                  src="/images/Hangri Dessert Logo and Text.png" 
                   alt="Hangri Dessert" 
                   className="nav-logo"
                   style={{ 
