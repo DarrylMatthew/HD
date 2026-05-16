@@ -42,7 +42,7 @@ export default function Menu() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
               style={{
-                fontFamily: isTWC ? "'Playfair Display', Georgia, serif" : 'Inter, system-ui, sans-serif',
+                fontFamily: 'Effra Trial Bold',
                 fontSize: '11px',
                 fontWeight: 600,
                 letterSpacing: isTWC ? '4px' : '3px',
@@ -84,7 +84,7 @@ export default function Menu() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               style={{
-                fontFamily: 'Inter, system-ui, sans-serif',
+                fontFamily: 'Effra Trial Bold',
                 fontSize: '16px',
                 lineHeight: 1.7,
                 color: mutedColor,
@@ -197,7 +197,7 @@ export default function Menu() {
               </h3>
               <p
                 style={{
-                  fontFamily: 'Inter, system-ui, sans-serif',
+                  fontFamily: 'Effra Trial Bold',
                   fontSize: '15px',
                   lineHeight: 1.7,
                   color: 'rgba(255,255,255,0.6)',
@@ -281,7 +281,7 @@ export default function Menu() {
               </h3>
               <p
                 style={{
-                  fontFamily: 'Inter, system-ui, sans-serif',
+                  fontFamily: 'Effra Trial Bold',
                   fontSize: '15px',
                   lineHeight: 1.7,
                   color: '#d8c3a5',
@@ -398,7 +398,7 @@ function HangriProductCard({
 
         <p
           style={{
-            fontFamily: 'Inter, system-ui, sans-serif',
+            fontFamily: 'Effra Trial Bold',
             fontSize: '14px',
             lineHeight: 1.7,
             color: '#5a4a3a',
@@ -430,7 +430,7 @@ function HangriProductCard({
             >
               <span
                 style={{
-                  fontFamily: 'Inter, system-ui, sans-serif',
+                  fontFamily: 'Effra Trial Bold',
                   fontSize: '13px',
                   color: '#5a4a3a',
                 }}
@@ -530,7 +530,7 @@ function TWCProductCard({
 
         <p
           style={{
-            fontFamily: 'Inter, system-ui, sans-serif',
+            fontFamily: 'Effra Trial Bold',
             fontSize: '14px',
             lineHeight: 1.8,
             color: twcTheme.muted,
@@ -550,7 +550,7 @@ function TWCProductCard({
         >
           <span
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: 'Effra Trial Bold',
               fontSize: '13px',
               fontStyle: 'italic',
               color: twcTheme.accent,

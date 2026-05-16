@@ -5,6 +5,7 @@ import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import Menu from './sections/Menu';
 import OrderingPage from './sections/OrderingPage';
+import OrderGrid from './sections/OrderGrid';
 import OrderForm from './sections/OrderForm';
 import Gallery from './sections/Gallery';
 import Footer from './sections/Footer';
@@ -34,9 +35,10 @@ function AppContent() {
       <Navigation />
       <main>
         <Hero />
-        <Menu />
+        {isTWC && <Menu />}
         {!isTWC && <OrderingPage />}
-        <OrderForm />
+        {!isTWC && <OrderGrid />}
+        {isTWC && <OrderForm />}
         <Gallery />
         <Footer />
       </main>

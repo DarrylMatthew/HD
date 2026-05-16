@@ -23,8 +23,6 @@ export default function Footer() {
     }
   };
 
-  const whatsappNote = `Note to developer: WhatsApp Bot Integration\n\nTo enable order tracking via WhatsApp Bot:\n\n1. Sign up with a WhatsApp Business API provider:\n   - Twilio (twilio.com/whatsapp)\n   - WATI (wati.io)\n   - Fonnte (fonnte.com)\n   - 360dialog (360dialog.com)\n\n2. Configure webhook to receive incoming messages\n\n3. Bot features to implement:\n   - Notify business owner on new orders\n   - Send periodic reminders for uncompleted orders\n   - "Completed" button in WhatsApp to mark orders done\n   - Auto-mark pending orders after 24h reminder\n\n4. Required environment variables:\n   - WHATSAPP_API_KEY\n   - WHATSAPP_PHONE_NUMBER_ID\n   - WEBHOOK_SECRET`;
-
   return (
     <footer id="footer" ref={sectionRef} style={{ background: isTWC ? 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)' : 'linear-gradient(135deg, #2f2218 0%, #4e3b31 100%)', padding: '80px 24px 32px', position: 'relative', transition: 'background 0.8s ease' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -45,7 +43,7 @@ export default function Footer() {
               </AnimatePresence>
             </div>
             <AnimatePresence mode="wait">
-              <motion.p key={config.brandTagline} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.7, color: mutedTextColor, margin: '0 0 24px', maxWidth: '280px' }}>{config.brandTagline}</motion.p>
+              <motion.p key={config.brandTagline} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', lineHeight: 1.7, color: mutedTextColor, margin: '0 0 24px', maxWidth: '280px' }}>{config.brandTagline}</motion.p>
             </AnimatePresence>
             {/* Social Links */}
             <div style={{ display: 'flex', gap: '12px' }}>
@@ -62,10 +60,10 @@ export default function Footer() {
           {/* Link Columns */}
           {config.columns.map((column, colIndex) => (
             <motion.div key={column.heading} initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: (colIndex + 1) * 0.1, ease: [0.16, 1, 0.3, 1] }}>
-              <h4 style={{ fontFamily: isTWC ? "'Playfair Display', Georgia, serif" : 'Inter, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, letterSpacing: isTWC ? '3px' : '2px', textTransform: 'uppercase', color: headingColor, margin: '0 0 20px', transition: 'color 0.6s ease' }}>{column.heading}</h4>
+              <h4 style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, letterSpacing: isTWC ? '3px' : '2px', textTransform: 'uppercase', color: headingColor, margin: '0 0 20px', transition: 'color 0.6s ease' }}>{column.heading}</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {column.links.map((link) => (
-                  <li key={link.label}><a href={link.href} onClick={(e) => handleLinkClick(e, link.href)} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '14px', color: mutedTextColor, textDecoration: 'none', transition: 'color 0.3s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#fdf6e3'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = mutedTextColor; }}>{link.label}</a></li>
+                  <li key={link.label}><a href={link.href} onClick={(e) => handleLinkClick(e, link.href)} style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: mutedTextColor, textDecoration: 'none', transition: 'color 0.3s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#fdf6e3'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = mutedTextColor; }}>{link.label}</a></li>
                 ))}
               </ul>
             </motion.div>
@@ -78,16 +76,8 @@ export default function Footer() {
         {/* Copyright */}
         <motion.div initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : {}} transition={{ duration: 0.8, delay: 0.5 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
           <AnimatePresence mode="wait">
-            <motion.p key={config.copyright} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '13px', color: 'rgba(216, 195, 165, 0.6)', margin: 0, textAlign: 'center' }}>{config.copyright}</motion.p>
+            <motion.p key={config.copyright} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: 'rgba(216, 195, 165, 0.6)', margin: 0, textAlign: 'center' }}>{config.copyright}</motion.p>
           </AnimatePresence>
-
-          {/* Developer Note — only for Hangri */}
-          {!isTWC && (
-            <div style={{ maxWidth: '700px', width: '100%', marginTop: '16px', padding: '20px 24px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '12px', border: '1px dashed rgba(232, 149, 78, 0.3)' }}>
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '10px', color: 'rgba(216, 195, 165, 0.5)', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Developer Note — WhatsApp Bot Integration</p>
-              <pre style={{ fontFamily: 'monospace', fontSize: '11px', lineHeight: 1.6, color: 'rgba(216, 195, 165, 0.45)', margin: 0, whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>{whatsappNote}</pre>
-            </div>
-          )}
         </motion.div>
       </div>
     </footer>

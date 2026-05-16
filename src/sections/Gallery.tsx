@@ -31,7 +31,7 @@ export default function Gallery() {
         {/* Section Header */}
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} style={{ textAlign: 'center', marginBottom: '64px' }}>
           <AnimatePresence mode="wait">
-            <motion.span key={config.sectionLabel} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} style={{ fontFamily: isTWC ? "'Playfair Display', Georgia, serif" : 'Inter, system-ui, sans-serif', fontSize: '11px', fontWeight: 600, letterSpacing: isTWC ? '4px' : '3px', textTransform: 'uppercase', color: accentColor, display: 'block', marginBottom: '16px', transition: 'color 0.6s ease' }}>{config.sectionLabel}</motion.span>
+            <motion.span key={config.sectionLabel} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', fontWeight: 600, letterSpacing: isTWC ? '4px' : '3px', textTransform: 'uppercase', color: accentColor, display: 'block', marginBottom: '16px', transition: 'color 0.6s ease' }}>{config.sectionLabel}</motion.span>
           </AnimatePresence>
           <AnimatePresence mode="wait">
             <motion.h2 key={config.title} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.4 }} className={isTWC ? 'font-elegant' : 'font-serif'} style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: isTWC ? 400 : 300, color: textColor, margin: 0, transition: 'color 0.6s ease' }}>{config.title}</motion.h2>
@@ -62,11 +62,6 @@ export default function Gallery() {
             </motion.div>
           ))}
         </div>
-
-        {/* Placeholder Note */}
-        <motion.p initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : {}} transition={{ duration: 0.8, delay: 1 }} className={isTWC ? 'font-elegant' : 'font-script'} style={{ textAlign: 'center', fontSize: isTWC ? '14px' : '18px', color: isTWC ? twcTheme.muted : '#a09488', marginTop: '40px', fontStyle: isTWC ? 'italic' : 'normal', letterSpacing: isTWC ? '1px' : '0', transition: 'color 0.6s ease' }}>
-          More photos coming soon...
-        </motion.p>
       </div>
 
       {/* Lightbox */}

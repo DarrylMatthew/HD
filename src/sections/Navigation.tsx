@@ -26,7 +26,7 @@ export default function Navigation() {
     };
   }, []);
 
-  const baseTextColor = isTWC ? twcTheme.foreground : '#2f2218';
+  const baseTextColor = scrolled ? (isTWC ? twcTheme.foreground : '#2f2218') : '#fdf6e3';
   const hoverTextColor = isTWC ? twcTheme.accent : '#e8954e';
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -54,27 +54,31 @@ export default function Navigation() {
   return (
     <nav
       ref={navRef}
+      className="main-nav"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100%',
         zIndex: 100,
-        padding: scrolled ? '12px 0' : '20px 0',
+        padding: scrolled ? '8px 8px' : '12px 8px',
         transition: 'padding 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        boxSizing: 'border-box',
       }}
     >
       <div
-        className={isTWC ? 'elegant-glass' : 'warm-glass'}
+        className={scrolled ? (isTWC ? 'elegant-glass' : 'warm-glass') : ''}
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '14px 36px',
-          borderRadius: isTWC ? '0' : '2rem 0.5rem 2rem 0.5rem',
+          paddingLeft: '24px',
+          borderRadius: isTWC ? '0' : (scrolled ? '0.5rem 0.5rem 0.5rem 0.5rem' : '0'),
+          border: 'none',
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'stretch',
           justifyContent: 'space-between',
-          transition: 'border-radius 0.8s ease, background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease',
+          overflow: 'hidden',
+          transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Brand Name */}
@@ -85,27 +89,45 @@ export default function Navigation() {
           style={{
             fontSize: isTWC ? '22px' : '28px',
             fontWeight: isTWC ? 500 : 600,
-            color: isTWC ? twcTheme.foreground : '#4e3b31',
+            color: scrolled ? (isTWC ? twcTheme.foreground : '#4e3b31') : '#fdf6e3',
+            border: 'none',
             textDecoration: 'none',
             transition: 'color 0.6s ease, font-size 0.6s ease',
             letterSpacing: isTWC ? '3px' : '0px',
             textTransform: isTWC ? 'uppercase' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '12px 0',
           }}
         >
           <AnimatePresence mode="wait">
-            <motion.span
+            <motion.div
               key={config.brandName}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.3 }}
+              style={{ display: 'flex', alignItems: 'center' }}
             >
-              {config.brandName}
-            </motion.span>
+              {isTWC ? (
+                <span>{config.brandName}</span>
+              ) : (
+                <img 
+                  src="public/images/Hangri Dessert Logo and Text.png" 
+                  alt="Hangri Dessert" 
+                  className="nav-logo"
+                  style={{ 
+                    width: 'auto', 
+                    objectFit: 'contain',
+                    transition: 'height 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }} 
+                />
+              )}
+            </motion.div>
           </AnimatePresence>
         </a>
 
-        <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+        <div className="nav-links-container" style={{ display: 'flex', alignItems: 'stretch' }}>
           {/* Nav Links */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -114,7 +136,8 @@ export default function Navigation() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              style={{ display: 'flex', gap: '32px', alignItems: 'center' }}
+              className="nav-links-row"
+              style={{ display: 'flex', alignItems: 'center', padding: '12px 0' }}
             >
               {config.links.map((item) => (
                 <a
@@ -123,9 +146,9 @@ export default function Navigation() {
                   onClick={(e) => handleNavClick(e, item.target)}
                   className="nav-link"
                   style={{
-                    fontFamily: isTWC ? "'Playfair Display', Georgia, serif" : 'Inter, system-ui, sans-serif',
-                    fontSize: isTWC ? '12px' : '13px',
-                    fontWeight: 500,
+                    fontFamily: 'Effra Trial Bold',
+                    fontSize: isTWC ? '13px' : '15px',
+                    fontWeight: 600,
                     color: baseTextColor,
                     letterSpacing: isTWC ? '2px' : '0.5px',
                     textDecoration: 'none',
@@ -148,33 +171,27 @@ export default function Navigation() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Divider */}
-          <div
-            style={{
-              width: '1px',
-              height: '20px',
-              background: isTWC ? 'rgba(0,0,0,0.15)' : 'rgba(78,59,49,0.25)',
-              transition: 'background 0.6s ease',
-            }}
-          />
-
+          {/* Divider - Wait, the user asked to change the color of the navbar FROM the separation. So the divider might not even be needed if the colors meet, but let's keep it just in case, centered. Actually, they said "make the wedding cake in the middle of the separation", meaning in the middle of that new colored area. I will remove the thin divider line and let the color block be the separation. */}
           {/* Brand Toggle Button */}
           <motion.button
             onClick={handleBrandToggle}
-            className="brand-toggle-btn"
             whileTap={{ scale: 0.96 }}
             style={{
-              fontFamily: isTWC ? 'Inter, system-ui, sans-serif' : "'Playfair Display', Georgia, serif",
-              fontSize: '11px',
+              fontFamily: 'Effra Trial Bold',
+              fontSize: '12px',
               fontWeight: 600,
-              color: isTWC ? twcTheme.accent : '#e8954e',
+              color: isTWC ? '#2f2218' : '#fdf6e3', 
               letterSpacing: '1.5px',
               textTransform: 'uppercase',
-              background: 'none',
+              background: isTWC ? twcTheme.accent : '#4e3b31', 
               border: 'none',
               cursor: 'pointer',
-              padding: '6px 0',
-              transition: 'color 0.4s ease',
+              padding: '0 32px',
+              marginLeft: '24px', 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 0.4s ease, color 0.4s ease',
             }}
           >
             <AnimatePresence mode="wait">

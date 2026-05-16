@@ -49,7 +49,7 @@ export default function OrderForm() {
     window.open(`https://api.whatsapp.com/send?phone=${twcConsultationConfig.whatsappNumber.replace(/\+/g, '')}&text=${msg}`, '_blank');
   };
 
-  const inputBaseStyle: React.CSSProperties = { width: '100%', padding: '14px 16px 14px 44px', fontSize: '14px', fontFamily: 'Inter, system-ui, sans-serif', background: '#fffdf7', border: '1px solid #d8c3a5', borderRadius: '12px', color: '#2f2218', outline: 'none', transition: 'border-color 0.3s, box-shadow 0.3s' };
+  const inputBaseStyle: React.CSSProperties = { width: '100%', padding: '14px 16px 14px 44px', fontSize: '14px', fontFamily: 'Effra Trial Bold', background: '#fffdf7', border: '1px solid #d8c3a5', borderRadius: '12px', color: '#2f2218', outline: 'none', transition: 'border-color 0.3s, box-shadow 0.3s' };
 
   return (
     <section id="order" ref={sectionRef} style={{ padding: '120px 24px', position: 'relative', backgroundColor: isTWC ? twcTheme.backgroundAlt : '#f5ecd8', transition: 'background-color 0.8s ease' }}>
@@ -60,20 +60,20 @@ export default function OrderForm() {
             <motion.div key="twc-consultation" initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
               <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '11px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: twcTheme.accent, display: 'block', marginBottom: '16px' }}>{twcConsultationConfig.sectionLabel}</span>
               <h2 className="font-elegant" style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 400, color: twcTheme.foreground, margin: '0 0 16px', lineHeight: 1.2 }}>{twcConsultationConfig.title}</h2>
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', lineHeight: 1.7, color: twcTheme.muted, maxWidth: '500px', margin: '0 auto 48px' }}>{twcConsultationConfig.subtitle}</p>
+              <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', lineHeight: 1.7, color: twcTheme.muted, maxWidth: '500px', margin: '0 auto 48px' }}>{twcConsultationConfig.subtitle}</p>
 
               <div className="elegant-card" style={{ background: '#ffffff', padding: '56px 48px', border: `1px solid ${twcTheme.cardBorder}`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px' }}>
                 <div style={{ width: '80px', height: '80px', background: twcTheme.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Crown size={36} color={twcTheme.accent} />
                 </div>
-                <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.8, color: twcTheme.muted, maxWidth: '480px', margin: 0 }}>{twcConsultationConfig.description}</p>
+                <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', lineHeight: 1.8, color: twcTheme.muted, maxWidth: '480px', margin: 0 }}>{twcConsultationConfig.description}</p>
 
                 {/* Features */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', width: '100%', maxWidth: '480px' }}>
                   {twcConsultationConfig.features.map((feature) => (
                     <div key={feature} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: twcTheme.backgroundAlt, border: `1px solid ${twcTheme.cardBorder}` }}>
                       <Sparkles size={14} color={twcTheme.accent} />
-                      <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '13px', color: twcTheme.foreground }}>{feature}</span>
+                      <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: twcTheme.foreground }}>{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -90,9 +90,9 @@ export default function OrderForm() {
             <motion.div key="hangri-order" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
               {/* Section Header */}
               <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} style={{ textAlign: 'center', marginBottom: '64px' }}>
-                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '11px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#e8954e', display: 'block', marginBottom: '16px' }}>{orderConfig.sectionLabel}</span>
+                <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#e8954e', display: 'block', marginBottom: '16px' }}>{orderConfig.sectionLabel}</span>
                 <h2 className="font-serif" style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 300, color: '#2f2218', margin: '0 0 16px' }}>{orderConfig.title}</h2>
-                <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', lineHeight: 1.7, color: '#5a4a3a', maxWidth: '480px', margin: '0 auto' }}>{orderConfig.subtitle}</p>
+                <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', lineHeight: 1.7, color: '#5a4a3a', maxWidth: '480px', margin: '0 auto' }}>{orderConfig.subtitle}</p>
               </motion.div>
 
               <AnimatePresence mode="wait">
@@ -100,7 +100,7 @@ export default function OrderForm() {
                   <motion.div key="confirmation" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.5 }} className="organic-card" style={{ maxWidth: '600px', margin: '0 auto', padding: '56px 48px', background: '#fffdf7', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
                     <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg, #e8954e 0%, #d4a373 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(232, 149, 78, 0.3)' }}><Check size={36} color="#fff" /></div>
                     <h3 className="font-serif" style={{ fontSize: '32px', fontWeight: 400, color: '#2f2218', margin: 0 }}>Order Sent!</h3>
-                    <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.7, color: '#5a4a3a', margin: 0 }}>Your order details have been sent via WhatsApp. We'll confirm your order shortly!</p>
+                    <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', lineHeight: 1.7, color: '#5a4a3a', margin: 0 }}>Your order details have been sent via WhatsApp. We'll confirm your order shortly!</p>
                     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => { setShowConfirmation(false); setFormData({ name: '', phone: '', items: [], deliveryMethod: 'pickup', deliveryApp: '', date: '', time: '', paymentMethod: 'cash', notes: '' }); }} className="btn-warm font-script" style={{ marginTop: '12px', fontSize: '18px', padding: '12px 32px', border: 'none', cursor: 'pointer' }}>Place Another Order</motion.button>
                   </motion.div>
                 ) : (
@@ -113,17 +113,17 @@ export default function OrderForm() {
                     <form onSubmit={handleSubmit} className="organic-card" style={{ background: '#fffdf7', padding: '40px 32px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
                       {/* Item Selector */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <label style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8954e', display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={16} />Select Items</label>
+                        <label style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8954e', display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={16} />Select Items</label>
                         {menuConfig.products.map((product) => (
                           <div key={product.name} style={{ padding: '16px', background: '#fdf6e3', borderRadius: '12px', border: '1px solid #f0e6d3' }}>
                             <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '18px', fontWeight: 500, color: '#2f2218', display: 'block', marginBottom: '10px' }}>{product.name}</span>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                               {product.sizes.map((size) => { const qty = getItemQuantity(product.name, size.label); return (
                                 <div key={size.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '13px', color: '#5a4a3a' }}>{size.label}</span>
+                                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: '#5a4a3a' }}>{size.label}</span>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => removeItem(product.name, size.label)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1px solid #d8c3a5', background: qty > 0 ? '#4e3b31' : '#fffdf7', color: qty > 0 ? '#fff' : '#a09488', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: qty > 0 ? 'pointer' : 'default' }}><Minus size={14} /></motion.button>
-                                    <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '14px', fontWeight: 600, color: '#2f2218', minWidth: '20px', textAlign: 'center' }}>{qty}</span>
+                                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218', minWidth: '20px', textAlign: 'center' }}>{qty}</span>
                                     <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => addItem(product.name, size.label)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', background: '#e8954e', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Plus size={14} /></motion.button>
                                   </div>
                                 </div>
@@ -139,12 +139,12 @@ export default function OrderForm() {
                       </div>
                       {/* Delivery Method */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <label style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8954e', display: 'flex', alignItems: 'center', gap: '8px' }}><Truck size={16} />Delivery Method</label>
+                        <label style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8954e', display: 'flex', alignItems: 'center', gap: '8px' }}><Truck size={16} />Delivery Method</label>
                         <div style={{ display: 'flex', gap: '12px' }}>
                           {(['pickup', 'delivery'] as const).map((method) => (
                             <motion.button key={method} type="button" whileTap={{ scale: 0.98 }} onClick={() => setFormData((p) => ({ ...p, deliveryMethod: method }))} style={{ flex: 1, padding: '14px', borderRadius: '12px', border: formData.deliveryMethod === method ? '2px solid #e8954e' : '2px solid #f0e6d3', background: formData.deliveryMethod === method ? '#fdf6e3' : '#fffdf7', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transition: 'all 0.3s' }}>
                               {method === 'pickup' ? <Store size={20} color={formData.deliveryMethod === method ? '#e8954e' : '#a09488'} /> : <Truck size={20} color={formData.deliveryMethod === method ? '#e8954e' : '#a09488'} />}
-                              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '13px', fontWeight: formData.deliveryMethod === method ? 600 : 400, color: formData.deliveryMethod === method ? '#2f2218' : '#5a4a3a' }}>{method === 'pickup' ? 'Self Pickup' : 'Delivery'}</span>
+                              <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', fontWeight: formData.deliveryMethod === method ? 600 : 400, color: formData.deliveryMethod === method ? '#2f2218' : '#5a4a3a' }}>{method === 'pickup' ? 'Self Pickup' : 'Delivery'}</span>
                             </motion.button>
                           ))}
                         </div>
@@ -162,12 +162,12 @@ export default function OrderForm() {
                       </div>
                       {/* Payment Method */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <label style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8954e', display: 'flex', alignItems: 'center', gap: '8px' }}><CreditCard size={16} />Payment Method</label>
+                        <label style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8954e', display: 'flex', alignItems: 'center', gap: '8px' }}><CreditCard size={16} />Payment Method</label>
                         <div style={{ display: 'flex', gap: '12px' }}>
                           {([{ value: 'bank' as const, label: 'Bank Transfer' }, { value: 'cash' as const, label: 'Cash' }]).map((method) => (
                             <motion.button key={method.value} type="button" whileTap={{ scale: 0.98 }} onClick={() => setFormData((p) => ({ ...p, paymentMethod: method.value }))} style={{ flex: 1, padding: '14px', borderRadius: '12px', border: formData.paymentMethod === method.value ? '2px solid #e8954e' : '2px solid #f0e6d3', background: formData.paymentMethod === method.value ? '#fdf6e3' : '#fffdf7', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transition: 'all 0.3s' }}>
                               <CreditCard size={20} color={formData.paymentMethod === method.value ? '#e8954e' : '#a09488'} />
-                              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '13px', fontWeight: formData.paymentMethod === method.value ? 600 : 400, color: formData.paymentMethod === method.value ? '#2f2218' : '#5a4a3a' }}>{method.label}</span>
+                              <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', fontWeight: formData.paymentMethod === method.value ? 600 : 400, color: formData.paymentMethod === method.value ? '#2f2218' : '#5a4a3a' }}>{method.label}</span>
                             </motion.button>
                           ))}
                         </div>

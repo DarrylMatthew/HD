@@ -108,8 +108,8 @@ export const siteConfig: SiteConfig = {
 export const navigationConfig: NavigationConfig = {
   brandName: "Hangri Dessert",
   links: [
-    { label: "Menu", target: "#menu" },
-    { label: "Order", target: "#order" },
+    { label: "Menu", target: "#ordering" },
+    { label: "Order", target: "#order-grid" },
     { label: "Gallery", target: "#gallery" },
   ],
 }
@@ -121,8 +121,8 @@ export const heroConfig: HeroConfig = {
   titleEmphasis: "Desserts",
   subtitleLine1: "Small-batch tiramisu and panna cotta,",
   subtitleLine2: "made fresh using the finest ingredients.",
-  ctaText: "Order Now",
-  ctaTargetId: "#order",
+  ctaText: "Explore Menu",
+  ctaTargetId: "#ordering",
 }
 
 export const menuConfig: MenuConfig = {
