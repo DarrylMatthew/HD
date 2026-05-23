@@ -71,6 +71,7 @@ export interface OrderingCategory {
   sizes: OrderingSizeOption[]
   addons: OrderingAddonOption[]
   dustingOptions: string[]
+  toppers: OrderingAddonOption[]
   hasCustomText: boolean
   customTextPricePerChar: number
   isTBD: boolean
@@ -196,6 +197,12 @@ export const orderingPageConfig: OrderingPageConfig = {
         { label: "Add Rum", price: 25000 },
       ],
       dustingOptions: ["Plain", "Happy Birthday", "Happy Anniversary", "Congrats"],
+      toppers: [
+        { label: "No Topper", price: 0 },
+        { label: "Happy Birthday", price: 15000 },
+        { label: "Happy Anniversary", price: 15000 },
+        { label: "Congrats", price: 15000 },
+      ],
       hasCustomText: true,
       customTextPricePerChar: 3000,
       isTBD: false,
@@ -205,13 +212,22 @@ export const orderingPageConfig: OrderingPageConfig = {
       name: "Tiramisu Bowl",
       image: "/images/tiramisu-bowl.png",
       description: "Individual servings of our classic tiramisu in a bowl — perfect for gifting or personal indulgence.",
-      startingPrice: 0,
+      startingPrice: 30000,
       sizes: [],
-      addons: [],
+      addons: [
+        { label: "No Rum", price: 0 },
+        { label: "Add Rum", price: 5000 },
+      ],
       dustingOptions: [],
+      toppers: [
+        { label: "No Topper", price: 0 },
+        { label: "Happy Birthday", price: 15000 },
+        { label: "Happy Anniversary", price: 15000 },
+        { label: "Congrats", price: 15000 },
+      ],
       hasCustomText: false,
       customTextPricePerChar: 0,
-      isTBD: true,
+      isTBD: false,
     },
     {
       id: "tiramisu-dessert-box",
@@ -222,6 +238,7 @@ export const orderingPageConfig: OrderingPageConfig = {
       sizes: [],
       addons: [],
       dustingOptions: [],
+      toppers: [],
       hasCustomText: false,
       customTextPricePerChar: 0,
       isTBD: true,
@@ -235,6 +252,7 @@ export const orderingPageConfig: OrderingPageConfig = {
       sizes: [],
       addons: [],
       dustingOptions: [],
+      toppers: [],
       hasCustomText: false,
       customTextPricePerChar: 0,
       isTBD: true,
@@ -248,6 +266,7 @@ export const orderingPageConfig: OrderingPageConfig = {
       sizes: [],
       addons: [],
       dustingOptions: [],
+      toppers: [],
       hasCustomText: false,
       customTextPricePerChar: 0,
       isTBD: true,

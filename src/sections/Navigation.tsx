@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart } from 'lucide-react';
 import { getLenis } from '../hooks/useLenis';
 import { navigationConfig, twcNavigationConfig, twcTheme } from '../config';
 import { useBrand } from '../context/BrandContext';
+import { useCart } from '../context/CartContext';
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const { isTWC, toggleBrand } = useBrand();
+  const { cartCount, setShowCart } = useCart();
 
   const config = isTWC ? twcNavigationConfig : navigationConfig;
 
@@ -26,11 +30,23 @@ export default function Navigation() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
+
   const baseTextColor = scrolled ? (isTWC ? twcTheme.foreground : '#2f2218') : '#fdf6e3';
   const hoverTextColor = isTWC ? twcTheme.accent : '#e8954e';
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
+    setMenuOpen(false);
     const lenis = getLenis();
     if (lenis) {
       lenis.scrollTo(targetId);
@@ -67,10 +83,20 @@ export default function Navigation() {
       }}
     >
       <div
-        className={scrolled ? (isTWC ? 'elegant-glass' : 'warm-glass') : ''}
+        className="nav-row"
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
+          display: 'flex',
+          alignItems: 'stretch',
+          gap: '8px',
+        }}
+      >
+      <div
+        className={`nav-inner ${scrolled ? (isTWC ? 'elegant-glass' : 'warm-glass') : ''}`}
+        style={{
+          flex: 1,
+          minWidth: 0,
           paddingLeft: '24px',
           borderRadius: isTWC ? '0' : (scrolled ? '0.5rem 0.5rem 0.5rem 0.5rem' : '0'),
           border: 'none',
@@ -113,7 +139,7 @@ export default function Navigation() {
                 <span>{config.brandName}</span>
               ) : (
                 <img 
-                  src="/images/Hangri Dessert Logo and Text.png" 
+                  src="/images/HD logo background remove.png" 
                   alt="Hangri Dessert" 
                   className="nav-logo"
                   style={{ 
@@ -171,23 +197,23 @@ export default function Navigation() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Divider - Wait, the user asked to change the color of the navbar FROM the separation. So the divider might not even be needed if the colors meet, but let's keep it just in case, centered. Actually, they said "make the wedding cake in the middle of the separation", meaning in the middle of that new colored area. I will remove the thin divider line and let the color block be the separation. */}
           {/* Brand Toggle Button */}
           <motion.button
             onClick={handleBrandToggle}
             whileTap={{ scale: 0.96 }}
+            className="brand-toggle-btn"
             style={{
               fontFamily: 'Effra Trial Bold',
               fontSize: '12px',
               fontWeight: 600,
-              color: isTWC ? '#2f2218' : '#fdf6e3', 
+              color: isTWC ? '#2f2218' : '#fdf6e3',
               letterSpacing: '1.5px',
               textTransform: 'uppercase',
-              background: isTWC ? twcTheme.accent : '#4e3b31', 
+              background: isTWC ? twcTheme.accent : '#4e3b31',
               border: 'none',
               cursor: 'pointer',
               padding: '0 32px',
-              marginLeft: '24px', 
+              marginLeft: '24px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -207,8 +233,156 @@ export default function Navigation() {
               </motion.span>
             </AnimatePresence>
           </motion.button>
+
+          {/* Mobile hamburger - hidden on desktop via CSS */}
+          <button
+            className="nav-hamburger"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              margin: 0,
+              width: '44px',
+              height: '44px',
+              color: baseTextColor,
+              display: 'none',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ position: 'relative', width: '22px', height: '14px', display: 'inline-block', marginTop: '10px' }}>
+              <span style={{ position: 'absolute', left: 0, right: 0, height: '2px', background: 'currentColor', borderRadius: '2px', top: menuOpen ? '6px' : '0', transform: menuOpen ? 'rotate(45deg)' : 'none', transition: 'transform 0.3s ease, top 0.3s ease' }} />
+              <span style={{ position: 'absolute', left: 0, right: 0, height: '2px', background: 'currentColor', borderRadius: '2px', top: '6px', opacity: menuOpen ? 0 : 1, transition: 'opacity 0.2s ease' }} />
+              <span style={{ position: 'absolute', left: 0, right: 0, height: '2px', background: 'currentColor', borderRadius: '2px', top: menuOpen ? '6px' : '12px', transform: menuOpen ? 'rotate(-45deg)' : 'none', transition: 'transform 0.3s ease, top 0.3s ease' }} />
+            </span>
+          </button>
         </div>
       </div>
+
+      {/* Cart icon - its own colored island, separated from the main navbar by the row's gap */}
+      <motion.button
+        onClick={() => setShowCart(true)}
+        whileTap={{ scale: 0.92 }}
+        className="nav-cart-btn"
+        aria-label={`Open cart${cartCount > 0 ? ` (${cartCount} item${cartCount === 1 ? '' : 's'})` : ''}`}
+        style={{
+          position: 'relative',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '0 20px',
+          background: isTWC ? twcTheme.accent : '#e8954e',
+          color: '#fdf6e3',
+          display: 'none',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          borderRadius: isTWC ? '0' : '0.5rem',
+          boxShadow: '0 4px 16px rgba(232, 149, 78, 0.35)',
+          transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+          <ShoppingCart size={28} />
+          <AnimatePresence>
+            {cartCount > 0 && (
+              <motion.span
+                key="cart-badge"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', damping: 18, stiffness: 360 }}
+                style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  right: '-8px',
+                  background: '#2f2218',
+                  color: '#fdf6e3',
+                  borderRadius: '999px',
+                  minWidth: '18px',
+                  height: '18px',
+                  padding: '0 5px',
+                  fontFamily: 'Effra Trial Bold',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
+                }}
+              >
+                {cartCount}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </span>
+      </motion.button>
+      </div>
+
+      {/* Mobile dropdown menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMenuOpen(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 90 }}
+            />
+            <motion.div
+              key={isTWC ? 'twc-menu' : 'hangri-menu'}
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="nav-mobile-menu warm-glass"
+              style={{
+                position: 'fixed',
+                top: '64px',
+                left: '8px',
+                right: '8px',
+                zIndex: 95,
+                padding: '12px 8px',
+                borderRadius: '0.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {config.links.map((item) => {
+                const mobileTarget = !isTWC && item.label === 'Menu' ? '#order-grid'
+                  : !isTWC && item.label === 'Order' ? '#ordering'
+                  : item.target;
+                return (
+                <a
+                  key={`${item.label}-${mobileTarget}`}
+                  href={mobileTarget}
+                  onClick={(e) => handleNavClick(e, mobileTarget)}
+                  style={{
+                    fontFamily: 'Effra Trial Bold',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    color: isTWC ? twcTheme.foreground : '#2f2218',
+                    letterSpacing: isTWC ? '2px' : '0.5px',
+                    textDecoration: 'none',
+                    textTransform: isTWC ? 'uppercase' : 'none',
+                    padding: '14px 16px',
+                    borderRadius: '6px',
+                  }}
+                >
+                  {item.label}
+                </a>
+                );
+              })}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

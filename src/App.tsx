@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useLenis } from './hooks/useLenis';
+import { useIsMobile } from './hooks/use-mobile';
 import { BrandProvider, useBrand } from './context/BrandContext';
+import { CartProvider, CartUI } from './context/CartContext';
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import Menu from './sections/Menu';
@@ -14,6 +16,7 @@ import { siteConfig, twcSiteConfig } from './config';
 function AppContent() {
   useLenis();
   const { isTWC } = useBrand();
+  const isMobile = useIsMobile();
 
   const config = isTWC ? twcSiteConfig : siteConfig;
 
@@ -31,18 +34,20 @@ function AppContent() {
   }, [config]);
 
   return (
-    <>
+    <CartProvider>
       <Navigation />
       <main>
         <Hero />
         {isTWC && <Menu />}
+        {!isTWC && isMobile && <OrderGrid />}
         {!isTWC && <OrderingPage />}
-        {!isTWC && <OrderGrid />}
+        {!isTWC && !isMobile && <OrderGrid />}
         {isTWC && <OrderForm />}
         <Gallery />
         <Footer />
       </main>
-    </>
+      <CartUI />
+    </CartProvider>
   );
 }
 

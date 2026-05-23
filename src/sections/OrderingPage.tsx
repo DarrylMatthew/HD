@@ -2,11 +2,12 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { orderingPageConfig } from '../config';
 import type { OrderingCategory } from '../config';
-import { ShoppingBag, ArrowLeft, Clock } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Clock, Check } from 'lucide-react';
 import { getLenis } from '../hooks/useLenis';
-import { formatRupiah, getInitialState, calcUnitPrice, buildWhatsAppMessage, nextCartId } from './OrderingUtils';
-import type { CustomizeState, CartItem } from './OrderingUtils';
-import { QuantitySelector, CartFAB, CartReview } from './OrderingUI';
+import { formatRupiah, getInitialState, calcUnitPrice, isCustomizeValid, CUSTOM_TEXT_MAX, NOTES_MAX } from './OrderingUtils';
+import type { CustomizeState } from './OrderingUtils';
+import { QuantitySelector } from './OrderingUI';
+import { useCart } from '../context/CartContext';
 
 function useIsMobile(bp = 768) {
   const [m, setM] = useState(typeof window !== 'undefined' ? window.innerWidth < bp : false);
@@ -18,11 +19,10 @@ export default function OrderingPage() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const isMobile = useIsMobile();
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [showCart, setShowCart] = useState(false);
+  const { addToCart: pushToCart, showCart, setShowCart } = useCart();
   const [mobileView, setMobileView] = useState<'list' | 'customize'>('list');
   const [activeCat, setActiveCat] = useState<OrderingCategory | null>(null);
-  const [cState, setCState] = useState<CustomizeState>({ selectedSize: '', selectedAddon: '', selectedDusting: '', customText: '', quantity: 1 });
+  const [cState, setCState] = useState<CustomizeState>({ selectedSize: '', selectedAddon: '', selectedDusting: '', selectedTopper: '', notes: '', wantsCustomText: false, customText: '', quantity: 1 });
 
   const openCustomize = useCallback((cat: OrderingCategory) => {
     if (cat.isTBD) return;
@@ -39,12 +39,9 @@ export default function OrderingPage() {
   const addToCart = useCallback(() => {
     if (!activeCat) return;
     const up = calcUnitPrice(activeCat, cState);
-    setCart(prev => [...prev, { id: nextCartId(), category: activeCat, selectedSize: cState.selectedSize, selectedAddon: cState.selectedAddon, selectedDusting: cState.selectedDusting, customText: cState.customText, quantity: cState.quantity, unitPrice: up, totalPrice: up * cState.quantity }]);
+    pushToCart({ category: activeCat, selectedSize: cState.selectedSize, selectedAddon: cState.selectedAddon, selectedDusting: cState.selectedDusting, selectedTopper: cState.selectedTopper, notes: cState.notes, wantsCustomText: cState.wantsCustomText, customText: cState.customText, quantity: cState.quantity, unitPrice: up, totalPrice: up * cState.quantity });
     closeCustomize();
-  }, [activeCat, cState, closeCustomize]);
-
-  const cartTotal = cart.reduce((s, i) => s + i.totalPrice, 0);
-  const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
+  }, [activeCat, cState, closeCustomize, pushToCart]);
 
   useEffect(() => {
     const lenis = getLenis();
@@ -57,15 +54,7 @@ export default function OrderingPage() {
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') { if (showCart) setShowCart(false); else if (activeCat) closeCustomize(); } };
     window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h);
-  }, [activeCat, showCart, closeCustomize]);
-
-  const handleWhatsApp = () => {
-    if (cart.length === 0) return;
-    const msg = buildWhatsAppMessage(cart, cartTotal);
-    const phone = orderingPageConfig.whatsappNumber.replace(/\+/g, '');
-    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
-    setCart([]); setShowCart(false);
-  };
+  }, [activeCat, showCart, closeCustomize, setShowCart]);
 
   const sectionBgs = ['#f5ecd8', '#fffdf7', '#f5ecd8', '#fffdf7', '#f5ecd8'];
 
@@ -108,15 +97,6 @@ export default function OrderingPage() {
         )}
       </AnimatePresence>
 
-      {/* Cart FAB */}
-      <AnimatePresence>
-        {cartCount > 0 && <CartFAB count={cartCount} onClick={() => setShowCart(true)} />}
-      </AnimatePresence>
-
-      {/* Cart Review */}
-      <AnimatePresence>
-        {showCart && <CartReview cart={cart} onRemove={(id) => setCart(p => p.filter(x => x.id !== id))} onClose={() => setShowCart(false)} onSubmit={handleWhatsApp} total={cartTotal} />}
-      </AnimatePresence>
     </>
   );
 }
@@ -163,7 +143,8 @@ function DesktopSection({ cat, index, bg, isInView, onOrder }: { cat: OrderingCa
 /* ======== DESKTOP CUSTOMIZE DRAWER ======== */
 function DesktopDrawer({ cat, state, onChange, onClose, onAddToCart }: { cat: OrderingCategory; state: CustomizeState; onChange: (s: CustomizeState) => void; onClose: () => void; onAddToCart: () => void }) {
   const total = calcUnitPrice(cat, state) * state.quantity;
-  const txtPrice = cat.hasCustomText && state.customText.length > 0 ? state.customText.length * cat.customTextPricePerChar : 0;
+  const txtPrice = cat.hasCustomText && state.wantsCustomText && state.customText.length > 0 ? state.customText.length * cat.customTextPricePerChar : 0;
+  const canAdd = isCustomizeValid(cat, state);
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.5)', backdropFilter: 'blur(6px)', display: 'flex', justifyContent: 'flex-end' }}>
@@ -184,13 +165,13 @@ function DesktopDrawer({ cat, state, onChange, onClose, onAddToCart }: { cat: Or
           <CustomizeOptions cat={cat} state={state} onChange={onChange} txtPrice={txtPrice} />
         </div>
         {/* Sticky bottom */}
-        <div style={{ flexShrink: 0, padding: '12px 24px', borderTop: '1px solid #eee', background: '#fff', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: '#666', marginRight: '8px' }}>Item quantity</span>
+        <div style={{ flexShrink: 0, padding: '14px 24px', borderTop: '1px solid #eee', background: '#fff', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: '#666' }}>Item quantity</span>
             <QuantitySelector value={state.quantity} onChange={(q) => onChange({ ...state, quantity: q })} />
           </div>
-          <motion.button whileTap={{ scale: 0.97 }} onClick={onAddToCart}
-            style={{ flex: 1, padding: '14px', fontSize: '15px', fontFamily: 'Effra Trial Bold', fontWeight: 600, color: '#fff', background: '#4e3b31', borderRadius: '24px', border: 'none', cursor: 'pointer' }}>
+          <motion.button whileTap={canAdd ? { scale: 0.97 } : undefined} onClick={canAdd ? onAddToCart : undefined} disabled={!canAdd}
+            style={{ width: '100%', padding: '14px', fontSize: '15px', fontFamily: 'Effra Trial Bold', fontWeight: 600, color: '#fff', background: canAdd ? '#4e3b31' : '#a09488', borderRadius: '24px', border: 'none', cursor: canAdd ? 'pointer' : 'not-allowed', opacity: canAdd ? 1 : 0.7 }}>
             Add to cart - {formatRupiah(total)}
           </motion.button>
         </div>
@@ -215,10 +196,12 @@ function MobileListItem({ cat, index, isInView, onAdd }: { cat: OrderingCategory
       <div style={{ position: 'relative', flexShrink: 0 }}>
         <img src={cat.image} alt={cat.name} style={{ width: '80px', height: '80px', borderRadius: '12px', objectFit: 'cover', filter: cat.isTBD ? 'grayscale(30%) brightness(0.9)' : 'none' }} />
         {!cat.isTBD && (
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => onAdd(cat)}
-            style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', padding: '4px 20px', borderRadius: '20px', border: '1.5px solid #4e3b31', background: '#fffdf7', fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, color: '#4e3b31', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            Add
-          </motion.button>
+          <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)' }}>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={() => onAdd(cat)}
+              style={{ padding: '4px 20px', borderRadius: '20px', border: '1.5px solid #4e3b31', background: '#fffdf7', fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, color: '#4e3b31', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              Add
+            </motion.button>
+          </div>
         )}
       </div>
     </motion.div>
@@ -228,7 +211,8 @@ function MobileListItem({ cat, index, isInView, onAdd }: { cat: OrderingCategory
 /* ======== MOBILE FULL-SCREEN CUSTOMIZE ======== */
 function CustomizePage({ cat, state, onChange, onBack, onAddToCart }: { cat: OrderingCategory; state: CustomizeState; onChange: (s: CustomizeState) => void; onBack: () => void; onAddToCart: () => void }) {
   const total = calcUnitPrice(cat, state) * state.quantity;
-  const txtPrice = cat.hasCustomText && state.customText.length > 0 ? state.customText.length * cat.customTextPricePerChar : 0;
+  const txtPrice = cat.hasCustomText && state.wantsCustomText && state.customText.length > 0 ? state.customText.length * cat.customTextPricePerChar : 0;
+  const canAdd = isCustomizeValid(cat, state);
   return (
     <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, background: '#fff', display: 'flex', flexDirection: 'column' }}>
@@ -247,13 +231,13 @@ function CustomizePage({ cat, state, onChange, onBack, onAddToCart }: { cat: Ord
         <CustomizeOptions cat={cat} state={state} onChange={onChange} txtPrice={txtPrice} />
       </div>
       {/* Sticky bottom bar */}
-      <div style={{ flexShrink: 0, padding: '12px 20px', borderTop: '1px solid #eee', background: '#fff', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#666', marginRight: '4px' }}>Qty</span>
+      <div style={{ flexShrink: 0, padding: '14px 20px', borderTop: '1px solid #eee', background: '#fff', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: '#666' }}>Item quantity</span>
           <QuantitySelector value={state.quantity} onChange={(q) => onChange({ ...state, quantity: q })} />
         </div>
-        <motion.button whileTap={{ scale: 0.97 }} onClick={onAddToCart}
-          style={{ flex: 1, padding: '14px', fontSize: '15px', fontFamily: 'Effra Trial Bold', fontWeight: 600, color: '#fff', background: '#4e3b31', borderRadius: '24px', border: 'none', cursor: 'pointer' }}>
+        <motion.button whileTap={canAdd ? { scale: 0.97 } : undefined} onClick={canAdd ? onAddToCart : undefined} disabled={!canAdd}
+          style={{ width: '100%', padding: '14px', fontSize: '15px', fontFamily: 'Effra Trial Bold', fontWeight: 600, color: '#fff', background: canAdd ? '#4e3b31' : '#a09488', borderRadius: '24px', border: 'none', cursor: canAdd ? 'pointer' : 'not-allowed', opacity: canAdd ? 1 : 0.7 }}>
           Add to cart - {formatRupiah(total)}
         </motion.button>
       </div>
@@ -320,27 +304,79 @@ function CustomizeOptions({ cat, state, onChange, txtPrice }: { cat: OrderingCat
           </div>
         </div>
       )}
-      {cat.hasCustomText && (
+      {cat.toppers.length > 0 && (
         <div>
-          <SectionHeader title="Notes" subtitle="Optional" />
-          <div style={{ borderTop: '1px solid #e8dcc6', paddingTop: '12px' }}>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: '14px', top: '14px', fontSize: '16px', color: '#a09488', pointerEvents: 'none' }}>💬</span>
-              <textarea placeholder="Write special requests here" value={state.customText} onChange={(e) => onChange({ ...state, customText: e.target.value })} rows={3} style={{ width: '100%', padding: '12px 12px 12px 40px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none' }} />
-            </div>
-            <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999', marginTop: '4px' }}>{state.customText.length}/200</div>
-            <AnimatePresence>
-              {state.customText.length > 0 && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', marginTop: '4px' }}>
-                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a' }}>{state.customText.length} huruf × {formatRupiah(cat.customTextPricePerChar)}</span>
-                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600 }}>{formatRupiah(txtPrice)}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <SectionHeader title="Cake Topper" subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {cat.toppers.map((tp, i) => (
+              <RadioRow key={tp.label} label={tp.label} price={tp.price > 0 ? `+${formatRupiah(tp.price)}` : 'Free'} selected={state.selectedTopper === tp.label} onClick={() => onChange({ ...state, selectedTopper: tp.label })} isLast={i === cat.toppers.length - 1} />
+            ))}
           </div>
         </div>
       )}
+      {cat.hasCustomText && (
+        <div>
+          <SectionHeader title="Custom Text" subtitle={`Optional · ${formatRupiah(cat.customTextPricePerChar)} per character (white chocolate)`} />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            <CustomTextCheckbox
+              checked={state.wantsCustomText}
+              onToggle={() => onChange({ ...state, wantsCustomText: !state.wantsCustomText, customText: state.wantsCustomText ? '' : state.customText })}
+            />
+          </div>
+          <AnimatePresence initial={false}>
+            {state.wantsCustomText && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden', marginTop: '12px' }}>
+                <textarea
+                  placeholder="JESSICA"
+                  value={state.customText}
+                  maxLength={CUSTOM_TEXT_MAX}
+                  onChange={(e) => onChange({ ...state, customText: e.target.value.toUpperCase().slice(0, CUSTOM_TEXT_MAX) })}
+                  rows={2}
+                  style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none', textTransform: 'uppercase' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: state.customText.trim().length === 0 ? '#c0392b' : '#999' }}>
+                    {state.customText.trim().length === 0 ? 'Please enter your custom text' : ' '}
+                  </span>
+                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999' }}>{state.customText.length}/{CUSTOM_TEXT_MAX}</span>
+                </div>
+                {state.customText.length > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', marginTop: '4px' }}>
+                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a' }}>{state.customText.length} character{state.customText.length === 1 ? '' : 's'} × {formatRupiah(cat.customTextPricePerChar)}</span>
+                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600 }}>{formatRupiah(txtPrice)}</span>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+      <div>
+        <SectionHeader title="Notes" subtitle="Optional" />
+        <div style={{ borderTop: '1px solid #e8dcc6', paddingTop: '12px' }}>
+          <textarea placeholder="Write special requests here" value={state.notes} maxLength={NOTES_MAX} onChange={(e) => onChange({ ...state, notes: e.target.value.slice(0, NOTES_MAX) })} rows={3} style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none' }} />
+          <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999', marginTop: '4px', textAlign: 'right' }}>{state.notes.length}/{NOTES_MAX}</div>
+        </div>
+      </div>
     </>
+  );
+}
+
+function CustomTextCheckbox({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '14px 0', cursor: 'pointer', userSelect: 'none' }}>
+      <input type="checkbox" checked={checked} onChange={onToggle} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+      <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218' }}>Yes, add custom text on the cake</span>
+      <span aria-hidden="true" style={{
+        width: '22px', height: '22px', borderRadius: '4px', flexShrink: 0,
+        border: `2px solid ${checked ? '#4e3b31' : '#ccc'}`,
+        background: checked ? '#4e3b31' : '#fff',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background 0.2s ease, border-color 0.2s ease',
+      }}>
+        {checked && <Check size={14} color="#fff" strokeWidth={3} />}
+      </span>
+    </label>
   );
 }
 

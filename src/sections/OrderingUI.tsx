@@ -45,6 +45,37 @@ export function CartFAB({ count, onClick }: { count: number; onClick: () => void
   );
 }
 
+export function CartBar({ count, total, onClick }: { count: number; total: number; onClick: () => void }) {
+  return (
+    <motion.div
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 100, opacity: 0 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+      style={{ position: 'fixed', bottom: '16px', left: '16px', right: '16px', zIndex: 900 }}
+    >
+      <motion.button
+        whileTap={{ scale: 0.97 }}
+        onClick={onClick}
+        style={{
+          width: '100%', padding: '14px 20px',
+          background: '#4e3b31', color: '#fff',
+          borderRadius: '24px', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          fontFamily: 'Effra Trial Bold', fontSize: '15px', fontWeight: 600,
+          boxShadow: '0 6px 20px rgba(47,34,24,0.35)',
+        }}
+      >
+        <span>{count} item{count === 1 ? '' : 's'}</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ShoppingCart size={18} />
+          {formatRupiah(total)}
+        </span>
+      </motion.button>
+    </motion.div>
+  );
+}
+
 export function CartReview({ cart, onRemove, onClose, onSubmit, total }: { cart: CartItem[]; onRemove: (id: string) => void; onClose: () => void; onSubmit: () => void; total: number }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
@@ -64,9 +95,12 @@ export function CartReview({ cart, onRemove, onClose, onSubmit, total }: { cart:
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218' }}>{item.category.name} × {item.quantity}</div>
                 <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a', marginTop: '2px' }}>
-                  {[item.selectedSize, item.selectedAddon, item.selectedDusting].filter(Boolean).join(' · ')}
-                  {item.customText && ` · "${item.customText}"`}
+                  {[item.selectedSize, item.selectedAddon, item.selectedDusting, item.selectedTopper].filter(Boolean).join(' · ')}
+                  {item.wantsCustomText && item.customText && ` · "${item.customText}"`}
                 </div>
+                {item.notes && (
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: '#a09488', marginTop: '2px', fontStyle: 'italic' }}>Note: {item.notes}</div>
+                )}
                 <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600, marginTop: '4px' }}>{formatRupiah(item.totalPrice)}</div>
               </div>
               <motion.button whileTap={{ scale: 0.9 }} onClick={() => onRemove(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a09488', padding: '4px' }}><Trash2 size={16} /></motion.button>

@@ -157,7 +157,7 @@ export default function Hero() {
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.6, delay: 0.7 }}
             onClick={handleCtaClick}
-            className="hero-cta-btn"
+            className={`hero-cta-btn ${isTWC ? '' : 'hero-cta-btn--hangri'}`}
             style={{
               marginTop: '20px',
               fontFamily: 'Effra Trial Bold',

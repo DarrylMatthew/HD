@@ -275,39 +275,54 @@
     color: #2f2218 !important;
   }
 
+  /* Touch devices have no hover, so fill the primary Hangri CTA so it reads as tappable */
+  @media (hover: none) and (pointer: coarse) {
+    .hero-cta-btn--hangri {
+      background: #e8954e !important;
+      border-color: #e8954e !important;
+      color: #fdf6e3 !important;
+    }
+  }
+
   /* ======== RESPONSIVE NAVBAR ======== */
+  .nav-inner {
+    padding-right: 8px;
+  }
   .nav-logo {
-    height: 28px;
+    height: 30px;
   }
   .nav-links-container {
-    gap: 12px;
+    gap: 8px;
   }
   .nav-links-row {
-    gap: 12px;
+    display: none !important;
   }
-  .nav-links-row a {
-    font-size: 12px !important;
+  .nav-hamburger {
+    display: inline-flex !important;
+  }
+  .nav-cart-btn {
+    display: none !important;
   }
   .brand-toggle-btn {
     font-size: 10px !important;
+    padding: 0 16px !important;
+    margin-left: 8px !important;
+    letter-spacing: 1px !important;
   }
 
   @media (min-width: 480px) {
     .nav-logo {
       height: 32px;
     }
-    .nav-links-container {
-      gap: 16px;
-    }
-    .nav-links-row {
-      gap: 16px;
-    }
-    .nav-links-row a {
-      font-size: 13px !important;
+    .brand-toggle-btn {
+      padding: 0 20px !important;
     }
   }
 
   @media (min-width: 768px) {
+    .nav-inner {
+      padding-right: 0;
+    }
     .main-nav {
       padding: 12px 16px !important;
     }
@@ -318,13 +333,23 @@
       gap: 24px;
     }
     .nav-links-row {
+      display: flex !important;
       gap: 24px;
     }
     .nav-links-row a {
       font-size: 14px !important;
     }
+    .nav-hamburger {
+      display: none !important;
+    }
+    .nav-cart-btn {
+      display: inline-flex !important;
+    }
     .brand-toggle-btn {
       font-size: 11px !important;
+      padding: 0 32px !important;
+      margin-left: 24px !important;
+      letter-spacing: 1.5px !important;
     }
   }
 
