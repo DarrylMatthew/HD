@@ -77,12 +77,19 @@ export interface OrderingCategory {
   isTBD: boolean
 }
 
+export interface PickupLocation {
+  id: string
+  name: string
+  address: string
+}
+
 export interface OrderingPageConfig {
   sectionLabel: string
   title: string
   subtitle: string
   whatsappNumber: string
   categories: OrderingCategory[]
+  pickupLocations: PickupLocation[]
 }
 
 export interface GalleryConfig {
@@ -270,6 +277,18 @@ export const orderingPageConfig: OrderingPageConfig = {
       hasCustomText: false,
       customTextPricePerChar: 0,
       isTBD: true,
+    },
+  ],
+  pickupLocations: [
+    {
+      id: "bsd",
+      name: "Hangri Dessert BSD",
+      address: "Jl. Raflesia No.C1/3 Blok C1, RT.1/RW.10, Lengkong Gudang, Kec. Serpong, Kota Tangerang Selatan, Banten 15310",
+    },
+    {
+      id: "tambora",
+      name: "Hangri Dessert Tambora (Jakarta)",
+      address: "Jln. Tanah Sereal 11 gang FF 1 no. 21 RT. 03/011 (Pagar Hitam), RT.3/RW.11, Tanah Sereal, Kec. Tambora, Kota Jakarta Barat, DKI Jakarta 11210",
     },
   ],
 }

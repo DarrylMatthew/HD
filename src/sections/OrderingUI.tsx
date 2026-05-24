@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X } from 'lucide-react';
-import type { CartItem } from './OrderingUtils';
-import { formatRupiah } from './OrderingUtils';
+import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X, MapPin, User, Calendar, Clock, Check } from 'lucide-react';
+import type { CartItem, CheckoutDetails } from './OrderingUtils';
+import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX } from './OrderingUtils';
+import type { PickupLocation } from '../config';
 
 export function OptionGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -76,50 +77,233 @@ export function CartBar({ count, total, onClick }: { count: number; total: numbe
   );
 }
 
-export function CartReview({ cart, onRemove, onClose, onSubmit, total }: { cart: CartItem[]; onRemove: (id: string) => void; onClose: () => void; onSubmit: () => void; total: number }) {
+export function CartReview({
+  cart, onRemove, onClose, onSubmit, total,
+  checkout, onCheckoutChange, isReadyToOrder, pickupLocations,
+}: {
+  cart: CartItem[];
+  onRemove: (id: string) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+  total: number;
+  checkout: CheckoutDetails;
+  onCheckoutChange: (d: CheckoutDetails) => void;
+  isReadyToOrder: boolean;
+  pickupLocations: PickupLocation[];
+}) {
+  const minDate = todayISODate();
+  const nameMissing = checkout.customerName.trim().length === 0;
+  const locMissing = checkout.pickupLocationId.length === 0;
+  const dateMissing = checkout.pickupDate.length === 0;
+  const timeMissing = checkout.pickupTime.length === 0;
+  const hasItems = cart.length > 0;
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <motion.div data-lenis-prevent initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: '560px', maxHeight: '80vh', background: '#fffdf7', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <motion.div data-lenis-prevent initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: '560px', maxHeight: '88vh', background: '#fffdf7', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0e6d3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontFamily: 'Effra Trial Bold', fontSize: '20px', color: '#2f2218', margin: 0 }}>Your Cart</h3>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0e6d3', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+          <h3 style={{ fontFamily: 'Effra Trial Bold', fontSize: '20px', color: '#2f2218', margin: 0 }}>Checkout</h3>
           <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5a4a3a' }}><X size={20} /></motion.button>
         </div>
-        {/* Items */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
-          {cart.length === 0 ? (
-            <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#a09488', textAlign: 'center', padding: '40px 0' }}>Your cart is empty</p>
-          ) : cart.map((item) => (
-            <div key={item.id} style={{ padding: '16px 0', borderBottom: '1px solid #f0e6d3', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <img src={item.category.image} alt={item.category.name} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover' }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218' }}>{item.category.name} × {item.quantity}</div>
-                <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a', marginTop: '2px' }}>
-                  {[item.selectedSize, item.selectedAddon, item.selectedDusting, item.selectedTopper].filter(Boolean).join(' · ')}
-                  {item.wantsCustomText && item.customText && ` · "${item.customText}"`}
+
+        {/* Scrollable body */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {hasItems && (
+            <CheckoutDetailsSection
+              checkout={checkout}
+              onChange={onCheckoutChange}
+              pickupLocations={pickupLocations}
+              minDate={minDate}
+            />
+          )}
+
+          {/* Items */}
+          <div style={{ padding: '8px 24px 16px' }}>
+            {hasItems && (
+              <SectionLabel>Your Order</SectionLabel>
+            )}
+            {!hasItems ? (
+              <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#a09488', textAlign: 'center', padding: '40px 0' }}>Your cart is empty</p>
+            ) : cart.map((item) => (
+              <div key={item.id} style={{ padding: '16px 0', borderBottom: '1px solid #f0e6d3', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <img src={item.category.image} alt={item.category.name} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218' }}>{item.category.name} × {item.quantity}</div>
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a', marginTop: '2px' }}>
+                    {[item.selectedSize, item.selectedAddon, item.selectedDusting, item.selectedTopper].filter(Boolean).join(' · ')}
+                    {item.wantsCustomText && item.customText && ` · "${item.customText}"`}
+                  </div>
+                  {item.notes && (
+                    <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: '#a09488', marginTop: '2px', fontStyle: 'italic' }}>Note: {item.notes}</div>
+                  )}
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600, marginTop: '4px' }}>{formatRupiah(item.totalPrice)}</div>
                 </div>
-                {item.notes && (
-                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: '#a09488', marginTop: '2px', fontStyle: 'italic' }}>Note: {item.notes}</div>
-                )}
-                <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600, marginTop: '4px' }}>{formatRupiah(item.totalPrice)}</div>
+                <motion.button whileTap={{ scale: 0.9 }} onClick={() => onRemove(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a09488', padding: '4px' }}><Trash2 size={16} /></motion.button>
               </div>
-              <motion.button whileTap={{ scale: 0.9 }} onClick={() => onRemove(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a09488', padding: '4px' }}><Trash2 size={16} /></motion.button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
         {/* Footer */}
-        {cart.length > 0 && (
-          <div style={{ padding: '16px 24px', borderTop: '1px solid #f0e6d3' }}>
+        {hasItems && (
+          <div style={{ padding: '16px 24px', borderTop: '1px solid #f0e6d3', flexShrink: 0, background: '#fffdf7' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218' }}>Grand Total</span>
               <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '22px', fontWeight: 600, color: '#2f2218' }}>{formatRupiah(total)}</span>
             </div>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onSubmit} style={{ width: '100%', padding: '16px', fontSize: '16px', fontFamily: 'Effra Trial Bold', fontWeight: 600, color: '#fff', background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 20px rgba(37,211,102,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            {!isReadyToOrder && (
+              <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#c0392b', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                Please complete: {[nameMissing && 'name', locMissing && 'pickup location', dateMissing && 'date', timeMissing && 'time'].filter(Boolean).join(', ')}
+              </div>
+            )}
+            <motion.button
+              whileHover={isReadyToOrder ? { scale: 1.02 } : undefined}
+              whileTap={isReadyToOrder ? { scale: 0.98 } : undefined}
+              onClick={isReadyToOrder ? onSubmit : undefined}
+              disabled={!isReadyToOrder}
+              style={{
+                width: '100%', padding: '16px', fontSize: '16px',
+                fontFamily: 'Effra Trial Bold', fontWeight: 600, color: '#fff',
+                background: isReadyToOrder
+                  ? 'linear-gradient(135deg, #25D366, #128C7E)'
+                  : '#c4b9a8',
+                borderRadius: '16px', border: 'none',
+                cursor: isReadyToOrder ? 'pointer' : 'not-allowed',
+                boxShadow: isReadyToOrder ? '0 4px 20px rgba(37,211,102,0.3)' : 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                opacity: isReadyToOrder ? 1 : 0.85,
+                transition: 'background 0.2s ease',
+              }}>
               <MessageCircle size={20} />Order via WhatsApp<ChevronRight size={16} />
             </motion.button>
           </div>
         )}
       </motion.div>
     </motion.div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#e8954e', marginBottom: '8px' }}>
+      {children}
+    </div>
+  );
+}
+
+function FieldLabel({ icon, children, required }: { icon: React.ReactNode; children: React.ReactNode; required?: boolean }) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'Effra Trial Bold', fontSize: '13px', fontWeight: 600, color: '#2f2218', marginBottom: '8px' }}>
+      <span style={{ color: '#5a4a3a', display: 'flex' }}>{icon}</span>
+      {children}
+      {required && <span style={{ color: '#e8954e' }}>*</span>}
+    </label>
+  );
+}
+
+const baseInputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '12px 14px',
+  fontFamily: 'Effra Trial Bold',
+  fontSize: '14px',
+  color: '#2f2218',
+  background: '#fff',
+  border: '1.5px solid #e8dcc6',
+  borderRadius: '12px',
+  outline: 'none',
+  boxSizing: 'border-box',
+};
+
+function CheckoutDetailsSection({
+  checkout, onChange, pickupLocations, minDate,
+}: {
+  checkout: CheckoutDetails;
+  onChange: (d: CheckoutDetails) => void;
+  pickupLocations: PickupLocation[];
+  minDate: string;
+}) {
+  return (
+    <div style={{ padding: '20px 24px 8px', borderBottom: '1px solid #f0e6d3', background: '#fdf6e3' }}>
+      <SectionLabel>Pickup Details</SectionLabel>
+
+      {/* Name */}
+      <div style={{ marginBottom: '16px' }}>
+        <FieldLabel icon={<User size={14} />} required>Your name</FieldLabel>
+        <input
+          type="text"
+          placeholder="e.g. Jessica"
+          value={checkout.customerName}
+          maxLength={CUSTOMER_NAME_MAX}
+          onChange={(e) => onChange({ ...checkout, customerName: e.target.value.slice(0, CUSTOMER_NAME_MAX) })}
+          style={baseInputStyle}
+        />
+      </div>
+
+      {/* Location cards */}
+      <div style={{ marginBottom: '16px' }}>
+        <FieldLabel icon={<MapPin size={14} />} required>Pick up location</FieldLabel>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
+          {pickupLocations.map((loc) => {
+            const selected = checkout.pickupLocationId === loc.id;
+            return (
+              <motion.button
+                key={loc.id}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => onChange({ ...checkout, pickupLocationId: loc.id })}
+                style={{
+                  textAlign: 'left',
+                  padding: '12px 14px',
+                  background: selected ? '#fffdf7' : '#fff',
+                  border: selected ? '2px solid #4e3b31' : '1.5px solid #e8dcc6',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start',
+                  transition: 'border-color 0.2s ease, background 0.2s ease',
+                }}
+              >
+                <div style={{
+                  width: '20px', height: '20px', borderRadius: '50%',
+                  border: selected ? '6px solid #4e3b31' : '2px solid #ccc',
+                  background: '#fff', flexShrink: 0, marginTop: '2px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'border 0.2s ease',
+                }}>
+                  {selected && <Check size={10} color="#4e3b31" strokeWidth={0} />}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218', marginBottom: '2px' }}>{loc.name}</div>
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a', lineHeight: 1.45 }}>{loc.address}</div>
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Date & Time */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '4px' }}>
+        <div>
+          <FieldLabel icon={<Calendar size={14} />} required>Date</FieldLabel>
+          <input
+            type="date"
+            min={minDate}
+            value={checkout.pickupDate}
+            onChange={(e) => onChange({ ...checkout, pickupDate: e.target.value })}
+            style={baseInputStyle}
+          />
+        </div>
+        <div>
+          <FieldLabel icon={<Clock size={14} />} required>Time</FieldLabel>
+          <input
+            type="time"
+            value={checkout.pickupTime}
+            onChange={(e) => onChange({ ...checkout, pickupTime: e.target.value })}
+            style={baseInputStyle}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
