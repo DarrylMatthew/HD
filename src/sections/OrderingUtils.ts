@@ -122,7 +122,7 @@ export function buildWhatsAppMessage(
   const loc = locations.find((l) => l.id === checkout.pickupLocationId);
   const name = checkout.customerName.trim();
   let msg = `Halo Hangri Dessert! Saya ${name} ingin memesan.\n\n`;
-  msg += `--- DETAIL PICKUP ---\n`;
+  msg += `--- DETAIL PICKUP ---\n\n`;
   msg += `Nama: ${name}\n`;
   if (loc) {
     msg += `Outlet: ${loc.name}\n`;
