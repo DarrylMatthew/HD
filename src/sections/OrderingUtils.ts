@@ -122,33 +122,34 @@ export function buildWhatsAppMessage(
   const loc = locations.find((l) => l.id === checkout.pickupLocationId);
   const name = checkout.customerName.trim();
   let msg = `Halo Hangri Dessert! Saya ${name} ingin memesan.\n\n`;
-  msg += `*Detail Pickup*\n`;
-  msg += `- Nama: ${name}\n`;
+  msg += `--- DETAIL PICKUP ---\n`;
+  msg += `Nama: ${name}\n`;
   if (loc) {
-    msg += `- Lokasi: ${loc.name}\n`;
-    msg += `- Alamat: ${loc.address}\n`;
+    msg += `Outlet: ${loc.name}\n`;
+    msg += `Alamat outlet: ${loc.address}\n`;
+    msg += `Google Maps: ${loc.mapsUrl}\n`;
   }
-  msg += `- Tanggal: ${formatPickupDate(checkout.pickupDate)}\n`;
-  msg += `- Jam: ${checkout.pickupTime}\n\n`;
-  msg += `*Pesanan*\n\n`;
+  msg += `Tanggal: ${formatPickupDate(checkout.pickupDate)}\n`;
+  msg += `Jam: ${checkout.pickupTime}\n\n`;
+  msg += `--- PESANAN ---\n\n`;
   cart.forEach((item, i) => {
-    msg += `*${i + 1}. ${item.category.name}*\n`;
-    if (item.selectedSize) msg += `- Size: ${item.selectedSize}\n`;
-    if (item.selectedAddon) msg += `- Rum: ${item.selectedAddon}\n`;
-    if (item.selectedDusting) msg += `- Dusting: ${item.selectedDusting}\n`;
+    msg += `${i + 1}. ${item.category.name}\n`;
+    if (item.selectedSize) msg += `   Size: ${item.selectedSize}\n`;
+    if (item.selectedAddon) msg += `   Rum: ${item.selectedAddon}\n`;
+    if (item.selectedDusting) msg += `   Dusting: ${item.selectedDusting}\n`;
     if (item.selectedTopper) {
       const tp = item.category.toppers.find((x) => x.label === item.selectedTopper);
-      msg += `- Topper: ${item.selectedTopper}${tp && tp.price > 0 ? ` (+${formatRupiah(tp.price)})` : ''}\n`;
+      msg += `   Topper: ${item.selectedTopper}${tp && tp.price > 0 ? ` (+${formatRupiah(tp.price)})` : ''}\n`;
     }
     if (item.wantsCustomText && item.customText) {
       const cc = item.customText.length;
       const tp = cc * item.category.customTextPricePerChar;
-      msg += `- Custom Text: "${item.customText}" (${cc} character${cc === 1 ? '' : 's'} x ${formatRupiah(item.category.customTextPricePerChar)} = ${formatRupiah(tp)})\n`;
+      msg += `   Custom Text: "${item.customText}" (${cc} character${cc === 1 ? '' : 's'} x ${formatRupiah(item.category.customTextPricePerChar)} = ${formatRupiah(tp)})\n`;
     }
-    if (item.notes) msg += `- Notes: ${item.notes}\n`;
-    if (item.quantity > 1) msg += `- Qty: ${item.quantity}\n`;
-    msg += `- Subtotal: ${formatRupiah(item.totalPrice)}\n\n`;
+    if (item.notes) msg += `   Notes: ${item.notes}\n`;
+    if (item.quantity > 1) msg += `   Qty: ${item.quantity}\n`;
+    msg += `   Subtotal: ${formatRupiah(item.totalPrice)}\n\n`;
   });
-  msg += `*Grand Total: ${formatRupiah(total)}*`;
+  msg += `GRAND TOTAL: ${formatRupiah(total)}`;
   return msg;
 }

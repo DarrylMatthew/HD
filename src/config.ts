@@ -81,6 +81,7 @@ export interface PickupLocation {
   id: string
   name: string
   address: string
+  mapsUrl: string
 }
 
 export interface OrderingPageConfig {
@@ -283,12 +284,14 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "bsd",
       name: "Hangri Dessert BSD",
-      address: "Jl. Raflesia No.C1/3 Blok C1, RT.1/RW.10, Lengkong Gudang, Kec. Serpong, Kota Tangerang Selatan, Banten 15310",
+      address: "Jl. Raflesia, Puspita Loka C1/3 BSD",
+      mapsUrl: "https://maps.app.goo.gl/mexz1iNXws7hxW8B7",
     },
     {
       id: "tambora",
       name: "Hangri Dessert Tambora (Jakarta)",
-      address: "Jln. Tanah Sereal 11 gang FF 1 no. 21 RT. 03/011 (Pagar Hitam), RT.3/RW.11, Tanah Sereal, Kec. Tambora, Kota Jakarta Barat, DKI Jakarta 11210",
+      address: "Jln. Tanah Sereal 11 gang FF 1 no. 21 RT. 03/011 (Pagar Hitam), Tanah Sereal, Tambora, Jakarta Barat",
+      mapsUrl: "https://maps.app.goo.gl/NhB1eqqY1MU9iH5z8",
     },
   ],
 }
