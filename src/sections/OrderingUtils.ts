@@ -150,6 +150,6 @@ export function buildWhatsAppMessage(
     if (item.quantity > 1) msg += `   Qty: ${item.quantity}\n`;
     msg += `   Subtotal: ${formatRupiah(item.totalPrice)}\n\n`;
   });
-  msg += `GRAND TOTAL: ${formatRupiah(total)}`;
+  msg += `*GRAND TOTAL: ${formatRupiah(total)}*`;
   return msg;
 }
