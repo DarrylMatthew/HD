@@ -4,6 +4,7 @@ import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRigh
 import type { CartItem, CheckoutDetails } from './OrderingUtils';
 import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, PICKUP_LEAD_MINUTES, isPickupTimeValid, minTimeForDate } from './OrderingUtils';
 import type { PickupLocation } from '../config';
+import { useIsMobile } from '../hooks/use-mobile';
 
 export function OptionGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -92,6 +93,7 @@ export function CartReview({
   isReadyToOrder: boolean;
   pickupLocations: PickupLocation[];
 }) {
+  const isMobile = useIsMobile();
   // Re-evaluate the time constraint every 30s so a user who picks a valid
   // time and then lingers doesn't sneak through after the 5-min window passes.
   const [, setTick] = useState(0);
@@ -109,7 +111,7 @@ export function CartReview({
   const hasItems = cart.length > 0;
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <motion.div data-lenis-prevent initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: '560px', maxHeight: '88vh', background: '#fffdf7', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <motion.div data-lenis-prevent initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: isMobile ? '100%' : '560px', height: isMobile ? '100dvh' : 'auto', maxHeight: isMobile ? '100dvh' : '88vh', background: '#fffdf7', borderRadius: isMobile ? '0' : '24px 24px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
         <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0e6d3', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <h3 style={{ fontFamily: 'Effra Trial Bold', fontSize: '20px', color: '#2f2218', margin: 0 }}>Checkout</h3>
@@ -125,6 +127,7 @@ export function CartReview({
               pickupLocations={pickupLocations}
               minDate={minDate}
               minTime={minTimeForDate(checkout.pickupDate)}
+              isMobile={isMobile}
             />
           )}
 
@@ -157,7 +160,7 @@ export function CartReview({
 
         {/* Footer */}
         {hasItems && (
-          <div style={{ padding: '16px 24px', borderTop: '1px solid #f0e6d3', flexShrink: 0, background: '#fffdf7' }}>
+          <div style={{ padding: '16px 24px', paddingBottom: `calc(16px + env(safe-area-inset-bottom))`, borderTop: '1px solid #f0e6d3', flexShrink: 0, background: '#fffdf7' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218' }}>Grand Total</span>
               <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '22px', fontWeight: 600, color: '#2f2218' }}>{formatRupiah(total)}</span>
@@ -231,13 +234,14 @@ const baseInputStyle: React.CSSProperties = {
 };
 
 function CheckoutDetailsSection({
-  checkout, onChange, pickupLocations, minDate, minTime,
+  checkout, onChange, pickupLocations, minDate, minTime, isMobile,
 }: {
   checkout: CheckoutDetails;
   onChange: (d: CheckoutDetails) => void;
   pickupLocations: PickupLocation[];
   minDate: string;
   minTime: string;
+  isMobile: boolean;
 }) {
   return (
     <div style={{ padding: '20px 24px 8px', borderBottom: '1px solid #f0e6d3', background: '#fdf6e3' }}>
@@ -300,7 +304,7 @@ function CheckoutDetailsSection({
       </div>
 
       {/* Date & Time */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '4px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '4px' }}>
         <div>
           <FieldLabel icon={<Calendar size={14} />} required>Date</FieldLabel>
           <input
