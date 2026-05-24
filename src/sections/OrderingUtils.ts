@@ -33,6 +33,7 @@ export interface CartItem {
 export const CUSTOM_TEXT_MAX = 30;
 export const NOTES_MAX = 200;
 export const CUSTOMER_NAME_MAX = 50;
+export const PICKUP_LEAD_MINUTES = 5;
 
 export interface CheckoutDetails {
   customerName: string;
@@ -48,12 +49,23 @@ export const EMPTY_CHECKOUT: CheckoutDetails = {
   pickupTime: '',
 };
 
+// True if pickupDate+pickupTime are either not yet filled, OR
+// resolve to a timestamp at least PICKUP_LEAD_MINUTES from now.
+// Returns false only when the user has entered a date+time that is too soon.
+export function isPickupTimeValid(d: CheckoutDetails): boolean {
+  if (!d.pickupDate || !d.pickupTime) return true;
+  const dt = new Date(`${d.pickupDate}T${d.pickupTime}`);
+  if (Number.isNaN(dt.getTime())) return false;
+  return dt.getTime() >= Date.now() + PICKUP_LEAD_MINUTES * 60_000;
+}
+
 export function isCheckoutValid(d: CheckoutDetails): boolean {
   return (
     d.customerName.trim().length > 0 &&
     d.pickupLocationId.length > 0 &&
     d.pickupDate.length > 0 &&
-    d.pickupTime.length > 0
+    d.pickupTime.length > 0 &&
+    isPickupTimeValid(d)
   );
 }
 
@@ -63,6 +75,16 @@ export function todayISODate(): string {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
+}
+
+// Earliest valid HH:MM for the given pickup date. Returns '' when the date
+// is in the future, in which case no time constraint applies.
+export function minTimeForDate(dateISO: string): string {
+  if (!dateISO || dateISO !== todayISODate()) return '';
+  const t = new Date(Date.now() + PICKUP_LEAD_MINUTES * 60_000);
+  const hh = String(t.getHours()).padStart(2, '0');
+  const mm = String(t.getMinutes()).padStart(2, '0');
+  return `${hh}:${mm}`;
 }
 
 export function formatPickupDate(iso: string): string {

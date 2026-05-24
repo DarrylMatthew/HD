@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X, MapPin, User, Calendar, Clock, Check } from 'lucide-react';
 import type { CartItem, CheckoutDetails } from './OrderingUtils';
-import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX } from './OrderingUtils';
+import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, PICKUP_LEAD_MINUTES, isPickupTimeValid, minTimeForDate } from './OrderingUtils';
 import type { PickupLocation } from '../config';
 
 export function OptionGroup({ label, children }: { label: string; children: React.ReactNode }) {
@@ -91,11 +92,20 @@ export function CartReview({
   isReadyToOrder: boolean;
   pickupLocations: PickupLocation[];
 }) {
+  // Re-evaluate the time constraint every 30s so a user who picks a valid
+  // time and then lingers doesn't sneak through after the 5-min window passes.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
   const minDate = todayISODate();
   const nameMissing = checkout.customerName.trim().length === 0;
   const locMissing = checkout.pickupLocationId.length === 0;
   const dateMissing = checkout.pickupDate.length === 0;
   const timeMissing = checkout.pickupTime.length === 0;
+  const timeTooSoon = !dateMissing && !timeMissing && !isPickupTimeValid(checkout);
   const hasItems = cart.length > 0;
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
@@ -114,6 +124,7 @@ export function CartReview({
               onChange={onCheckoutChange}
               pickupLocations={pickupLocations}
               minDate={minDate}
+              minTime={minTimeForDate(checkout.pickupDate)}
             />
           )}
 
@@ -153,7 +164,12 @@ export function CartReview({
             </div>
             {!isReadyToOrder && (
               <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#c0392b', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                Please complete: {[nameMissing && 'name', locMissing && 'pickup location', dateMissing && 'date', timeMissing && 'time'].filter(Boolean).join(', ')}
+                {(() => {
+                  const missing = [nameMissing && 'name', locMissing && 'pickup location', dateMissing && 'date', timeMissing && 'time'].filter(Boolean);
+                  if (missing.length > 0) return `Please complete: ${missing.join(', ')}`;
+                  if (timeTooSoon) return `Pickup time must be at least ${PICKUP_LEAD_MINUTES} minutes from now`;
+                  return null;
+                })()}
               </div>
             )}
             <motion.button
@@ -215,12 +231,13 @@ const baseInputStyle: React.CSSProperties = {
 };
 
 function CheckoutDetailsSection({
-  checkout, onChange, pickupLocations, minDate,
+  checkout, onChange, pickupLocations, minDate, minTime,
 }: {
   checkout: CheckoutDetails;
   onChange: (d: CheckoutDetails) => void;
   pickupLocations: PickupLocation[];
   minDate: string;
+  minTime: string;
 }) {
   return (
     <div style={{ padding: '20px 24px 8px', borderBottom: '1px solid #f0e6d3', background: '#fdf6e3' }}>
@@ -298,10 +315,16 @@ function CheckoutDetailsSection({
           <FieldLabel icon={<Clock size={14} />} required>Time</FieldLabel>
           <input
             type="time"
+            min={minTime || undefined}
             value={checkout.pickupTime}
             onChange={(e) => onChange({ ...checkout, pickupTime: e.target.value })}
             style={baseInputStyle}
           />
+          {minTime && (
+            <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: '#5a4a3a', marginTop: '6px' }}>
+              Earliest pickup today: {minTime}
+            </div>
+          )}
         </div>
       </div>
     </div>
