@@ -281,7 +281,7 @@ export default function Navigation() {
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          borderRadius: isTWC ? '0' : '0.5rem',
+          borderRadius: isTWC ? '0' : (scrolled ? '0.5rem' : '0'),
           boxShadow: '0 4px 16px rgba(232, 149, 78, 0.35)',
           transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
