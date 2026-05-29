@@ -82,6 +82,8 @@ export interface PickupLocation {
   name: string
   address: string
   mapsUrl: string
+  openTime: string  // store opening time, 24h "HH:MM" (e.g. "10:00")
+  closeTime: string // store closing time, 24h "HH:MM" (e.g. "20:00")
 }
 
 export interface OrderingPageConfig {
@@ -286,12 +288,16 @@ export const orderingPageConfig: OrderingPageConfig = {
       name: "Hangri Dessert BSD",
       address: "Jl. Raflesia, Puspita Loka C1/3 BSD",
       mapsUrl: "https://maps.app.goo.gl/mexz1iNXws7hxW8B7",
+      openTime: "06:00", // TODO
+      closeTime: "24:00", // TODO
     },
     {
       id: "tambora",
       name: "Hangri Dessert Tambora (Jakarta)",
       address: "Jln. Tanah Sereal 11 gang FF 1 no. 21 RT. 03/011 (Pagar Hitam), Tanah Sereal, Tambora, Jakarta Barat",
       mapsUrl: "https://maps.app.goo.gl/NhB1eqqY1MU9iH5z8",
+      openTime: "06:00", // TODO
+      closeTime: "24:00", // TODO
     },
   ],
 }

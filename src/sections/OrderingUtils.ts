@@ -34,6 +34,8 @@ export const CUSTOM_TEXT_MAX = 30;
 export const NOTES_MAX = 200;
 export const CUSTOMER_NAME_MAX = 50;
 export const PICKUP_LEAD_MINUTES = 5;
+// Spacing between selectable pickup time slots, in minutes. Change here only.
+export const SLOT_INTERVAL_MINUTES = 30;
 
 export interface CheckoutDetails {
   customerName: string;
@@ -49,23 +51,63 @@ export const EMPTY_CHECKOUT: CheckoutDetails = {
   pickupTime: '',
 };
 
-// True if pickupDate+pickupTime are either not yet filled, OR
-// resolve to a timestamp at least PICKUP_LEAD_MINUTES from now.
-// Returns false only when the user has entered a date+time that is too soon.
-export function isPickupTimeValid(d: CheckoutDetails): boolean {
+// "HH:MM" <-> minutes-since-midnight helpers.
+export function timeToMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return NaN;
+  return h * 60 + m;
+}
+export function minutesToTime(total: number): string {
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+// All selectable pickup times for a store on a given date, spaced by
+// SLOT_INTERVAL_MINUTES from openTime to closeTime (inclusive). For "today",
+// slots earlier than now + PICKUP_LEAD_MINUTES are dropped. Returns [] when the
+// location/date is missing or the store hours are invalid.
+export function getAvailableTimeSlots(
+  loc: PickupLocation | undefined,
+  dateISO: string,
+): string[] {
+  if (!loc || !dateISO) return [];
+  const open = timeToMinutes(loc.openTime);
+  const close = timeToMinutes(loc.closeTime);
+  if (Number.isNaN(open) || Number.isNaN(close) || close <= open) return [];
+
+  let earliest = open;
+  if (dateISO === todayISODate()) {
+    const now = new Date();
+    earliest = Math.max(earliest, now.getHours() * 60 + now.getMinutes() + PICKUP_LEAD_MINUTES);
+  }
+
+  const slots: string[] = [];
+  for (let t = open; t <= close; t += SLOT_INTERVAL_MINUTES) {
+    if (t >= earliest) slots.push(minutesToTime(t));
+  }
+  return slots;
+}
+
+// True if pickupDate+pickupTime are either not yet filled, OR the chosen time is
+// one of the store's currently-available slots. When no location is supplied we
+// fall back to the basic lead-time check.
+export function isPickupTimeValid(d: CheckoutDetails, loc?: PickupLocation): boolean {
   if (!d.pickupDate || !d.pickupTime) return true;
+  if (loc) return getAvailableTimeSlots(loc, d.pickupDate).includes(d.pickupTime);
   const dt = new Date(`${d.pickupDate}T${d.pickupTime}`);
   if (Number.isNaN(dt.getTime())) return false;
   return dt.getTime() >= Date.now() + PICKUP_LEAD_MINUTES * 60_000;
 }
 
-export function isCheckoutValid(d: CheckoutDetails): boolean {
+export function isCheckoutValid(d: CheckoutDetails, locations: PickupLocation[]): boolean {
+  const loc = locations.find((l) => l.id === d.pickupLocationId);
   return (
     d.customerName.trim().length > 0 &&
     d.pickupLocationId.length > 0 &&
     d.pickupDate.length > 0 &&
     d.pickupTime.length > 0 &&
-    isPickupTimeValid(d)
+    isPickupTimeValid(d, loc)
   );
 }
 
@@ -75,16 +117,6 @@ export function todayISODate(): string {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
-}
-
-// Earliest valid HH:MM for the given pickup date. Returns '' when the date
-// is in the future, in which case no time constraint applies.
-export function minTimeForDate(dateISO: string): string {
-  if (!dateISO || dateISO !== todayISODate()) return '';
-  const t = new Date(Date.now() + PICKUP_LEAD_MINUTES * 60_000);
-  const hh = String(t.getHours()).padStart(2, '0');
-  const mm = String(t.getMinutes()).padStart(2, '0');
-  return `${hh}:${mm}`;
 }
 
 export function formatPickupDate(iso: string): string {

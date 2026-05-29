@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X, MapPin, User, Calendar, Clock, Check } from 'lucide-react';
 import type { CartItem, CheckoutDetails } from './OrderingUtils';
-import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, PICKUP_LEAD_MINUTES, isPickupTimeValid, minTimeForDate } from './OrderingUtils';
+import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots } from './OrderingUtils';
 import type { PickupLocation } from '../config';
 import { useIsMobile } from '../hooks/use-mobile';
 
@@ -103,11 +103,12 @@ export function CartReview({
   }, []);
 
   const minDate = todayISODate();
+  const selectedLoc = pickupLocations.find((l) => l.id === checkout.pickupLocationId);
   const nameMissing = checkout.customerName.trim().length === 0;
   const locMissing = checkout.pickupLocationId.length === 0;
   const dateMissing = checkout.pickupDate.length === 0;
   const timeMissing = checkout.pickupTime.length === 0;
-  const timeTooSoon = !dateMissing && !timeMissing && !isPickupTimeValid(checkout);
+  const timeInvalid = !dateMissing && !timeMissing && !isPickupTimeValid(checkout, selectedLoc);
   const hasItems = cart.length > 0;
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
@@ -126,7 +127,6 @@ export function CartReview({
               onChange={onCheckoutChange}
               pickupLocations={pickupLocations}
               minDate={minDate}
-              minTime={minTimeForDate(checkout.pickupDate)}
               isMobile={isMobile}
             />
           )}
@@ -170,7 +170,7 @@ export function CartReview({
                 {(() => {
                   const missing = [nameMissing && 'name', locMissing && 'pickup location', dateMissing && 'date', timeMissing && 'time'].filter(Boolean);
                   if (missing.length > 0) return `Please complete: ${missing.join(', ')}`;
-                  if (timeTooSoon) return `Pickup time must be at least ${PICKUP_LEAD_MINUTES} minutes from now`;
+                  if (timeInvalid) return `Please pick a time within the store's pickup hours`;
                   return null;
                 })()}
               </div>
@@ -234,15 +234,35 @@ const baseInputStyle: React.CSSProperties = {
 };
 
 function CheckoutDetailsSection({
-  checkout, onChange, pickupLocations, minDate, minTime, isMobile,
+  checkout, onChange, pickupLocations, minDate, isMobile,
 }: {
   checkout: CheckoutDetails;
   onChange: (d: CheckoutDetails) => void;
   pickupLocations: PickupLocation[];
   minDate: string;
-  minTime: string;
   isMobile: boolean;
 }) {
+  const selectedLoc = pickupLocations.find((l) => l.id === checkout.pickupLocationId);
+  const slots = getAvailableTimeSlots(selectedLoc, checkout.pickupDate);
+  const slotsKey = slots.join(',');
+
+  // If the chosen store/date changes such that the previously picked time is no
+  // longer an available slot, clear it so the stale value can't be submitted.
+  useEffect(() => {
+    if (checkout.pickupTime && !slots.includes(checkout.pickupTime)) {
+      onChange({ ...checkout, pickupTime: '' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slotsKey, checkout.pickupTime]);
+
+  const timePlaceholder = !checkout.pickupLocationId
+    ? 'Select a location first'
+    : !checkout.pickupDate
+      ? 'Select a date first'
+      : slots.length === 0
+        ? 'No pickup times available'
+        : 'Select a time';
+
   return (
     <div style={{ padding: '20px 24px 8px', borderBottom: '1px solid #f0e6d3', background: '#fdf6e3' }}>
       <SectionLabel>Pickup Details</SectionLabel>
@@ -317,16 +337,26 @@ function CheckoutDetailsSection({
         </div>
         <div>
           <FieldLabel icon={<Clock size={14} />} required>Time</FieldLabel>
-          <input
-            type="time"
-            min={minTime || undefined}
+          <select
             value={checkout.pickupTime}
+            disabled={slots.length === 0}
             onChange={(e) => onChange({ ...checkout, pickupTime: e.target.value })}
-            style={baseInputStyle}
-          />
-          {minTime && (
+            style={{
+              ...baseInputStyle,
+              appearance: 'none',
+              cursor: slots.length === 0 ? 'not-allowed' : 'pointer',
+              opacity: slots.length === 0 ? 0.6 : 1,
+              color: checkout.pickupTime ? '#2f2218' : '#a09488',
+            }}
+          >
+            <option value="">{timePlaceholder}</option>
+            {slots.map((s) => (
+              <option key={s} value={s} style={{ color: '#2f2218' }}>{s}</option>
+            ))}
+          </select>
+          {selectedLoc && (
             <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: '#5a4a3a', marginTop: '6px' }}>
-              Earliest pickup today: {minTime}
+              Open {selectedLoc.openTime}–{selectedLoc.closeTime}
             </div>
           )}
         </div>

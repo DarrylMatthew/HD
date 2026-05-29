@@ -37,7 +37,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const cartTotal = useMemo(() => cart.reduce((s, i) => s + i.totalPrice, 0), [cart]);
   const cartCount = useMemo(() => cart.reduce((s, i) => s + i.quantity, 0), [cart]);
   const isReadyToOrder = useMemo(
-    () => cart.length > 0 && isCheckoutValid(checkout),
+    () => cart.length > 0 && isCheckoutValid(checkout, orderingPageConfig.pickupLocations),
     [cart, checkout],
   );
 
@@ -52,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => setCart([]), []);
 
   const submitWhatsApp = useCallback(() => {
-    if (cart.length === 0 || !isCheckoutValid(checkout)) return;
+    if (cart.length === 0 || !isCheckoutValid(checkout, orderingPageConfig.pickupLocations)) return;
     const msg = buildWhatsAppMessage(cart, cartTotal, checkout, orderingPageConfig.pickupLocations);
     const phone = orderingPageConfig.whatsappNumber.replace(/\+/g, '');
     window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
