@@ -51,6 +51,39 @@ export const EMPTY_CHECKOUT: CheckoutDetails = {
   pickupTime: '',
 };
 
+// One store's hours for one date. `null` means closed / no hours posted.
+export type DayHours = { open: string; close: string } | null;
+
+// Per-date, per-store schedule loaded from the Google Sheet.
+// Key = `${locationId}__${dateISO}`. A `null` value means explicitly closed.
+// `null` for the whole schedule means "not loaded" (use config defaults).
+export type HoursSchedule = Record<string, DayHours>;
+
+export function hoursKey(locationId: string, dateISO: string): string {
+  return `${locationId}__${dateISO}`;
+}
+
+// Effective hours for a store on a date (default-hours model):
+//  - schedule loaded + row exists -> that row (a "closed" row resolves to null)
+//  - schedule loaded + no row      -> the store's default openTime/closeTime
+//  - schedule NOT loaded / failed   -> the store's default openTime/closeTime
+// So the Sheet is only for EXCEPTIONS (special hours or closing a day); normal
+// days fall back to the default hours and need no row.
+export function resolveDayHours(
+  loc: PickupLocation | undefined,
+  dateISO: string,
+  schedule: HoursSchedule | null,
+): DayHours {
+  if (!loc || !dateISO) return null;
+  const fallback: DayHours =
+    loc.openTime && loc.closeTime ? { open: loc.openTime, close: loc.closeTime } : null;
+  if (schedule) {
+    const key = hoursKey(loc.id, dateISO);
+    return key in schedule ? schedule[key] : fallback;
+  }
+  return fallback;
+}
+
 // "HH:MM" <-> minutes-since-midnight helpers.
 export function timeToMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(':').map(Number);
@@ -58,22 +91,25 @@ export function timeToMinutes(hhmm: string): number {
   return h * 60 + m;
 }
 export function minutesToTime(total: number): string {
-  const h = Math.floor(total / 60);
+  const h = Math.floor(total / 60) % 24; // 1440 (24:00) wraps to "00:00"
   const m = total % 60;
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
-// All selectable pickup times for a store on a given date, spaced by
-// SLOT_INTERVAL_MINUTES from openTime to closeTime (inclusive). For "today",
-// slots earlier than now + PICKUP_LEAD_MINUTES are dropped. Returns [] when the
-// location/date is missing or the store hours are invalid.
-export function getAvailableTimeSlots(
-  loc: PickupLocation | undefined,
-  dateISO: string,
-): string[] {
-  if (!loc || !dateISO) return [];
-  const open = timeToMinutes(loc.openTime);
-  const close = timeToMinutes(loc.closeTime);
+// Display label for an "HH:MM" config value, normalizing "24:00" -> "00:00".
+export function formatTimeLabel(hhmm: string): string {
+  const min = timeToMinutes(hhmm);
+  return Number.isNaN(min) ? hhmm : minutesToTime(min);
+}
+
+// All selectable pickup times for the given day's hours, spaced by
+// SLOT_INTERVAL_MINUTES from open to close (inclusive). For "today", slots
+// earlier than now + PICKUP_LEAD_MINUTES are dropped. Returns [] when the store
+// is closed that date (hours === null) or the hours are invalid.
+export function getAvailableTimeSlots(hours: DayHours, dateISO: string): string[] {
+  if (!hours || !dateISO) return [];
+  const open = timeToMinutes(hours.open);
+  const close = timeToMinutes(hours.close);
   if (Number.isNaN(open) || Number.isNaN(close) || close <= open) return [];
 
   let earliest = open;
@@ -90,25 +126,98 @@ export function getAvailableTimeSlots(
 }
 
 // True if pickupDate+pickupTime are either not yet filled, OR the chosen time is
-// one of the store's currently-available slots. When no location is supplied we
-// fall back to the basic lead-time check.
-export function isPickupTimeValid(d: CheckoutDetails, loc?: PickupLocation): boolean {
+// one of the store's available slots for that day's resolved hours.
+export function isPickupTimeValid(d: CheckoutDetails, hours: DayHours): boolean {
   if (!d.pickupDate || !d.pickupTime) return true;
-  if (loc) return getAvailableTimeSlots(loc, d.pickupDate).includes(d.pickupTime);
-  const dt = new Date(`${d.pickupDate}T${d.pickupTime}`);
-  if (Number.isNaN(dt.getTime())) return false;
-  return dt.getTime() >= Date.now() + PICKUP_LEAD_MINUTES * 60_000;
+  return getAvailableTimeSlots(hours, d.pickupDate).includes(d.pickupTime);
 }
 
-export function isCheckoutValid(d: CheckoutDetails, locations: PickupLocation[]): boolean {
+export function isCheckoutValid(
+  d: CheckoutDetails,
+  locations: PickupLocation[],
+  schedule: HoursSchedule | null,
+): boolean {
   const loc = locations.find((l) => l.id === d.pickupLocationId);
+  const hours = resolveDayHours(loc, d.pickupDate, schedule);
   return (
     d.customerName.trim().length > 0 &&
     d.pickupLocationId.length > 0 &&
     d.pickupDate.length > 0 &&
     d.pickupTime.length > 0 &&
-    isPickupTimeValid(d, loc)
+    isPickupTimeValid(d, hours)
   );
+}
+
+// --- Google Sheet hours loading ---------------------------------------------
+
+// Split one CSV line, honoring simple double-quoted fields.
+function splitCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = '';
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') { cur += '"'; i++; } else inQ = false;
+      } else cur += ch;
+    } else if (ch === '"') inQ = true;
+    else if (ch === ',') { out.push(cur); cur = ''; }
+    else cur += ch;
+  }
+  out.push(cur);
+  return out;
+}
+
+// Parse the published Google Sheet CSV into an HoursSchedule.
+// Columns (header row, case-insensitive): date, location, open, close
+//  - date: YYYY-MM-DD
+//  - location: must match a PickupLocation id (e.g. "bsd", "tambora")
+//  - open/close: "HH:MM". If open is empty or "closed"/"tutup"/"libur"/"-", the
+//    store is closed that date.
+export function parseHoursCsv(csv: string): HoursSchedule {
+  const schedule: HoursSchedule = {};
+  const lines = csv.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length === 0) return schedule;
+
+  let idx = { date: 0, location: 1, open: 2, close: 3 };
+  let start = 0;
+  const header = splitCsvLine(lines[0]).map((c) => c.trim().toLowerCase());
+  if (header.includes('date') && header.includes('location')) {
+    idx = {
+      date: header.indexOf('date'),
+      location: header.indexOf('location'),
+      open: header.indexOf('open'),
+      close: header.indexOf('close'),
+    };
+    start = 1;
+  }
+
+  for (let i = start; i < lines.length; i++) {
+    const cells = splitCsvLine(lines[i]);
+    const date = (cells[idx.date] ?? '').trim();
+    const location = (cells[idx.location] ?? '').trim();
+    const openRaw = (cells[idx.open] ?? '').trim();
+    const closeRaw = (cells[idx.close] ?? '').trim();
+    if (!date || !location) continue;
+
+    const lc = openRaw.toLowerCase();
+    const isClosed = lc === '' || lc === 'closed' || lc === 'tutup' || lc === 'libur' || lc === '-';
+    schedule[hoursKey(location, date)] = isClosed || !closeRaw
+      ? null
+      : { open: openRaw, close: closeRaw };
+  }
+  return schedule;
+}
+
+export async function fetchPickupHours(url: string): Promise<HoursSchedule> {
+  // Cache-busting param so browsers/proxies don't serve a stale copy. (Note:
+  // Google's "Publish to web" CSV has its own ~5-min server cache this can't
+  // bypass; the gviz/export CSV endpoints honor this and update near-instantly.)
+  const sep = url.includes('?') ? '&' : '?';
+  const res = await fetch(`${url}${sep}_=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Hours fetch failed: ${res.status}`);
+  return parseHoursCsv(await res.text());
 }
 
 export function todayISODate(): string {

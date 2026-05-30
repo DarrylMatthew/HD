@@ -82,8 +82,10 @@ export interface PickupLocation {
   name: string
   address: string
   mapsUrl: string
-  openTime: string  // store opening time, 24h "HH:MM" (e.g. "10:00")
-  closeTime: string // store closing time, 24h "HH:MM" (e.g. "20:00")
+  // Default / normal-day hours, 24h "HH:MM". Used for any date the Sheet has no
+  // row for (and as the fallback if the Sheet can't load). Set these to your usual hours.
+  openTime: string  // e.g. "10:00"
+  closeTime: string // e.g. "20:00"
 }
 
 export interface OrderingPageConfig {
@@ -93,6 +95,10 @@ export interface OrderingPageConfig {
   whatsappNumber: string
   categories: OrderingCategory[]
   pickupLocations: PickupLocation[]
+  // Published Google Sheet CSV URL for per-date pickup hours.
+  // In the Sheet: File -> Share -> Publish to web -> (whole doc) -> CSV, paste the link here.
+  // Leave "" to skip the Sheet and use each location's openTime/closeTime as fixed hours.
+  pickupHoursSheetUrl: string
 }
 
 export interface GalleryConfig {
@@ -288,18 +294,19 @@ export const orderingPageConfig: OrderingPageConfig = {
       name: "Hangri Dessert BSD",
       address: "Jl. Raflesia, Puspita Loka C1/3 BSD",
       mapsUrl: "https://maps.app.goo.gl/mexz1iNXws7hxW8B7",
-      openTime: "06:00", // TODO
-      closeTime: "24:00", // TODO
+      openTime: "06:00",
+      closeTime: "24:00",
     },
     {
       id: "tambora",
       name: "Hangri Dessert Tambora (Jakarta)",
       address: "Jln. Tanah Sereal 11 gang FF 1 no. 21 RT. 03/011 (Pagar Hitam), Tanah Sereal, Tambora, Jakarta Barat",
       mapsUrl: "https://maps.app.goo.gl/NhB1eqqY1MU9iH5z8",
-      openTime: "06:00", // TODO
-      closeTime: "24:00", // TODO
+      openTime: "06:00",
+      closeTime: "24:00",
     },
   ],
+  pickupHoursSheetUrl: "https://docs.google.com/spreadsheets/d/1FJxREcJnsdOLyfy1saimebMXzmt6Ub6_BTCTuzyB6pM/gviz/tq?tqx=out:csv",
 }
 
 export const galleryConfig: GalleryConfig = {

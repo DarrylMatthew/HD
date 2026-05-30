@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '../hooks/use-mobile';
@@ -7,8 +7,9 @@ import {
   nextCartId,
   EMPTY_CHECKOUT,
   isCheckoutValid,
+  fetchPickupHours,
 } from '../sections/OrderingUtils';
-import type { CartItem, CheckoutDetails } from '../sections/OrderingUtils';
+import type { CartItem, CheckoutDetails, HoursSchedule } from '../sections/OrderingUtils';
 import { CartBar, CartReview } from '../sections/OrderingUI';
 import { orderingPageConfig } from '../config';
 
@@ -25,6 +26,8 @@ interface CartContextValue {
   setCheckout: (d: CheckoutDetails) => void;
   isReadyToOrder: boolean;
   submitWhatsApp: () => void;
+  hoursSchedule: HoursSchedule | null;
+  hoursLoading: boolean;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -33,12 +36,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [checkout, setCheckout] = useState<CheckoutDetails>(EMPTY_CHECKOUT);
+  // Per-date pickup hours from the Google Sheet. Stays null until a successful
+  // load; null also means "use config default hours" (see resolveDayHours).
+  const [hoursSchedule, setHoursSchedule] = useState<HoursSchedule | null>(null);
+  // Loading only while a Sheet URL is actually configured; flipped off in the
+  // effect's async callbacks so we never call setState in the effect body.
+  const [hoursLoading, setHoursLoading] = useState(() => !!orderingPageConfig.pickupHoursSheetUrl);
+
+  useEffect(() => {
+    const url = orderingPageConfig.pickupHoursSheetUrl;
+    if (!url) return; // no Sheet configured -> config default hours
+    let cancelled = false;
+    fetchPickupHours(url)
+      .then((sched) => { if (!cancelled) setHoursSchedule(sched); })
+      .catch((err) => { if (!cancelled) console.error('Failed to load pickup hours:', err); })
+      .finally(() => { if (!cancelled) setHoursLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   const cartTotal = useMemo(() => cart.reduce((s, i) => s + i.totalPrice, 0), [cart]);
   const cartCount = useMemo(() => cart.reduce((s, i) => s + i.quantity, 0), [cart]);
   const isReadyToOrder = useMemo(
-    () => cart.length > 0 && isCheckoutValid(checkout, orderingPageConfig.pickupLocations),
-    [cart, checkout],
+    () => cart.length > 0 && isCheckoutValid(checkout, orderingPageConfig.pickupLocations, hoursSchedule),
+    [cart, checkout, hoursSchedule],
   );
 
   const addToCart = useCallback((item: Omit<CartItem, 'id'>) => {
@@ -52,14 +72,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => setCart([]), []);
 
   const submitWhatsApp = useCallback(() => {
-    if (cart.length === 0 || !isCheckoutValid(checkout, orderingPageConfig.pickupLocations)) return;
+    if (cart.length === 0 || !isCheckoutValid(checkout, orderingPageConfig.pickupLocations, hoursSchedule)) return;
     const msg = buildWhatsAppMessage(cart, cartTotal, checkout, orderingPageConfig.pickupLocations);
     const phone = orderingPageConfig.whatsappNumber.replace(/\+/g, '');
     window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
     setCart([]);
     setCheckout(EMPTY_CHECKOUT);
     setShowCart(false);
-  }, [cart, cartTotal, checkout]);
+  }, [cart, cartTotal, checkout, hoursSchedule]);
 
   return (
     <CartContext.Provider
@@ -69,6 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         showCart, setShowCart,
         checkout, setCheckout, isReadyToOrder,
         submitWhatsApp,
+        hoursSchedule, hoursLoading,
       }}
     >
       {children}
@@ -90,7 +111,7 @@ export function CartUI() {
     cart, cartCount, cartTotal, removeFromCart,
     showCart, setShowCart,
     checkout, setCheckout, isReadyToOrder,
-    submitWhatsApp,
+    submitWhatsApp, hoursSchedule, hoursLoading,
   } = useCart();
   return (
     <>
@@ -111,6 +132,8 @@ export function CartUI() {
             onCheckoutChange={setCheckout}
             isReadyToOrder={isReadyToOrder}
             pickupLocations={orderingPageConfig.pickupLocations}
+            hoursSchedule={hoursSchedule}
+            hoursLoading={hoursLoading}
           />
         )}
       </AnimatePresence>

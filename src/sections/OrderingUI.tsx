@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X, MapPin, User, Calendar, Clock, Check } from 'lucide-react';
-import type { CartItem, CheckoutDetails } from './OrderingUtils';
-import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots } from './OrderingUtils';
+import type { CartItem, CheckoutDetails, HoursSchedule, DayHours } from './OrderingUtils';
+import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots, resolveDayHours, formatTimeLabel } from './OrderingUtils';
 import type { PickupLocation } from '../config';
 import { useIsMobile } from '../hooks/use-mobile';
 
@@ -82,6 +82,7 @@ export function CartBar({ count, total, onClick }: { count: number; total: numbe
 export function CartReview({
   cart, onRemove, onClose, onSubmit, total,
   checkout, onCheckoutChange, isReadyToOrder, pickupLocations,
+  hoursSchedule, hoursLoading,
 }: {
   cart: CartItem[];
   onRemove: (id: string) => void;
@@ -92,6 +93,8 @@ export function CartReview({
   onCheckoutChange: (d: CheckoutDetails) => void;
   isReadyToOrder: boolean;
   pickupLocations: PickupLocation[];
+  hoursSchedule: HoursSchedule | null;
+  hoursLoading: boolean;
 }) {
   const isMobile = useIsMobile();
   // Re-evaluate the time constraint every 30s so a user who picks a valid
@@ -104,11 +107,12 @@ export function CartReview({
 
   const minDate = todayISODate();
   const selectedLoc = pickupLocations.find((l) => l.id === checkout.pickupLocationId);
+  const dayHours = resolveDayHours(selectedLoc, checkout.pickupDate, hoursSchedule);
   const nameMissing = checkout.customerName.trim().length === 0;
   const locMissing = checkout.pickupLocationId.length === 0;
   const dateMissing = checkout.pickupDate.length === 0;
   const timeMissing = checkout.pickupTime.length === 0;
-  const timeInvalid = !dateMissing && !timeMissing && !isPickupTimeValid(checkout, selectedLoc);
+  const timeInvalid = !dateMissing && !timeMissing && !isPickupTimeValid(checkout, dayHours);
   const hasItems = cart.length > 0;
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
@@ -128,6 +132,8 @@ export function CartReview({
               pickupLocations={pickupLocations}
               minDate={minDate}
               isMobile={isMobile}
+              dayHours={dayHours}
+              hoursLoading={hoursLoading}
             />
           )}
 
@@ -234,17 +240,21 @@ const baseInputStyle: React.CSSProperties = {
 };
 
 function CheckoutDetailsSection({
-  checkout, onChange, pickupLocations, minDate, isMobile,
+  checkout, onChange, pickupLocations, minDate, isMobile, dayHours, hoursLoading,
 }: {
   checkout: CheckoutDetails;
   onChange: (d: CheckoutDetails) => void;
   pickupLocations: PickupLocation[];
   minDate: string;
   isMobile: boolean;
+  dayHours: DayHours;
+  hoursLoading: boolean;
 }) {
-  const selectedLoc = pickupLocations.find((l) => l.id === checkout.pickupLocationId);
-  const slots = getAvailableTimeSlots(selectedLoc, checkout.pickupDate);
+  const slots = getAvailableTimeSlots(dayHours, checkout.pickupDate);
   const slotsKey = slots.join(',');
+  const locDatePicked = !!checkout.pickupLocationId && !!checkout.pickupDate;
+  // Store is closed that date when hours resolved to null despite a valid pick.
+  const closedThatDate = locDatePicked && !hoursLoading && dayHours === null;
 
   // If the chosen store/date changes such that the previously picked time is no
   // longer an available slot, clear it so the stale value can't be submitted.
@@ -259,9 +269,13 @@ function CheckoutDetailsSection({
     ? 'Select a location first'
     : !checkout.pickupDate
       ? 'Select a date first'
-      : slots.length === 0
-        ? 'No pickup times available'
-        : 'Select a time';
+      : hoursLoading
+        ? 'Loading hours…'
+        : closedThatDate
+          ? 'Closed on this date'
+          : slots.length === 0
+            ? 'No pickup times available'
+            : 'Select a time';
 
   return (
     <div style={{ padding: '20px 24px 8px', borderBottom: '1px solid #f0e6d3', background: '#fdf6e3' }}>
@@ -354,9 +368,13 @@ function CheckoutDetailsSection({
               <option key={s} value={s} style={{ color: '#2f2218' }}>{s}</option>
             ))}
           </select>
-          {selectedLoc && (
-            <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: '#5a4a3a', marginTop: '6px' }}>
-              Open {selectedLoc.openTime}–{selectedLoc.closeTime}
+          {locDatePicked && (
+            <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: closedThatDate ? '#c0392b' : '#5a4a3a', marginTop: '6px' }}>
+              {hoursLoading
+                ? 'Loading hours…'
+                : dayHours
+                  ? `Open ${formatTimeLabel(dayHours.open)}–${formatTimeLabel(dayHours.close)}`
+                  : 'Closed on this date'}
             </div>
           )}
         </div>
