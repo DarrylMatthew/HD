@@ -6,7 +6,7 @@ import { ShoppingBag } from 'lucide-react';
 import { getLenis } from '../hooks/useLenis';
 import { formatRupiah, getInitialState, cartItemFromState, handleImgError } from './OrderingUtils';
 import type { CustomizeState } from './OrderingUtils';
-import { CustomizePanel } from './OrderingUI';
+import { CustomizePanel, MobilePreviewSheet } from './OrderingUI';
 import { useCart } from '../context/CartContext';
 
 function useIsMobile(bp = 768) {
@@ -177,39 +177,6 @@ function DesktopGroupSection({ group, items, index, bg, isInView, onOrder }: { g
         </motion.div>
       </div>
     </motion.div>
-  );
-}
-
-/* ======== MOBILE ITEM DETAIL POPUP (bottom sheet) ======== */
-function MobilePreviewSheet({ cat, onClose, onAdd }: { cat: OrderingCategory; onClose: () => void; onAdd: (c: OrderingCategory) => void }) {
-  return (
-    <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
-        onClick={onClose}
-        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200 }} />
-      <motion.div
-        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        style={{ position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 201, background: '#fffdf7', borderRadius: '24px 24px 0 0', padding: '12px 20px calc(20px + env(safe-area-inset-bottom))', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(47,34,24,0.25)' }}>
-        {/* Drag handle */}
-        <div style={{ width: '40px', height: '4px', borderRadius: '999px', background: '#d8c3a5', margin: '0 auto 16px' }} />
-        <img src={cat.image} alt={cat.name} onError={handleImgError(cat.imageFallback)}
-          style={{ width: '100%', height: '240px', objectFit: 'cover', objectPosition: cat.imagePosition ?? 'center center', borderRadius: '16px' }} />
-        <h3 style={{ fontFamily: 'Effra Trial Bold', fontSize: '22px', fontWeight: 700, color: '#2f2218', margin: '20px 0 8px' }}>{cat.name}</h3>
-        {cat.description && (
-          <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', lineHeight: 1.6, color: '#5a4a3a', margin: '0 0 12px' }}>{cat.description}</p>
-        )}
-        <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '20px', fontWeight: 700, color: '#e8954e', margin: '0 0 20px' }}>
-          {cat.isTBD ? 'Coming Soon' : `${cat.sizes.length > 0 ? 'From ' : ''}${formatRupiah(cat.startingPrice)}`}
-        </div>
-        {!cat.isTBD && (
-          <motion.button whileTap={{ scale: 0.97 }} onClick={() => onAdd(cat)}
-            style={{ width: '100%', padding: '16px', borderRadius: '999px', border: 'none', background: 'linear-gradient(135deg, #4e3b31, #2f2218)', color: '#fdf6e3', fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(78,59,49,0.3)' }}>
-            Add to Cart
-          </motion.button>
-        )}
-      </motion.div>
-    </>
   );
 }
 

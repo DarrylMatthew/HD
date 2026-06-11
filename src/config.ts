@@ -561,7 +561,7 @@ export const twcNavigationConfig: NavigationConfig = {
 }
 
 export const twcHeroConfig: HeroConfig = {
-  imagePath: "/images/twc/twc-hero.png",
+  imagePath: "/images/twc/long-cake-twc.JPG",
   eyebrow: "Luxury Wedding Desserts",
   titleLine: "Tiramisu",
   titleEmphasis: "Wedding Cake",

@@ -5,7 +5,7 @@ import { Clock } from 'lucide-react';
 import { getLenis } from '../hooks/useLenis';
 import { formatRupiah, getInitialState, cartItemFromState, handleImgError } from './OrderingUtils';
 import type { CustomizeState } from './OrderingUtils';
-import { CustomizePanel } from './OrderingUI';
+import { CustomizePanel, MobilePreviewSheet } from './OrderingUI';
 import { useCart } from '../context/CartContext';
 
 function useIsMobile(bp = 768) {
@@ -21,6 +21,8 @@ export default function OrderGrid() {
   const { addToCart: pushToCart, showCart, menuGroups, menuCategories } = useCart();
   const [filter, setFilter] = useState('All');
   const [activeCat, setActiveCat] = useState<OrderingCategory | null>(null);
+  // Mobile-only: item detail popup (image + description) shown when a card is tapped.
+  const [previewCat, setPreviewCat] = useState<OrderingCategory | null>(null);
   const [cState, setCState] = useState<CustomizeState>({ selectedSize: '', selectedAddon: '', selectedSauce: '', selectedDusting: '', selectedTopper: '', selectedExtras: [], notes: '', wantsCustomText: false, customText: '', quantity: 1 });
 
   const groupName = (cat: OrderingCategory) => menuGroups.find((g) => g.id === cat.groupId)?.name ?? '';
@@ -33,6 +35,12 @@ export default function OrderGrid() {
   }, []);
   const closeCustomize = useCallback(() => { setActiveCat(null); }, []);
 
+  // Mobile taps preview the item first; desktop clicks go straight to ordering.
+  const handleCardClick = useCallback((cat: OrderingCategory) => {
+    if (isMobile) setPreviewCat(cat);
+    else openCustomize(cat);
+  }, [isMobile, openCustomize]);
+
   const addToCart = useCallback(() => {
     if (!activeCat) return;
     pushToCart(cartItemFromState(activeCat, cState));
@@ -41,10 +49,10 @@ export default function OrderGrid() {
 
   useEffect(() => {
     const lenis = getLenis();
-    if (activeCat || showCart) { document.body.style.overflow = 'hidden'; lenis?.stop(); }
+    if (activeCat || showCart || previewCat) { document.body.style.overflow = 'hidden'; lenis?.stop(); }
     else { document.body.style.overflow = ''; lenis?.start(); }
     return () => { document.body.style.overflow = ''; lenis?.start(); };
-  }, [activeCat, showCart]);
+  }, [activeCat, showCart, previewCat]);
 
   return (
     <>
@@ -70,12 +78,23 @@ export default function OrderGrid() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '32px' }}>
             <AnimatePresence mode="popLayout">
               {filtered.map((cat, i) => (
-                <GridCard key={cat.id} cat={cat} groupName={groupName(cat)} index={i} isInView={isInView} onOrder={openCustomize} />
+                <GridCard key={cat.id} cat={cat} groupName={groupName(cat)} index={i} isInView={isInView} onOrder={handleCardClick} />
               ))}
             </AnimatePresence>
           </div>
         </div>
       </section>
+
+      {/* Mobile item detail popup (image, description, price) */}
+      <AnimatePresence>
+        {previewCat && (
+          <MobilePreviewSheet
+            cat={previewCat}
+            onClose={() => setPreviewCat(null)}
+            onAdd={(cat) => { setPreviewCat(null); openCustomize(cat); }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Customize Drawer/Page */}
       <AnimatePresence>

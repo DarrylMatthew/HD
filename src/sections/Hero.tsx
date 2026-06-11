@@ -62,7 +62,7 @@ export default function Hero() {
           inset: 0,
           backgroundImage: `url(${twcHeroConfig.imagePath})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'center 75%',
           transform: 'scale(1.05)',
           transition: 'opacity 1s ease',
           opacity: isTWC ? 1 : 0,
