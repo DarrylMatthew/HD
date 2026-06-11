@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X, MapPin, User, Calendar, Clock, Check } from 'lucide-react';
-import type { CartItem, CheckoutDetails, HoursSchedule, DayHours } from './OrderingUtils';
-import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots, resolveDayHours, formatTimeLabel } from './OrderingUtils';
-import type { PickupLocation } from '../config';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X, MapPin, User, Calendar, Clock, Check, ArrowLeft, Pencil } from 'lucide-react';
+import type { CartItem, CheckoutDetails, HoursSchedule, DayHours, CustomizeState } from './OrderingUtils';
+import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots, resolveDayHours, formatTimeLabel, calcUnitPrice, isCustomizeValid, CUSTOM_TEXT_MAX, NOTES_MAX, handleImgError } from './OrderingUtils';
+import type { OrderingCategory, PickupLocation } from '../config';
 import { useIsMobile } from '../hooks/use-mobile';
 
 export function OptionGroup({ label, children }: { label: string; children: React.ReactNode }) {
@@ -80,12 +80,13 @@ export function CartBar({ count, total, onClick }: { count: number; total: numbe
 }
 
 export function CartReview({
-  cart, onRemove, onClose, onSubmit, total,
+  cart, onRemove, onEdit, onClose, onSubmit, total,
   checkout, onCheckoutChange, isReadyToOrder, pickupLocations,
   hoursSchedule, hoursLoading,
 }: {
   cart: CartItem[];
   onRemove: (id: string) => void;
+  onEdit: (item: CartItem) => void;
   onClose: () => void;
   onSubmit: () => void;
   total: number;
@@ -146,11 +147,11 @@ export function CartReview({
               <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#a09488', textAlign: 'center', padding: '40px 0' }}>Your cart is empty</p>
             ) : cart.map((item) => (
               <div key={item.id} style={{ padding: '16px 0', borderBottom: '1px solid #f0e6d3', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                <img src={item.category.image} alt={item.category.name} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover' }} />
+                <img src={item.category.image} alt={item.category.name} onError={handleImgError(item.category.imageFallback)} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover' }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218' }}>{item.category.name} × {item.quantity}</div>
                   <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a', marginTop: '2px' }}>
-                    {[item.selectedSize, item.selectedAddon, item.selectedDusting, item.selectedTopper].filter(Boolean).join(' · ')}
+                    {[item.selectedSize, item.selectedAddon, item.selectedSauce, item.selectedDusting, item.selectedTopper, ...item.selectedExtras].filter(Boolean).join(' · ')}
                     {item.wantsCustomText && item.customText && ` · "${item.customText}"`}
                   </div>
                   {item.notes && (
@@ -158,7 +159,10 @@ export function CartReview({
                   )}
                   <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600, marginTop: '4px' }}>{formatRupiah(item.totalPrice)}</div>
                 </div>
-                <motion.button whileTap={{ scale: 0.9 }} onClick={() => onRemove(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a09488', padding: '4px' }}><Trash2 size={16} /></motion.button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                  <motion.button whileTap={{ scale: 0.9 }} onClick={() => onEdit(item)} aria-label="Edit item" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e8954e', padding: '4px' }}><Pencil size={16} /></motion.button>
+                  <motion.button whileTap={{ scale: 0.9 }} onClick={() => onRemove(item.id)} aria-label="Remove item" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a09488', padding: '4px' }}><Trash2 size={16} /></motion.button>
+                </div>
               </div>
             ))}
           </div>
@@ -380,5 +384,227 @@ function CheckoutDetailsSection({
         </div>
       </div>
     </div>
+  );
+}
+
+/* ======== SHARED CUSTOMIZE PANEL (GrabFood style) ========
+   One implementation for the ordering page, the order grid, and the cart's
+   edit-item flow: full-screen sheet on mobile, right-side drawer on desktop. */
+
+export function CustomizePanel({
+  cat, state, onChange, onClose, onSubmit, submitLabel = 'Add to cart', isMobile,
+}: {
+  cat: OrderingCategory;
+  state: CustomizeState;
+  onChange: (s: CustomizeState) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+  submitLabel?: string;
+  isMobile: boolean;
+}) {
+  const total = calcUnitPrice(cat, state) * state.quantity;
+  const canAdd = isCustomizeValid(cat, state);
+
+  const header = (pad: string) => (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: `16px ${pad}`, borderBottom: '1px solid #eee', flexShrink: 0 }}>
+        <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2f2218', display: 'flex' }}><ArrowLeft size={22} /></motion.button>
+        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 600, color: '#2f2218' }}>Customize the dish</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: `20px ${pad}`, borderBottom: '1px solid #eee' }}>
+        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, color: '#2f2218' }}>{cat.name}</span>
+        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, color: '#2f2218' }}>{formatRupiah(calcUnitPrice(cat, state))}</span>
+      </div>
+    </>
+  );
+
+  const footer = (pad: string) => (
+    <div style={{ flexShrink: 0, padding: `14px ${pad}`, borderTop: '1px solid #eee', background: '#fff', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: '#666' }}>Item quantity</span>
+        <QuantitySelector value={state.quantity} onChange={(q) => onChange({ ...state, quantity: q })} />
+      </div>
+      <motion.button whileTap={canAdd ? { scale: 0.97 } : undefined} onClick={canAdd ? onSubmit : undefined} disabled={!canAdd}
+        style={{ width: '100%', padding: '14px', fontSize: '15px', fontFamily: 'Effra Trial Bold', fontWeight: 600, color: '#fff', background: canAdd ? '#4e3b31' : '#a09488', borderRadius: '24px', border: 'none', cursor: canAdd ? 'pointer' : 'not-allowed', opacity: canAdd ? 1 : 0.7 }}>
+        {submitLabel} - {formatRupiah(total)}
+      </motion.button>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        style={{ position: 'fixed', inset: 0, zIndex: 1000, background: '#fff', display: 'flex', flexDirection: 'column' }}>
+        {header('20px')}
+        <div data-lenis-prevent style={{ flex: 1, overflowY: 'auto', padding: '0 20px 120px' }}>
+          <CustomizeOptions cat={cat} state={state} onChange={onChange} />
+        </div>
+        {footer('20px')}
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.5)', backdropFilter: 'blur(6px)', display: 'flex', justifyContent: 'flex-end' }}>
+      <motion.div data-lenis-prevent initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        onClick={(e) => e.stopPropagation()} style={{ width: '480px', height: '100%', background: '#fff', display: 'flex', flexDirection: 'column' }}>
+        {header('24px')}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px 120px' }}>
+          <CustomizeOptions cat={cat} state={state} onChange={onChange} />
+        </div>
+        {footer('24px')}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function CustomizeSectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div style={{ padding: '16px 0 8px' }}>
+      <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', fontWeight: 700, color: '#2f2218' }}>{title}</div>
+      {subtitle && <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999', marginTop: '2px' }}>{subtitle}</div>}
+    </div>
+  );
+}
+
+function OptionRow({ label, price, selected, onClick, isLast }: { label: string; price?: string; selected: boolean; onClick: () => void; isLast?: boolean }) {
+  return (
+    <div onClick={onClick} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: isLast ? 'none' : '1px dotted #e0d5c4', cursor: 'pointer' }}>
+      <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218' }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {price && <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: '#666' }}>{price}</span>}
+        <div style={{ width: '22px', height: '22px', borderRadius: '4px', border: selected ? '2px solid #4e3b31' : '2px solid #ccc', background: selected ? '#4e3b31' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+          {selected && <Check size={14} color="#fff" strokeWidth={3} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function CustomizeOptions({ cat, state, onChange }: { cat: OrderingCategory; state: CustomizeState; onChange: (s: CustomizeState) => void }) {
+  const txtPrice = cat.hasCustomText && state.wantsCustomText && state.customText.length > 0 ? state.customText.length * cat.customTextPricePerChar : 0;
+  const toggleExtra = (label: string) => {
+    const selectedExtras = state.selectedExtras.includes(label)
+      ? state.selectedExtras.filter((x) => x !== label)
+      : [...state.selectedExtras, label];
+    onChange({ ...state, selectedExtras });
+  };
+  return (
+    <>
+      {cat.sizes.length > 0 && (
+        <div>
+          <CustomizeSectionHeader title={`Size for ${cat.name}`} subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {cat.sizes.map((sz, i) => (
+              <OptionRow key={sz.label} label={sz.label} price={formatRupiah(sz.price)} selected={state.selectedSize === sz.label} onClick={() => onChange({ ...state, selectedSize: sz.label })} isLast={i === cat.sizes.length - 1} />
+            ))}
+          </div>
+        </div>
+      )}
+      {cat.addons.length > 0 && (
+        <div>
+          <CustomizeSectionHeader title="Rum" subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {cat.addons.map((ad, i) => (
+              <OptionRow key={ad.label} label={ad.label} price={ad.price > 0 ? `+${formatRupiah(ad.price)}` : 'Free'} selected={state.selectedAddon === ad.label} onClick={() => onChange({ ...state, selectedAddon: ad.label })} isLast={i === cat.addons.length - 1} />
+            ))}
+          </div>
+        </div>
+      )}
+      {cat.sauces.length > 0 && (
+        <div>
+          <CustomizeSectionHeader title="Sauce" subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {cat.sauces.map((sauce, i) => (
+              <OptionRow key={sauce} label={sauce} price="Free" selected={state.selectedSauce === sauce} onClick={() => onChange({ ...state, selectedSauce: sauce })} isLast={i === cat.sauces.length - 1} />
+            ))}
+          </div>
+        </div>
+      )}
+      {cat.dustingOptions.length > 0 && (
+        <div>
+          <CustomizeSectionHeader title="Cake Dusting" subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {cat.dustingOptions.map((opt, i) => (
+              <OptionRow key={opt} label={opt} price="Free" selected={state.selectedDusting === opt} onClick={() => onChange({ ...state, selectedDusting: opt })} isLast={i === cat.dustingOptions.length - 1} />
+            ))}
+          </div>
+        </div>
+      )}
+      {cat.toppers.length > 0 && (
+        <div>
+          <CustomizeSectionHeader title="Cake Topper" subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {cat.toppers.map((tp, i) => (
+              <OptionRow key={tp.label} label={tp.label} price={tp.price > 0 ? `+${formatRupiah(tp.price)}` : 'Free'} selected={state.selectedTopper === tp.label} onClick={() => onChange({ ...state, selectedTopper: tp.label })} isLast={i === cat.toppers.length - 1} />
+            ))}
+          </div>
+        </div>
+      )}
+      {cat.extras.length > 0 && (
+        <div>
+          <CustomizeSectionHeader title="Add-ons" subtitle="Optional" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {cat.extras.map((ex, i) => (
+              <OptionRow key={ex.label} label={ex.label} price={ex.price > 0 ? `+${formatRupiah(ex.price)}` : 'Free'} selected={state.selectedExtras.includes(ex.label)} onClick={() => toggleExtra(ex.label)} isLast={i === cat.extras.length - 1} />
+            ))}
+          </div>
+        </div>
+      )}
+      {cat.hasCustomText && (
+        <div>
+          <CustomizeSectionHeader title="Custom Text" subtitle={`Optional · ${formatRupiah(cat.customTextPricePerChar)} per character (white chocolate)`} />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '14px 0', cursor: 'pointer', userSelect: 'none' }}>
+              <input type="checkbox" checked={state.wantsCustomText} onChange={() => onChange({ ...state, wantsCustomText: !state.wantsCustomText, customText: state.wantsCustomText ? '' : state.customText })} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+              <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218' }}>Yes, add custom text on the cake</span>
+              <span aria-hidden="true" style={{
+                width: '22px', height: '22px', borderRadius: '4px', flexShrink: 0,
+                border: `2px solid ${state.wantsCustomText ? '#4e3b31' : '#ccc'}`,
+                background: state.wantsCustomText ? '#4e3b31' : '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.2s ease, border-color 0.2s ease',
+              }}>
+                {state.wantsCustomText && <Check size={14} color="#fff" strokeWidth={3} />}
+              </span>
+            </label>
+          </div>
+          <AnimatePresence initial={false}>
+            {state.wantsCustomText && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden', marginTop: '12px' }}>
+                <textarea
+                  placeholder="JESSICA"
+                  value={state.customText}
+                  maxLength={CUSTOM_TEXT_MAX}
+                  onChange={(e) => onChange({ ...state, customText: e.target.value.toUpperCase().slice(0, CUSTOM_TEXT_MAX) })}
+                  rows={2}
+                  style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none', textTransform: 'uppercase' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: state.customText.trim().length === 0 ? '#c0392b' : '#999' }}>
+                    {state.customText.trim().length === 0 ? 'Please enter your custom text' : ' '}
+                  </span>
+                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999' }}>{state.customText.length}/{CUSTOM_TEXT_MAX}</span>
+                </div>
+                {state.customText.length > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', marginTop: '4px' }}>
+                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a' }}>{state.customText.length} character{state.customText.length === 1 ? '' : 's'} × {formatRupiah(cat.customTextPricePerChar)}</span>
+                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600 }}>{formatRupiah(txtPrice)}</span>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+      <div>
+        <CustomizeSectionHeader title="Notes" subtitle="Optional" />
+        <div style={{ borderTop: '1px solid #e8dcc6', paddingTop: '12px' }}>
+          <textarea placeholder="Write special requests here" value={state.notes} maxLength={NOTES_MAX} onChange={(e) => onChange({ ...state, notes: e.target.value.slice(0, NOTES_MAX) })} rows={3} style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none' }} />
+          <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999', marginTop: '4px', textAlign: 'right' }}>{state.notes.length}/{NOTES_MAX}</div>
+        </div>
+      </div>
+    </>
   );
 }

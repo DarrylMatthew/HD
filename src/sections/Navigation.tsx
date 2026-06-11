@@ -1,19 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, MapPin } from 'lucide-react';
 import { getLenis } from '../hooks/useLenis';
-import { navigationConfig, twcNavigationConfig, twcTheme } from '../config';
+import { navigationConfig, twcNavigationConfig, twcTheme, orderingPageConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
 import { useCart } from '../context/CartContext';
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [locOpen, setLocOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const { isTWC, toggleBrand } = useBrand();
   const { cartCount, setShowCart } = useCart();
 
   const config = isTWC ? twcNavigationConfig : navigationConfig;
+  const locations = orderingPageConfig.pickupLocations;
+
+  // Close the location dropdown on any outside click.
+  useEffect(() => {
+    if (!locOpen) return;
+    const close = () => setLocOpen(false);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [locOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,7 +80,7 @@ export default function Navigation() {
   return (
     <nav
       ref={navRef}
-      className="main-nav"
+      className={`main-nav${isTWC ? ' twc-mode' : ''}`}
       style={{
         position: 'fixed',
         top: 0,
@@ -98,7 +108,7 @@ export default function Navigation() {
           flex: 1,
           minWidth: 0,
           paddingLeft: '24px',
-          borderRadius: isTWC ? '0' : (scrolled ? '0.5rem 0.5rem 0.5rem 0.5rem' : '0'),
+          borderRadius: scrolled ? '0.5rem 0.5rem 0.5rem 0.5rem' : '0',
           border: 'none',
           display: 'flex',
           alignItems: 'stretch',
@@ -113,13 +123,13 @@ export default function Navigation() {
           onClick={(e) => handleNavClick(e, '#hero')}
           className={isTWC ? 'font-elegant' : 'font-script'}
           style={{
-            fontSize: isTWC ? '22px' : '28px',
-            fontWeight: isTWC ? 500 : 600,
+            fontSize: '28px',
+            fontWeight: isTWC ? 400 : 600,
             color: scrolled ? (isTWC ? twcTheme.foreground : '#4e3b31') : '#fdf6e3',
             border: 'none',
             textDecoration: 'none',
             transition: 'color 0.6s ease, font-size 0.6s ease',
-            letterSpacing: isTWC ? '3px' : '0px',
+            letterSpacing: isTWC ? '4px' : '0px',
             textTransform: isTWC ? 'uppercase' : 'none',
             display: 'flex',
             alignItems: 'center',
@@ -173,12 +183,12 @@ export default function Navigation() {
                   className="nav-link"
                   style={{
                     fontFamily: 'Effra Trial Bold',
-                    fontSize: isTWC ? '13px' : '15px',
+                    fontSize: '15px',
                     fontWeight: 600,
                     color: baseTextColor,
-                    letterSpacing: isTWC ? '2px' : '0.5px',
+                    letterSpacing: '0.5px',
                     textDecoration: 'none',
-                    textTransform: isTWC ? 'uppercase' : 'none',
+                    textTransform: 'none',
                     transition: 'color 0.4s ease, opacity 0.4s ease, letter-spacing 0.6s ease',
                     opacity: 0.85,
                   }}
@@ -264,7 +274,94 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Cart icon - its own colored island, separated from the main navbar by the row's gap */}
+      {/* Location button - opens a small dropdown with one Google Maps link per outlet */}
+      {!isTWC && (
+        <div className="nav-location-wrap" style={{ position: 'relative', display: 'none', flexShrink: 0 }}>
+          <motion.button
+            onClick={(e) => { e.stopPropagation(); setLocOpen((v) => !v); }}
+            whileTap={{ scale: 0.92 }}
+            className="nav-location-btn"
+            aria-label="Store locations"
+            aria-expanded={locOpen}
+            style={{
+              height: '100%',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0 20px',
+              background: '#4e3b31',
+              color: '#fdf6e3',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              borderRadius: scrolled ? '0.5rem' : '0',
+              boxShadow: '0 4px 16px rgba(78, 59, 49, 0.25)',
+              fontFamily: 'Effra Trial Bold',
+              fontSize: '13px',
+              fontWeight: 600,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <MapPin size={18} />
+            Location
+          </motion.button>
+          <AnimatePresence>
+            {locOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="warm-glass"
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  minWidth: '180px',
+                  borderRadius: '0.5rem',
+                  padding: '8px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  zIndex: 110,
+                }}
+              >
+                {locations.map((loc) => (
+                  <a
+                    key={loc.id}
+                    href={loc.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setLocOpen(false)}
+                    style={{
+                      fontFamily: 'Effra Trial Bold',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      color: '#2f2218',
+                      textDecoration: 'none',
+                      padding: '10px 12px',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(232,149,78,0.15)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                  >
+                    <MapPin size={14} color="#e8954e" />
+                    {loc.shortLabel}
+                  </a>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Cart icon - Hangri Dessert only; TWC has no online ordering cart */}
+      {!isTWC && (
       <motion.button
         onClick={() => setShowCart(true)}
         whileTap={{ scale: 0.92 }}
@@ -275,13 +372,13 @@ export default function Navigation() {
           border: 'none',
           cursor: 'pointer',
           padding: '0 20px',
-          background: isTWC ? twcTheme.accent : '#e8954e',
+          background: '#e8954e',
           color: '#fdf6e3',
           display: 'none',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          borderRadius: isTWC ? '0' : (scrolled ? '0.5rem' : '0'),
+          borderRadius: scrolled ? '0.5rem' : '0',
           boxShadow: '0 4px 16px rgba(232, 149, 78, 0.35)',
           transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
@@ -321,6 +418,7 @@ export default function Navigation() {
           </AnimatePresence>
         </span>
       </motion.button>
+      )}
       </div>
 
       {/* Mobile dropdown menu */}
@@ -368,9 +466,9 @@ export default function Navigation() {
                     fontSize: '16px',
                     fontWeight: 600,
                     color: isTWC ? twcTheme.foreground : '#2f2218',
-                    letterSpacing: isTWC ? '2px' : '0.5px',
+                    letterSpacing: '0.5px',
                     textDecoration: 'none',
-                    textTransform: isTWC ? 'uppercase' : 'none',
+                    textTransform: 'none',
                     padding: '14px 16px',
                     borderRadius: '6px',
                   }}
@@ -379,6 +477,36 @@ export default function Navigation() {
                 </a>
                 );
               })}
+              {!isTWC && (
+                <>
+                  <div style={{ height: '1px', background: 'rgba(216,195,165,0.5)', margin: '8px 16px' }} />
+                  {locations.map((loc) => (
+                    <a
+                      key={loc.id}
+                      href={loc.mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMenuOpen(false)}
+                      style={{
+                        fontFamily: 'Effra Trial Bold',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        color: '#2f2218',
+                        letterSpacing: '0.5px',
+                        textDecoration: 'none',
+                        padding: '14px 16px',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                      }}
+                    >
+                      <MapPin size={16} color="#e8954e" />
+                      Location – {loc.shortLabel}
+                    </a>
+                  ))}
+                </>
+              )}
             </motion.div>
           </>
         )}

@@ -36,7 +36,7 @@ function AppContent() {
   return (
     <CartProvider>
       <Navigation />
-      <main>
+      <main className={isTWC ? 'twc-mode' : undefined}>
         <Hero />
         {isTWC && <Menu />}
         {!isTWC && isMobile && <OrderGrid />}
@@ -46,7 +46,7 @@ function AppContent() {
         <Gallery />
         <Footer />
       </main>
-      <CartUI />
+      {!isTWC && <CartUI />}
     </CartProvider>
   );
 }

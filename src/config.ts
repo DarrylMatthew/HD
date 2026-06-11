@@ -62,16 +62,36 @@ export interface OrderingAddonOption {
   price: number
 }
 
-export interface OrderingCategory {
+// A menu group shown as a heading on the ordering page (e.g. "Whole Cakes").
+// Categories reference a group via groupId; groups render in array order.
+export interface OrderingGroup {
   id: string
   name: string
+  description: string
+}
+
+export interface OrderingCategory {
+  id: string
+  groupId: string
+  name: string
+  // Per-item photo. To add/replace a photo, drop a file in /public/images with
+  // this exact name — no code change needed. Until the file exists, the UI shows
+  // `imageFallback` (so the site never displays a broken image).
   image: string
+  imageFallback?: string
+  // CSS object-position for this item's photos (e.g. "center 70%" to shift down).
+  // Defaults to "center center" when omitted.
+  imagePosition?: string
   description: string
   startingPrice: number
   sizes: OrderingSizeOption[]
   addons: OrderingAddonOption[]
+  // Sauce choice (e.g. panna cotta): pick exactly 1, free. Empty = no sauce step.
+  sauces: string[]
   dustingOptions: string[]
   toppers: OrderingAddonOption[]
+  // Optional extras, multi-select checkboxes (e.g. "Knife + Lighter + Candle").
+  extras: OrderingAddonOption[]
   hasCustomText: boolean
   customTextPricePerChar: number
   isTBD: boolean
@@ -80,6 +100,8 @@ export interface OrderingCategory {
 export interface PickupLocation {
   id: string
   name: string
+  // Short label used in the navbar "Location" dropdown (e.g. "BSD", "Jakarta").
+  shortLabel: string
   address: string
   mapsUrl: string
   // Default / normal-day hours, 24h "HH:MM". Used for any date the Sheet has no
@@ -93,12 +115,19 @@ export interface OrderingPageConfig {
   title: string
   subtitle: string
   whatsappNumber: string
+  groups: OrderingGroup[]
   categories: OrderingCategory[]
   pickupLocations: PickupLocation[]
   // Published Google Sheet CSV URL for per-date pickup hours.
   // In the Sheet: File -> Share -> Publish to web -> (whole doc) -> CSV, paste the link here.
   // Leave "" to skip the Sheet and use each location's openTime/closeTime as fixed hours.
   pickupHoursSheetUrl: string
+  // Published Google Sheet CSV URL for seasonal/extra menu items (e.g. festive hampers).
+  // Add a tab named "Menu" to the same spreadsheet with the header row:
+  //   group, name, description, price, image, active
+  // Rows with active = yes/y/true/1 appear on the site under their "group" heading,
+  // no redeploy needed. Leave "" to disable.
+  menuSheetUrl: string
 }
 
 export interface GalleryConfig {
@@ -134,10 +163,11 @@ export const navigationConfig: NavigationConfig = {
 export const heroConfig: HeroConfig = {
   imagePath: "/images/hero-bg.jpg",
   eyebrow: "Handcrafted with Love",
-  titleLine: "Artisanal",
-  titleEmphasis: "Desserts",
-  subtitleLine1: "Small-batch tiramisu and panna cotta,",
-  subtitleLine2: "made fresh using the finest ingredients.",
+  titleLine: "The Best Tiramisu",
+  titleEmphasis: "in Town",
+  // Subtitle temporarily removed per owner request — leave "" to hide it.
+  subtitleLine1: "",
+  subtitleLine2: "",
   ctaText: "Explore Menu",
   ctaTargetId: "#ordering",
 }
@@ -191,107 +221,210 @@ export const orderConfig: OrderConfig = {
   whatsappNumber: "+1234567890", // Placeholder - replace with actual number
 }
 
+// Shared option sets so each menu item below stays short.
+const NO_TOPPER_OPTIONS: OrderingAddonOption[] = [
+  { label: "No Topper", price: 0 },
+  { label: "Happy Birthday", price: 15000 },
+  { label: "Happy Anniversary", price: 15000 },
+  { label: "Congrats", price: 15000 },
+]
+const RUM_CAKE: OrderingAddonOption[] = [
+  { label: "No Rum", price: 0 },
+  { label: "Add Rum", price: 25000 },
+]
+const RUM_CUP_200: OrderingAddonOption[] = [
+  { label: "No Rum", price: 0 },
+  { label: "Add Rum", price: 5000 },
+]
+const RUM_BOX_500: OrderingAddonOption[] = [
+  { label: "No Rum", price: 0 },
+  { label: "Add Rum", price: 10000 },
+]
+const WHOLE_CAKE_SIZES = [
+  { label: "M", price: 265000 },
+  { label: "L", price: 275000 },
+  { label: "XL", price: 375000 },
+]
+// "with Ladyfingers" = same sizes, +Rp 100.000 on every size.
+const WHOLE_CAKE_LADYFINGERS_SIZES = WHOLE_CAKE_SIZES.map((s) => ({ label: s.label, price: s.price + 100000 }))
+const WHOLE_CAKE_DUSTINGS = ["Plain", "Happy Birthday", "Happy Anniversary", "Congrats"]
+const WHOLE_CAKE_EXTRAS: OrderingAddonOption[] = [
+  { label: "Knife + Lighter + Candle", price: 1000 },
+]
+const PANNA_COTTA_SAUCES = ["Strawberry", "Blueberry", "Lemon"]
+// Most categories have no sauce/extras step; spread this to keep items short.
+const NO_OPTIONS = { sauces: [] as string[], dustingOptions: [] as string[], extras: [] as OrderingAddonOption[], hasCustomText: false, customTextPricePerChar: 0, isTBD: false }
+
 export const orderingPageConfig: OrderingPageConfig = {
   sectionLabel: "Order Online",
   title: "Choose Your Dessert",
   subtitle: "Select a product, customize your order, and send it straight to our WhatsApp.",
   whatsappNumber: "+6282111847742",
+  groups: [
+    { id: "whole-cakes", name: "Whole Cakes", description: "Our signature whole tiramisu cakes, perfect for celebrations. Choose your size, add rum, pick a dusting, and personalize with custom text." },
+    { id: "classic-tiramisu", name: "Classic Tiramisu", description: "Coffee-soaked ladyfingers and velvety mascarpone cream, finished with premium cocoa powder. Our signature recipe." },
+    { id: "sakura-tiramisu", name: "Sakura Tiramisu", description: "Our sakura edition — classic tiramisu layered with a luscious strawberry sauce for a fresh, fruity finish." },
+    { id: "lemon-tiramisu", name: "Lemon Tiramisu", description: "A bright, citrusy twist on the classic. Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish." },
+    { id: "panna-cotta", name: "Panna Cotta", description: "Silky Italian panna cotta made with fresh cream and real fruit sauce — choose strawberry, blueberry, or lemon." },
+  ],
   categories: [
+    // --- Whole Cakes ---
     {
       id: "whole-cake",
-      name: "Whole Cake",
-      image: "/images/whole-cake.png",
+      groupId: "whole-cakes",
+      name: "Tiramisu Whole Cake",
+      image: "/images/whole-cake.jpg",
+      imageFallback: "/images/whole-cake.png",
+      imagePosition: "center 75%",
       description: "Our signature whole tiramisu cake, perfect for celebrations. Choose your size, add rum, pick a dusting, and personalize with custom text.",
       startingPrice: 265000,
-      sizes: [
-        { label: "M", price: 265000 },
-        { label: "L", price: 275000 },
-        { label: "XL", price: 375000 },
-      ],
-      addons: [
-        { label: "No Rum", price: 0 },
-        { label: "Add Rum", price: 25000 },
-      ],
-      dustingOptions: ["Plain", "Happy Birthday", "Happy Anniversary", "Congrats"],
-      toppers: [
-        { label: "No Topper", price: 0 },
-        { label: "Happy Birthday", price: 15000 },
-        { label: "Happy Anniversary", price: 15000 },
-        { label: "Congrats", price: 15000 },
-      ],
+      sizes: WHOLE_CAKE_SIZES,
+      addons: RUM_CAKE,
+      sauces: [],
+      dustingOptions: WHOLE_CAKE_DUSTINGS,
+      toppers: NO_TOPPER_OPTIONS,
+      extras: WHOLE_CAKE_EXTRAS,
       hasCustomText: true,
       customTextPricePerChar: 3000,
       isTBD: false,
     },
     {
-      id: "tiramisu-bowl",
-      name: "Tiramisu Bowl",
-      image: "/images/tiramisu-bowl.png",
-      description: "Individual servings of our classic tiramisu in a bowl — perfect for gifting or personal indulgence.",
-      startingPrice: 30000,
-      sizes: [],
-      addons: [
-        { label: "No Rum", price: 0 },
-        { label: "Add Rum", price: 5000 },
-      ],
-      dustingOptions: [],
-      toppers: [
-        { label: "No Topper", price: 0 },
-        { label: "Happy Birthday", price: 15000 },
-        { label: "Happy Anniversary", price: 15000 },
-        { label: "Congrats", price: 15000 },
-      ],
-      hasCustomText: false,
-      customTextPricePerChar: 0,
+      id: "whole-cake-ladyfingers",
+      groupId: "whole-cakes",
+      name: "Tiramisu Whole Cake with Ladyfingers",
+      image: "/images/whole-cake-ladyfingers.jpg",
+      imageFallback: "/images/whole-cake.jpg",
+      imagePosition: "center 70%",
+      description: "The same signature whole cake, wrapped and crowned with ladyfinger biscuits for a striking presentation.",
+      startingPrice: 365000,
+      sizes: WHOLE_CAKE_LADYFINGERS_SIZES,
+      addons: RUM_CAKE,
+      sauces: [],
+      dustingOptions: WHOLE_CAKE_DUSTINGS,
+      toppers: NO_TOPPER_OPTIONS,
+      extras: WHOLE_CAKE_EXTRAS,
+      hasCustomText: true,
+      customTextPricePerChar: 3000,
       isTBD: false,
     },
+    // --- Classic Tiramisu ---
     {
-      id: "tiramisu-dessert-box",
-      name: "Tiramisu Dessert Box",
-      image: "/images/dessert-box.png",
-      description: "Beautifully packaged tiramisu dessert boxes, ideal for events, gatherings, or a luxurious treat at home.",
-      startingPrice: 0,
+      id: "classic-200",
+      groupId: "classic-tiramisu",
+      name: "Classic Tiramisu 200ml",
+      image: "/images/classic-tiramisu-200.jpg",
+      imageFallback: "/images/tiramisu-bowl.png",
+      description: "Our classic tiramisu in a personal 200ml cup — perfect for gifting or personal indulgence.",
+      startingPrice: 30000,
       sizes: [],
-      addons: [],
-      dustingOptions: [],
-      toppers: [],
-      hasCustomText: false,
-      customTextPricePerChar: 0,
-      isTBD: true,
+      addons: RUM_CUP_200,
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
     },
     {
-      id: "panna-cotta",
-      name: "Panna Cotta",
-      image: "/images/panna-cotta-product.png",
-      description: "Silky Italian panna cotta made with fresh cream and vanilla, topped with seasonal fruit compote.",
-      startingPrice: 0,
+      id: "classic-500",
+      groupId: "classic-tiramisu",
+      name: "Classic Tiramisu 500ml",
+      image: "/images/classic-tiramisu-500.jpg",
+      imageFallback: "/images/dessert-box.png",
+      imagePosition: "center 70%",
+      description: "Classic tiramisu in a 500ml rectangle dessert box — ideal for sharing, events, or a luxurious treat at home.",
+      startingPrice: 88000,
       sizes: [],
-      addons: [],
-      dustingOptions: [],
-      toppers: [],
-      hasCustomText: false,
-      customTextPricePerChar: 0,
-      isTBD: true,
+      addons: RUM_BOX_500,
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
+    },
+    // --- Sakura Tiramisu --- (temporary images until sakura photos are added)
+    {
+      id: "sakura-200",
+      groupId: "sakura-tiramisu",
+      name: "Sakura Tiramisu 200ml",
+      image: "/images/sakura-tiramisu-200.jpg",
+      imageFallback: "/images/tiramisu-bowl.png",
+      description: "Sakura edition tiramisu with a luscious strawberry layer, in a personal 200ml cup.",
+      startingPrice: 30000,
+      sizes: [],
+      addons: RUM_CUP_200,
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
     },
     {
-      id: "additional-category",
-      name: "More Coming Soon",
-      image: "/images/additional-dessert.png",
-      description: "We're always creating new delights. Stay tuned for exciting new additions to our dessert menu!",
-      startingPrice: 0,
+      id: "sakura-500",
+      groupId: "sakura-tiramisu",
+      name: "Sakura Tiramisu 500ml",
+      image: "/images/sakura-tiramisu-500.jpg",
+      imageFallback: "/images/dessert-box.png",
+      description: "Sakura edition tiramisu with a luscious strawberry layer, in a 500ml rectangle dessert box.",
+      startingPrice: 88000,
+      sizes: [],
+      addons: RUM_BOX_500,
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
+    },
+    // --- Lemon Tiramisu ---
+    {
+      id: "lemon-200",
+      groupId: "lemon-tiramisu",
+      name: "Lemon Tiramisu 200ml",
+      image: "/images/lemon-tiramisu-200.jpg",
+      imageFallback: "/images/lemon-tiramisu.jpg",
+      description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a personal 200ml cup.",
+      startingPrice: 30000,
       sizes: [],
       addons: [],
-      dustingOptions: [],
-      toppers: [],
-      hasCustomText: false,
-      customTextPricePerChar: 0,
-      isTBD: true,
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
+    },
+    {
+      id: "lemon-500",
+      groupId: "lemon-tiramisu",
+      name: "Lemon Tiramisu 500ml",
+      image: "/images/lemon-tiramisu-500.jpg",
+      imageFallback: "/images/lemon-tiramisu.jpg",
+      description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a 500ml rectangle dessert box.",
+      startingPrice: 88000,
+      sizes: [],
+      addons: [],
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
+    },
+    // --- Panna Cotta ---
+    {
+      id: "panna-cotta-200",
+      groupId: "panna-cotta",
+      name: "Panna Cotta 200ml",
+      image: "/images/panna-cotta-200.jpg",
+      imageFallback: "/images/panna-cotta-product.png",
+      imagePosition: "center 65%",
+      description: "Silky panna cotta with real fruit sauce — choose strawberry, blueberry, or lemon. Personal 200ml cup.",
+      startingPrice: 27000,
+      sizes: [],
+      addons: [],
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
+      sauces: PANNA_COTTA_SAUCES,
+    },
+    {
+      id: "panna-cotta-500",
+      groupId: "panna-cotta",
+      name: "Panna Cotta 500ml",
+      image: "/images/panna-cotta-500.jpg",
+      imageFallback: "/images/panna-cotta.jpg",
+      description: "Silky panna cotta with real fruit sauce — choose strawberry, blueberry, or lemon. 500ml rectangle dessert box.",
+      startingPrice: 88000,
+      sizes: [],
+      addons: [],
+      toppers: NO_TOPPER_OPTIONS,
+      ...NO_OPTIONS,
+      sauces: PANNA_COTTA_SAUCES,
     },
   ],
   pickupLocations: [
     {
       id: "bsd",
       name: "Hangri Dessert BSD",
+      shortLabel: "BSD",
       address: "Jl. Raflesia, Puspita Loka C1/3 BSD",
       mapsUrl: "https://maps.app.goo.gl/mexz1iNXws7hxW8B7",
       openTime: "06:00",
@@ -300,6 +433,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "tambora",
       name: "Hangri Dessert Tambora (Jakarta)",
+      shortLabel: "Jakarta",
       address: "Jln. Tanah Sereal 11 gang FF 1 no. 21 RT. 03/011 (Pagar Hitam), Tanah Sereal, Tambora, Jakarta Barat",
       mapsUrl: "https://maps.app.goo.gl/NhB1eqqY1MU9iH5z8",
       openTime: "06:00",
@@ -307,6 +441,8 @@ export const orderingPageConfig: OrderingPageConfig = {
     },
   ],
   pickupHoursSheetUrl: "https://docs.google.com/spreadsheets/d/1FJxREcJnsdOLyfy1saimebMXzmt6Ub6_BTCTuzyB6pM/gviz/tq?tqx=out:csv",
+  // Seasonal items tab in the same spreadsheet (tab must be named "Menu").
+  menuSheetUrl: "https://docs.google.com/spreadsheets/d/1FJxREcJnsdOLyfy1saimebMXzmt6Ub6_BTCTuzyB6pM/gviz/tq?tqx=out:csv&sheet=Menu",
 }
 
 export const galleryConfig: GalleryConfig = {

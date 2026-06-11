@@ -1,14 +1,29 @@
-import type { OrderingCategory, PickupLocation } from '../config';
+import type { SyntheticEvent } from 'react';
+import type { OrderingCategory, OrderingGroup, PickupLocation } from '../config';
 
 export function formatRupiah(amount: number): string {
   return 'Rp ' + amount.toLocaleString('id-ID');
 }
 
+// onError handler for menu <img>s: if the per-item photo 404s (not uploaded yet),
+// swap once to the category's fallback so the site never shows a broken image.
+export function handleImgError(fallback: string | undefined) {
+  return (e: SyntheticEvent<HTMLImageElement>) => {
+    if (!fallback) return;
+    const img = e.currentTarget;
+    if (img.dataset.fellBack === '1') return; // already swapped; avoid a loop
+    img.dataset.fellBack = '1';
+    img.src = fallback;
+  };
+}
+
 export interface CustomizeState {
   selectedSize: string;
   selectedAddon: string;
+  selectedSauce: string;
   selectedDusting: string;
   selectedTopper: string;
+  selectedExtras: string[];
   notes: string;
   wantsCustomText: boolean;
   customText: string;
@@ -20,8 +35,10 @@ export interface CartItem {
   category: OrderingCategory;
   selectedSize: string;
   selectedAddon: string;
+  selectedSauce: string;
   selectedDusting: string;
   selectedTopper: string;
+  selectedExtras: string[];
   notes: string;
   wantsCustomText: boolean;
   customText: string;
@@ -220,6 +237,85 @@ export async function fetchPickupHours(url: string): Promise<HoursSchedule> {
   return parseHoursCsv(await res.text());
 }
 
+// --- Google Sheet seasonal menu loading --------------------------------------
+
+export interface SeasonalMenu {
+  groups: OrderingGroup[];
+  categories: OrderingCategory[];
+}
+
+function slugify(s: string): string {
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+// Parse the published "Menu" tab CSV into extra groups + simple categories.
+// Columns (header row, case-insensitive): group, name, description, price, image, active
+//  - group: heading the item appears under (e.g. "Lebaran Hampers")
+//  - price: plain number in Rupiah (e.g. 150000)
+//  - image: optional image URL or /images/... path
+//  - active: yes/y/true/1/aktif shows the item; anything else hides it
+// Sheet items are simple products (notes + quantity only, no size/addon steps).
+export function parseMenuCsv(csv: string): SeasonalMenu {
+  const empty: SeasonalMenu = { groups: [], categories: [] };
+  const lines = csv.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length < 2) return empty;
+
+  const header = splitCsvLine(lines[0]).map((c) => c.trim().toLowerCase());
+  // Defensive: if the tab doesn't exist Google returns an error page, not our CSV.
+  if (!header.includes('name') || !header.includes('price')) return empty;
+  const idx = {
+    group: header.indexOf('group'),
+    name: header.indexOf('name'),
+    description: header.indexOf('description'),
+    price: header.indexOf('price'),
+    image: header.indexOf('image'),
+    active: header.indexOf('active'),
+  };
+  const cell = (cells: string[], i: number) => (i >= 0 ? (cells[i] ?? '').trim() : '');
+
+  const groups: OrderingGroup[] = [];
+  const categories: OrderingCategory[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cells = splitCsvLine(lines[i]);
+    const name = cell(cells, idx.name);
+    const price = Number(cell(cells, idx.price).replace(/[^0-9]/g, ''));
+    const active = cell(cells, idx.active).toLowerCase();
+    if (!name || !Number.isFinite(price) || price <= 0) continue;
+    if (!['yes', 'y', 'true', '1', 'aktif'].includes(active)) continue;
+
+    const groupName = cell(cells, idx.group) || 'Seasonal Specials';
+    const groupId = `sheet-${slugify(groupName)}`;
+    if (!groups.some((g) => g.id === groupId)) {
+      groups.push({ id: groupId, name: groupName, description: '' });
+    }
+    categories.push({
+      id: `sheet-${slugify(name)}`,
+      groupId,
+      name,
+      image: cell(cells, idx.image) || '/images/additional-dessert.png',
+      description: cell(cells, idx.description),
+      startingPrice: price,
+      sizes: [],
+      addons: [],
+      sauces: [],
+      dustingOptions: [],
+      toppers: [],
+      extras: [],
+      hasCustomText: false,
+      customTextPricePerChar: 0,
+      isTBD: false,
+    });
+  }
+  return { groups, categories };
+}
+
+export async function fetchSeasonalMenu(url: string): Promise<SeasonalMenu> {
+  const sep = url.includes('?') ? '&' : '?';
+  const res = await fetch(`${url}${sep}_=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Menu fetch failed: ${res.status}`);
+  return parseMenuCsv(await res.text());
+}
+
 export function todayISODate(): string {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -249,12 +345,51 @@ export function getInitialState(cat: OrderingCategory): CustomizeState {
   return {
     selectedSize: cat.sizes[0]?.label ?? '',
     selectedAddon: cat.addons[0]?.label ?? '',
+    selectedSauce: cat.sauces[0] ?? '',
     selectedDusting: cat.dustingOptions[0] ?? '',
     selectedTopper: cat.toppers[0]?.label ?? '',
+    selectedExtras: [],
     notes: '',
     wantsCustomText: false,
     customText: '',
     quantity: 1,
+  };
+}
+
+// Customize state pre-filled from an existing cart item, for the edit flow.
+export function stateFromCartItem(item: CartItem): CustomizeState {
+  return {
+    selectedSize: item.selectedSize,
+    selectedAddon: item.selectedAddon,
+    selectedSauce: item.selectedSauce,
+    selectedDusting: item.selectedDusting,
+    selectedTopper: item.selectedTopper,
+    selectedExtras: [...item.selectedExtras],
+    notes: item.notes,
+    wantsCustomText: item.wantsCustomText,
+    customText: item.customText,
+    quantity: item.quantity,
+  };
+}
+
+// Cart item payload (without id) from the current customize state. Used by both
+// the add-to-cart and save-edited-item paths so pricing stays in one place.
+export function cartItemFromState(cat: OrderingCategory, s: CustomizeState): Omit<CartItem, 'id'> {
+  const unitPrice = calcUnitPrice(cat, s);
+  return {
+    category: cat,
+    selectedSize: s.selectedSize,
+    selectedAddon: s.selectedAddon,
+    selectedSauce: s.selectedSauce,
+    selectedDusting: s.selectedDusting,
+    selectedTopper: s.selectedTopper,
+    selectedExtras: [...s.selectedExtras],
+    notes: s.notes,
+    wantsCustomText: s.wantsCustomText,
+    customText: s.customText,
+    quantity: s.quantity,
+    unitPrice,
+    totalPrice: unitPrice * s.quantity,
   };
 }
 
@@ -270,6 +405,9 @@ export function calcUnitPrice(cat: OrderingCategory, s: CustomizeState): number 
   if (ad) t += ad.price;
   const tp = cat.toppers.find((x) => x.label === s.selectedTopper);
   if (tp) t += tp.price;
+  for (const ex of cat.extras) {
+    if (s.selectedExtras.includes(ex.label)) t += ex.price;
+  }
   if (cat.hasCustomText && s.wantsCustomText && s.customText.length > 0) {
     t += s.customText.length * cat.customTextPricePerChar;
   }
@@ -299,10 +437,15 @@ export function buildWhatsAppMessage(
     msg += `${i + 1}. ${item.category.name}\n`;
     if (item.selectedSize) msg += `   Size: ${item.selectedSize}\n`;
     if (item.selectedAddon) msg += `   Rum: ${item.selectedAddon}\n`;
+    if (item.selectedSauce) msg += `   Sauce: ${item.selectedSauce}\n`;
     if (item.selectedDusting) msg += `   Dusting: ${item.selectedDusting}\n`;
     if (item.selectedTopper) {
       const tp = item.category.toppers.find((x) => x.label === item.selectedTopper);
       msg += `   Topper: ${item.selectedTopper}${tp && tp.price > 0 ? ` (+${formatRupiah(tp.price)})` : ''}\n`;
+    }
+    for (const exLabel of item.selectedExtras) {
+      const ex = item.category.extras.find((x) => x.label === exLabel);
+      msg += `   Add-on: ${exLabel}${ex && ex.price > 0 ? ` (+${formatRupiah(ex.price)})` : ''}\n`;
     }
     if (item.wantsCustomText && item.customText) {
       const cc = item.customText.length;

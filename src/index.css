@@ -1,10 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Italiana&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: local('EB Garamond'),
+       url('/fonts/eb-garamond/EBGaramond-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: local('EB Garamond Italic'),
+       url('/fonts/eb-garamond/EBGaramond-Italic-VariableFont_wght.ttf') format('truetype');
+}
 
 @font-face {
   font-family: 'Effra Trial Bold';
   font-style: normal;
   font-weight: 100 900;
   src: local('Effra Trial Bold'), url('/fonts/effra/Effra_Trial_Bd.woff') format('woff');
+}
+
+/* TWC brand display font. Drop the licensed font file at
+   /public/fonts/brown-sugar/BrownSugar.woff2 (or .ttf) and it loads
+   automatically; until then the stack falls back to Italiana (closest free
+   match), with EB Garamond after that. */
+@font-face {
+  font-family: 'Brown Sugar';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Brown Sugar'),
+       url('/fonts/brown-sugar/BrownSugar.woff2') format('woff2'),
+       url('/fonts/brown-sugar/BrownSugar.ttf') format('truetype'),
+       url('/fonts/brown-sugar/BrownSugar.otf') format('opentype');
 }
 
 @tailwind base;
@@ -200,8 +233,22 @@
   }
 
   /* ======== TWC ELEGANT THEME CLASSES ======== */
+  /* Brand display font (the "TWC" lettering): Brown Sugar, per the brand deck. */
   .font-elegant {
-    font-family: 'Effra Trial Bold', sans-serif !important;
+    font-family: 'Brown Sugar', 'Italiana', 'EB Garamond', serif !important;
+  }
+
+  /* TWC body copy uses EB Garamond (matches the brand deck). Applied with a
+     wrapper class so the Hangri side keeps Effra. The * + !important is needed
+     to beat the inline fontFamily styles used throughout the sections; the more
+     specific .font-elegant rule below still wins for display headings. */
+  .twc-mode,
+  .twc-mode * {
+    font-family: 'EB Garamond', Georgia, serif !important;
+  }
+  .twc-mode .font-elegant,
+  .twc-mode .font-elegant * {
+    font-family: 'Brown Sugar', 'Italiana', 'EB Garamond', serif !important;
   }
   .elegant-glass {
     background: rgba(255, 255, 255, 0.9);
@@ -303,6 +350,10 @@
   .nav-cart-btn {
     display: none !important;
   }
+  /* Location island: mobile uses the hamburger menu entries instead */
+  .nav-location-wrap {
+    display: none !important;
+  }
   .brand-toggle-btn {
     font-size: 10px !important;
     padding: 0 16px !important;
@@ -344,6 +395,9 @@
     }
     .nav-cart-btn {
       display: inline-flex !important;
+    }
+    .nav-location-wrap {
+      display: flex !important;
     }
     .brand-toggle-btn {
       font-size: 11px !important;

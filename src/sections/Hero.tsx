@@ -126,8 +126,9 @@ export default function Hero() {
           </motion.h1>
         </AnimatePresence>
 
-        {/* Subtitle */}
+        {/* Subtitle — hidden entirely when the config leaves it empty */}
         <AnimatePresence mode="wait">
+          {config.subtitleLine1 && (
           <motion.p
             key={config.subtitleLine1}
             initial={{ opacity: 0, y: 15 }}
@@ -146,6 +147,7 @@ export default function Hero() {
           >
             {config.subtitleLine1}
           </motion.p>
+          )}
         </AnimatePresence>
 
         {/* CTA Button — outline style with hover fill */}
