@@ -39,8 +39,8 @@ function AppContent() {
       <main className={isTWC ? 'twc-mode' : undefined}>
         <Hero />
         {isTWC && <Menu />}
-        {!isTWC && isMobile && <OrderGrid />}
         {!isTWC && <OrderingPage />}
+        {/* Mobile shows only "Choose Your Dessert"; the "Order Online" grid is desktop-only. */}
         {!isTWC && !isMobile && <OrderGrid />}
         {isTWC && <OrderForm />}
         <Gallery />

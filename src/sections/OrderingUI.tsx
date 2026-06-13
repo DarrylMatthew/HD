@@ -5,9 +5,11 @@ import type { CartItem, CheckoutDetails, HoursSchedule, DayHours, CustomizeState
 import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots, resolveDayHours, formatTimeLabel, calcUnitPrice, isCustomizeValid, CUSTOM_TEXT_MAX, NOTES_MAX, handleImgError } from './OrderingUtils';
 import type { OrderingCategory, PickupLocation } from '../config';
 import { useIsMobile } from '../hooks/use-mobile';
+import { useScrollLock } from '../hooks/useScrollLock';
 
 /* ======== MOBILE ITEM DETAIL POPUP (bottom sheet) ======== */
 export function MobilePreviewSheet({ cat, onClose, onAdd }: { cat: OrderingCategory; onClose: () => void; onAdd: (c: OrderingCategory) => void }) {
+  useScrollLock();
   return (
     <>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
@@ -26,7 +28,7 @@ export function MobilePreviewSheet({ cat, onClose, onAdd }: { cat: OrderingCateg
           <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', lineHeight: 1.6, color: '#5a4a3a', margin: '0 0 12px' }}>{cat.description}</p>
         )}
         <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '20px', fontWeight: 700, color: '#e8954e', margin: '0 0 20px' }}>
-          {cat.isTBD ? 'Coming Soon' : `${cat.sizes.length > 0 ? 'From ' : ''}${formatRupiah(cat.startingPrice)}`}
+          {cat.isTBD ? 'Coming Soon' : `${cat.sizes.length > 0 && !cat.hideFromPrefix ? 'From ' : ''}${formatRupiah(cat.startingPrice)}`}
         </div>
         {!cat.isTBD && (
           <motion.button whileTap={{ scale: 0.97 }} onClick={() => onAdd(cat)}
@@ -131,6 +133,7 @@ export function CartReview({
   hoursLoading: boolean;
 }) {
   const isMobile = useIsMobile();
+  useScrollLock();
   // Re-evaluate the time constraint every 30s so a user who picks a valid
   // time and then lingers doesn't sneak through after the 5-min window passes.
   const [, setTick] = useState(0);
@@ -435,18 +438,35 @@ export function CustomizePanel({
   submitLabel?: string;
   isMobile: boolean;
 }) {
+  useScrollLock();
   const total = calcUnitPrice(cat, state) * state.quantity;
   const canAdd = isCustomizeValid(cat, state);
 
-  const header = (pad: string) => (
+  // Fixed: just the close bar so the dish title is always dismissable.
+  const topBar = (pad: string) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: `16px ${pad}`, borderBottom: '1px solid #eee', flexShrink: 0 }}>
+      <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2f2218', display: 'flex' }}><ArrowLeft size={22} /></motion.button>
+      <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 600, color: '#2f2218' }}>Customize the dish</span>
+    </div>
+  );
+
+  // Scrollable: picture + name/price + description sit at the top of the scroll
+  // area (not pinned), so the customization window is as tall as possible.
+  const intro = (pad: string) => (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: `16px ${pad}`, borderBottom: '1px solid #eee', flexShrink: 0 }}>
-        <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2f2218', display: 'flex' }}><ArrowLeft size={22} /></motion.button>
-        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 600, color: '#2f2218' }}>Customize the dish</span>
+      {/* Product picture — full-bleed across the padded scroll area */}
+      <div style={{ height: '200px', margin: `0 -${pad}`, overflow: 'hidden' }}>
+        <img src={cat.image} alt={cat.name} onError={handleImgError(cat.imageFallback)} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: cat.imagePosition ?? 'center center' }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: `20px ${pad}`, borderBottom: '1px solid #eee' }}>
-        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, color: '#2f2218' }}>{cat.name}</span>
-        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, color: '#2f2218' }}>{formatRupiah(calcUnitPrice(cat, state))}</span>
+      <div style={{ padding: '16px 0', borderBottom: '1px solid #eee' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, color: '#2f2218' }}>{cat.name}</span>
+          <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, color: '#2f2218', flexShrink: 0 }}>{formatRupiah(calcUnitPrice(cat, state))}</span>
+        </div>
+        {/* Product description */}
+        {cat.description && (
+          <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', lineHeight: 1.6, color: '#5a4a3a', margin: '8px 0 0' }}>{cat.description}</p>
+        )}
       </div>
     </>
   );
@@ -468,8 +488,9 @@ export function CustomizePanel({
     return (
       <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         style={{ position: 'fixed', inset: 0, zIndex: 1000, background: '#fff', display: 'flex', flexDirection: 'column' }}>
-        {header('20px')}
-        <div data-lenis-prevent style={{ flex: 1, overflowY: 'auto', padding: '0 20px 120px' }}>
+        {topBar('20px')}
+        <div data-lenis-prevent style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', padding: '0 20px 120px' }}>
+          {intro('20px')}
           <CustomizeOptions cat={cat} state={state} onChange={onChange} />
         </div>
         {footer('20px')}
@@ -481,9 +502,10 @@ export function CustomizePanel({
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(47,34,24,0.5)', backdropFilter: 'blur(6px)', display: 'flex', justifyContent: 'flex-end' }}>
       <motion.div data-lenis-prevent initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        onClick={(e) => e.stopPropagation()} style={{ width: '480px', height: '100%', background: '#fff', display: 'flex', flexDirection: 'column' }}>
-        {header('24px')}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px 120px' }}>
+        onClick={(e) => e.stopPropagation()} style={{ width: '480px', maxWidth: '100vw', height: '100%', background: '#fff', display: 'flex', flexDirection: 'column' }}>
+        {topBar('24px')}
+        <div style={{ flex: 1, overflowY: 'auto', overscrollBehavior: 'contain', padding: '0 24px 120px' }}>
+          {intro('24px')}
           <CustomizeOptions cat={cat} state={state} onChange={onChange} />
         </div>
         {footer('24px')}

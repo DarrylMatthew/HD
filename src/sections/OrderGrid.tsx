@@ -2,7 +2,6 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import type { OrderingCategory } from '../config';
 import { Clock } from 'lucide-react';
-import { getLenis } from '../hooks/useLenis';
 import { formatRupiah, getInitialState, cartItemFromState, handleImgError } from './OrderingUtils';
 import type { CustomizeState } from './OrderingUtils';
 import { CustomizePanel, MobilePreviewSheet } from './OrderingUI';
@@ -18,7 +17,7 @@ export default function OrderGrid() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
   const isMobile = useIsMobile();
-  const { addToCart: pushToCart, showCart, menuGroups, menuCategories } = useCart();
+  const { addToCart: pushToCart, menuGroups, menuCategories } = useCart();
   const [filter, setFilter] = useState('All');
   const [activeCat, setActiveCat] = useState<OrderingCategory | null>(null);
   // Mobile-only: item detail popup (image + description) shown when a card is tapped.
@@ -47,12 +46,8 @@ export default function OrderGrid() {
     closeCustomize();
   }, [activeCat, cState, closeCustomize, pushToCart]);
 
-  useEffect(() => {
-    const lenis = getLenis();
-    if (activeCat || showCart || previewCat) { document.body.style.overflow = 'hidden'; lenis?.stop(); }
-    else { document.body.style.overflow = ''; lenis?.start(); }
-    return () => { document.body.style.overflow = ''; lenis?.start(); };
-  }, [activeCat, showCart, previewCat]);
+  // Body-scroll locking is handled by useScrollLock inside each overlay
+  // (CustomizePanel / MobilePreviewSheet / CartReview), so no manual lock here.
 
   return (
     <>
@@ -125,7 +120,7 @@ function GridCard({ cat, groupName, index, isInView, onOrder }: { cat: OrderingC
       {cat.isTBD ? (
         <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontStyle: 'italic', color: '#aaa' }}>Price TBD</span>
       ) : (
-        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', fontWeight: 600, color: '#e8954e' }}>{cat.sizes.length > 0 ? 'From ' : ''}{formatRupiah(cat.startingPrice)}</span>
+        <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', fontWeight: 600, color: '#e8954e' }}>{cat.sizes.length > 0 && !cat.hideFromPrefix ? 'From ' : ''}{formatRupiah(cat.startingPrice)}</span>
       )}
     </motion.div>
   );

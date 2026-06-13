@@ -84,6 +84,9 @@ export interface OrderingCategory {
   imagePosition?: string
   description: string
   startingPrice: number
+  // When true, list/card prices omit the "From " prefix even though the item
+  // has multiple sizes (e.g. whole cakes, which are priced per size).
+  hideFromPrefix?: boolean
   sizes: OrderingSizeOption[]
   addons: OrderingAddonOption[]
   // Sauce choice (e.g. panna cotta): pick exactly 1, free. Empty = no sauce step.
@@ -278,6 +281,7 @@ export const orderingPageConfig: OrderingPageConfig = {
       imagePosition: "center 75%",
       description: "Our signature whole tiramisu cake, perfect for celebrations. Choose your size, add rum, pick a dusting, and personalize with custom text.",
       startingPrice: 265000,
+      hideFromPrefix: true,
       sizes: WHOLE_CAKE_SIZES,
       addons: RUM_CAKE,
       sauces: [],
@@ -297,6 +301,7 @@ export const orderingPageConfig: OrderingPageConfig = {
       imagePosition: "center 70%",
       description: "The same signature whole cake, wrapped and crowned with ladyfinger biscuits for a striking presentation.",
       startingPrice: 365000,
+      hideFromPrefix: true,
       sizes: WHOLE_CAKE_LADYFINGERS_SIZES,
       addons: RUM_CAKE,
       sauces: [],
@@ -533,12 +538,15 @@ export interface TWCTheme {
   overlay: string
 }
 
+// Monochrome wedding-cake palette: white, black, and the brand grey #E9E8E9.
+// `accent` is black for the light sections; the two dark surfaces (footer + the
+// "Bespoke" card) invert to white locally since black would vanish on them.
 export const twcTheme: TWCTheme = {
   background: "#ffffff",
-  backgroundAlt: "#f8f8f8",
+  backgroundAlt: "#E9E8E9",
   foreground: "#1a1a1a",
-  accent: "#c9a96e",
-  accentLight: "rgba(201, 169, 110, 0.15)",
+  accent: "#1a1a1a",
+  accentLight: "#E9E8E9",
   card: "#fafafa",
   cardBorder: "rgba(0, 0, 0, 0.08)",
   muted: "#6b6b6b",
@@ -548,7 +556,7 @@ export const twcTheme: TWCTheme = {
 export const twcSiteConfig: SiteConfig = {
   language: "en",
   siteTitle: "Tiramisu Wedding Cake | Luxury Wedding Desserts",
-  siteDescription: "Bespoke tiramisu cocktail towers and wedding cakes. Elevate your special day with our luxurious handcrafted desserts.",
+  siteDescription: "Bespoke tiramisu towers and wedding cakes. Elevate your special day with our luxurious handcrafted desserts.",
 }
 
 export const twcNavigationConfig: NavigationConfig = {
@@ -565,7 +573,7 @@ export const twcHeroConfig: HeroConfig = {
   eyebrow: "Luxury Wedding Desserts",
   titleLine: "Tiramisu",
   titleEmphasis: "Wedding Cake",
-  subtitleLine1: "Bespoke tiramisu cocktail towers",
+  subtitleLine1: "FOR COUPLES WHO BREAK WEDDING CAKE TRADITIONS",
   subtitleLine2: "crafted for your unforgettable celebration.",
   ctaText: "Get Free Wedding Cake Sample",
   ctaTargetId: "#order",
@@ -577,10 +585,10 @@ export const twcMenuConfig: TWCMenuConfig = {
   subtitle: "Each piece is meticulously crafted to be the centrepiece of your celebration. Pricing is tailored to your vision.",
   products: [
     {
-      name: "Tiramisu Cocktail Tower",
+      name: "Tiramisu Tower",
       description: "A breathtaking tower of hand-crafted tiramisu served in crystal coupe glasses. The ultimate showpiece for your wedding reception, customisable in height and presentation.",
       servingInfo: "Available for 50–300+ guests",
-      image: "/images/twc/twc-tower.png",
+      image: "/images/twc/tiramisu-tower.jpg",
     },
     {
       name: "Long Cake",
@@ -654,7 +662,7 @@ export const twcFooterConfig: FooterConfig = {
       heading: "Services",
       links: [
         { label: "Wedding Cakes", href: "#menu" },
-        { label: "Cocktail Towers", href: "#menu" },
+        { label: "Tiramisu Towers", href: "#menu" },
         { label: "Bespoke Design", href: "#order" },
       ],
     },

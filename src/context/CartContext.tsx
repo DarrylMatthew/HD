@@ -2,7 +2,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '../hooks/use-mobile';
-import { getLenis } from '../hooks/useLenis';
 import {
   buildWhatsAppMessage,
   nextCartId,
@@ -167,17 +166,11 @@ function EditItemPanel({ item }: { item: CartItem }) {
   const { updateCartItem, cancelEdit } = useCart();
   const [state, setState] = useState<CustomizeState>(() => stateFromCartItem(item));
 
+  // Scroll locking is handled by CustomizePanel's own useScrollLock.
   useEffect(() => {
-    const lenis = getLenis();
-    document.body.style.overflow = 'hidden';
-    lenis?.stop();
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') cancelEdit(); };
     window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = '';
-      lenis?.start();
-      window.removeEventListener('keydown', onKey);
-    };
+    return () => window.removeEventListener('keydown', onKey);
   }, [cancelEdit]);
 
   const save = () => {

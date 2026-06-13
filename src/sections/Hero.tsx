@@ -107,7 +107,7 @@ export default function Hero() {
               fontSize: 'clamp(40px, 7vw, 72px)',
               fontWeight: isTWC ? 400 : 300,
               lineHeight: 1.1,
-              color: '#fdf6e3',
+              color: isTWC ? '#ffffff' : '#fdf6e3',
               margin: 0,
               letterSpacing: '2px',
               textTransform: 'uppercase',
@@ -117,7 +117,7 @@ export default function Hero() {
             <br />
             <span
               style={{
-                color: '#e8954e',
+                color: isTWC ? '#ffffff' : '#e8954e',
                 fontStyle: 'normal',
               }}
             >
@@ -140,7 +140,7 @@ export default function Hero() {
               fontSize: 'clamp(13px, 2vw, 16px)',
               fontStyle: 'italic',
               lineHeight: 1.6,
-              color: 'rgba(253,246,227,0.75)',
+              color: isTWC ? 'rgba(255,255,255,0.78)' : 'rgba(253,246,227,0.75)',
               maxWidth: '420px',
               margin: '0',
             }}
@@ -169,9 +169,9 @@ export default function Hero() {
               textTransform: 'uppercase',
               padding: '16px 48px',
               cursor: 'pointer',
-              color: '#fdf6e3',
+              color: isTWC ? '#ffffff' : '#fdf6e3',
               background: 'transparent',
-              border: '1.5px solid rgba(253,246,227,0.5)',
+              border: isTWC ? '1.5px solid rgba(255,255,255,0.55)' : '1.5px solid rgba(253,246,227,0.5)',
               borderRadius: '0',
               transition: 'all 0.4s ease',
             }}

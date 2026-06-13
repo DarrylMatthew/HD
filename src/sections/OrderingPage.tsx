@@ -3,7 +3,6 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import type { OrderingCategory, OrderingGroup } from '../config';
 import { orderingPageConfig } from '../config';
 import { ShoppingBag } from 'lucide-react';
-import { getLenis } from '../hooks/useLenis';
 import { formatRupiah, getInitialState, cartItemFromState, handleImgError } from './OrderingUtils';
 import type { CustomizeState } from './OrderingUtils';
 import { CustomizePanel, MobilePreviewSheet } from './OrderingUI';
@@ -15,11 +14,15 @@ function useIsMobile(bp = 768) {
   return m;
 }
 
+// Solid accent banner behind every category title — Hangri's signature
+// chocolate (cream text on solid colour), the same for every menu category.
+const categoryAccent = '#4e3b31';
+
 export default function OrderingPage() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const isMobile = useIsMobile();
-  const { addToCart: pushToCart, showCart, setShowCart, editingItem, menuGroups, menuCategories } = useCart();
+  const { addToCart: pushToCart, showCart, setShowCart, menuGroups, menuCategories } = useCart();
   const [activeCat, setActiveCat] = useState<OrderingCategory | null>(null);
   // Mobile-only: item detail popup (image + description) shown when a list row is tapped.
   const [previewCat, setPreviewCat] = useState<OrderingCategory | null>(null);
@@ -41,13 +44,8 @@ export default function OrderingPage() {
     closeCustomize();
   }, [activeCat, cState, closeCustomize, pushToCart]);
 
-  useEffect(() => {
-    const lenis = getLenis();
-    const locked = showCart || activeCat !== null || editingItem !== null || previewCat !== null;
-    if (locked) { document.body.style.overflow = 'hidden'; lenis?.stop(); }
-    else { document.body.style.overflow = ''; lenis?.start(); }
-    return () => { document.body.style.overflow = ''; lenis?.start(); };
-  }, [showCart, activeCat, editingItem, previewCat]);
+  // Body-scroll locking is handled by useScrollLock inside each overlay
+  // (CustomizePanel / MobilePreviewSheet / CartReview), so no manual lock here.
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') { if (showCart) setShowCart(false); else if (previewCat) setPreviewCat(null); else if (activeCat) closeCustomize(); } };
@@ -63,7 +61,7 @@ export default function OrderingPage() {
     <>
       <section id="ordering" ref={sectionRef} style={{ position: 'relative' }}>
         {/* Section Header */}
-        <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} style={{ textAlign: 'center', padding: '120px 24px 60px', backgroundColor: '#f5ecd8' }}>
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} style={{ textAlign: 'center', padding: '120px 24px 80px', backgroundColor: '#f5ecd8' }}>
           <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#e8954e', display: 'block', marginBottom: '16px' }}>{orderingPageConfig.sectionLabel}</span>
           <h2 className="font-serif" style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 300, color: '#2f2218', margin: '0 0 16px' }}>{orderingPageConfig.title}</h2>
           <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', lineHeight: 1.7, color: '#5a4a3a', maxWidth: '520px', margin: '0 auto' }}>{orderingPageConfig.subtitle}</p>
@@ -82,7 +80,7 @@ export default function OrderingPage() {
                 <motion.h3
                   initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: gi * 0.05 }}
                   className="font-serif"
-                  style={{ fontSize: '22px', fontWeight: 400, color: '#2f2218', margin: gi === 0 ? '8px 0 4px' : '32px 0 4px' }}>
+                  style={{ display: 'inline-block', fontSize: '19px', fontWeight: 500, color: '#fdf6e3', background: categoryAccent, padding: '6px 16px', borderRadius: '11px 3px 11px 3px', margin: gi === 0 ? '8px 0 8px' : '32px 0 8px' }}>
                   {group.name}
                 </motion.h3>
                 {items.map((cat, i) => (
@@ -148,7 +146,7 @@ function DesktopGroupSection({ group, items, index, bg, isInView, onOrder }: { g
         {/* Content */}
         <motion.div initial={{ opacity: 0, x: reverse ? -60 : 60 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.8, delay: index * 0.1 + 0.3 }}
           style={{ flex: '0 0 45%' }}>
-          <h3 className="font-serif" style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 400, color: '#2f2218', margin: '0 0 16px', lineHeight: 1.2 }}>{group.name}</h3>
+          <h3 className="font-serif" style={{ display: 'inline-block', fontSize: 'clamp(28px, 3.6vw, 42px)', fontWeight: 400, color: '#fdf6e3', background: categoryAccent, padding: '8px 24px', borderRadius: '16px 5px 16px 5px', margin: '0 0 16px', lineHeight: 1.2 }}>{group.name}</h3>
           {/* Sheet groups have no group-level description, so fall back to the shown item's */}
           {(group.description || shown?.description) && (
             <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', lineHeight: 1.8, color: '#5a4a3a', margin: '0 0 24px' }}>{group.description || shown?.description}</p>
@@ -163,7 +161,7 @@ function DesktopGroupSection({ group, items, index, bg, isInView, onOrder }: { g
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', fontWeight: 700, color: '#2f2218' }}>{cat.name}</div>
                   <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600, marginTop: '2px' }}>
-                    {cat.sizes.length > 0 ? 'From ' : ''}{formatRupiah(cat.startingPrice)}
+                    {cat.sizes.length > 0 && !cat.hideFromPrefix ? 'From ' : ''}{formatRupiah(cat.startingPrice)}
                   </div>
                 </div>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); onOrder(cat); }}
@@ -191,7 +189,7 @@ function MobileListItem({ cat, index, isInView, onAdd, onPress }: { cat: Orderin
         {cat.isTBD ? (
           <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', fontStyle: 'italic', color: '#a09488' }}>Coming Soon</span>
         ) : (
-          <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', fontWeight: 600, color: '#e8954e' }}>{cat.sizes.length > 0 ? 'From ' : ''}{formatRupiah(cat.startingPrice)}</span>
+          <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', fontWeight: 600, color: '#e8954e' }}>{cat.sizes.length > 0 && !cat.hideFromPrefix ? 'From ' : ''}{formatRupiah(cat.startingPrice)}</span>
         )}
       </div>
       <div style={{ position: 'relative', flexShrink: 0 }}>

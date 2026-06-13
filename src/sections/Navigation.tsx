@@ -216,7 +216,7 @@ export default function Navigation() {
               fontFamily: 'Effra Trial Bold',
               fontSize: '12px',
               fontWeight: 600,
-              color: isTWC ? '#2f2218' : '#fdf6e3',
+              color: isTWC ? '#ffffff' : '#fdf6e3',
               letterSpacing: '1.5px',
               textTransform: 'uppercase',
               background: isTWC ? twcTheme.accent : '#4e3b31',
@@ -452,15 +452,15 @@ export default function Navigation() {
                 flexDirection: 'column',
               }}
             >
-              {config.links.map((item) => {
-                const mobileTarget = !isTWC && item.label === 'Menu' ? '#order-grid'
-                  : !isTWC && item.label === 'Order' ? '#ordering'
-                  : item.target;
-                return (
+              {config.links
+                // Mobile shows only "Choose Your Dessert" (#ordering); the grid
+                // (#order-grid) is desktop-only, so drop its nav link here.
+                .filter((item) => isTWC || item.target !== '#order-grid')
+                .map((item) => (
                 <a
-                  key={`${item.label}-${mobileTarget}`}
-                  href={mobileTarget}
-                  onClick={(e) => handleNavClick(e, mobileTarget)}
+                  key={`${item.label}-${item.target}`}
+                  href={item.target}
+                  onClick={(e) => handleNavClick(e, item.target)}
                   style={{
                     fontFamily: 'Effra Trial Bold',
                     fontSize: '16px',
@@ -475,8 +475,7 @@ export default function Navigation() {
                 >
                   {item.label}
                 </a>
-                );
-              })}
+                ))}
               {!isTWC && (
                 <>
                   <div style={{ height: '1px', background: 'rgba(216,195,165,0.5)', margin: '8px 16px' }} />

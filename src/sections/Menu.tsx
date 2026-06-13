@@ -181,7 +181,7 @@ export default function Menu() {
                   justifyContent: 'center',
                 }}
               >
-                <Diamond size={26} color={twcTheme.accent} />
+                <Diamond size={26} color="#ffffff" />
               </div>
               <h3
                 className="font-elegant"
@@ -226,7 +226,7 @@ export default function Menu() {
                   fontSize: '13px',
                   fontWeight: 600,
                   color: '#1a1a1a',
-                  background: twcTheme.accent,
+                  background: '#ffffff',
                   letterSpacing: '2px',
                   textTransform: 'uppercase',
                   textDecoration: 'none',

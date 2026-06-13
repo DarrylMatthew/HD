@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { footerConfig, twcFooterConfig, twcTheme } from '../config';
+import { footerConfig, twcFooterConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
 import { getLenis } from '../hooks/useLenis';
 import { Cake, Crown, Instagram, Mail, MessageCircle } from 'lucide-react';
@@ -11,9 +11,12 @@ export default function Footer() {
   const { isTWC } = useBrand();
 
   const config = isTWC ? twcFooterConfig : footerConfig;
-  const accentColor = isTWC ? twcTheme.accent : '#e8954e';
+  // TWC footer sits on near-black, so its accents are white (the palette's light
+  // tone); accentTextColor is the contrasting colour for icons on an accent fill.
+  const accentColor = isTWC ? '#ffffff' : '#e8954e';
+  const accentTextColor = isTWC ? '#1a1a1a' : '#fff';
   const mutedTextColor = isTWC ? 'rgba(255,255,255,0.5)' : '#d8c3a5';
-  const headingColor = isTWC ? twcTheme.accent : '#e8954e';
+  const headingColor = isTWC ? '#ffffff' : '#e8954e';
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('#')) {
@@ -31,10 +34,10 @@ export default function Footer() {
           {/* Brand Column */}
           <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} style={{ gridColumn: 'span 1' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: isTWC ? `linear-gradient(135deg, ${twcTheme.accent} 0%, #e8d5a3 100%)` : 'linear-gradient(135deg, #e8954e 0%, #d4a373 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-radius 0.6s ease, background 0.6s ease' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: isTWC ? 'linear-gradient(135deg, #ffffff 0%, #E9E8E9 100%)' : 'linear-gradient(135deg, #e8954e 0%, #d4a373 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-radius 0.6s ease, background 0.6s ease' }}>
                 <AnimatePresence mode="wait">
                   <motion.div key={isTWC ? 'crown' : 'cake'} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.3 }}>
-                    {isTWC ? <Crown size={20} color="#fff" /> : <Cake size={20} color="#fff" />}
+                    {isTWC ? <Crown size={20} color="#1a1a1a" /> : <Cake size={20} color="#fff" />}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -52,7 +55,7 @@ export default function Footer() {
                 { icon: <MessageCircle size={18} />, href: `https://wa.me/${config.columns[1]?.links[0]?.href?.split('/').pop() || ''}`, label: 'WhatsApp' },
                 { icon: <Mail size={18} />, href: config.columns[1]?.links[2]?.href || 'mailto:', label: 'Email' },
               ].map((social) => (
-                <motion.a key={social.label} href={social.href} whileHover={{ scale: 1.1, y: -2 }} whileTap={{ scale: 0.95 }} style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: 'rgba(253, 246, 227, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: mutedTextColor, textDecoration: 'none', transition: 'all 0.3s' }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = accentColor; (e.currentTarget as HTMLElement).style.color = '#fff'; }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(253, 246, 227, 0.1)'; (e.currentTarget as HTMLElement).style.color = mutedTextColor; }}>{social.icon}</motion.a>
+                <motion.a key={social.label} href={social.href} whileHover={{ scale: 1.1, y: -2 }} whileTap={{ scale: 0.95 }} style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: 'rgba(253, 246, 227, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: mutedTextColor, textDecoration: 'none', transition: 'all 0.3s' }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = accentColor; (e.currentTarget as HTMLElement).style.color = accentTextColor; }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(253, 246, 227, 0.1)'; (e.currentTarget as HTMLElement).style.color = mutedTextColor; }}>{social.icon}</motion.a>
               ))}
             </div>
           </motion.div>
@@ -71,12 +74,12 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div style={{ height: '1px', background: isTWC ? 'linear-gradient(to right, transparent, rgba(201, 169, 110, 0.2), transparent)' : 'linear-gradient(to right, transparent, rgba(216, 195, 165, 0.3), transparent)', marginBottom: '32px', transition: 'background 0.6s ease' }} />
+        <div style={{ height: '1px', background: isTWC ? 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.18), transparent)' : 'linear-gradient(to right, transparent, rgba(216, 195, 165, 0.3), transparent)', marginBottom: '32px', transition: 'background 0.6s ease' }} />
 
         {/* Copyright */}
         <motion.div initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : {}} transition={{ duration: 0.8, delay: 0.5 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
           <AnimatePresence mode="wait">
-            <motion.p key={config.copyright} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: 'rgba(216, 195, 165, 0.6)', margin: 0, textAlign: 'center' }}>{config.copyright}</motion.p>
+            <motion.p key={config.copyright} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: isTWC ? 'rgba(255, 255, 255, 0.5)' : 'rgba(216, 195, 165, 0.6)', margin: 0, textAlign: 'center' }}>{config.copyright}</motion.p>
           </AnimatePresence>
         </motion.div>
       </div>
