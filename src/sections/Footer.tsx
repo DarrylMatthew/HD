@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { footerConfig, twcFooterConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
 import { getLenis } from '../hooks/useLenis';
-import { Cake, Crown, Instagram, Mail, MessageCircle } from 'lucide-react';
+import { Cake, Instagram, Mail, MessageCircle } from 'lucide-react';
 
 export default function Footer() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -37,7 +37,7 @@ export default function Footer() {
               <div style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: isTWC ? 'linear-gradient(135deg, #ffffff 0%, #E9E8E9 100%)' : 'linear-gradient(135deg, #e8954e 0%, #d4a373 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-radius 0.6s ease, background 0.6s ease' }}>
                 <AnimatePresence mode="wait">
                   <motion.div key={isTWC ? 'crown' : 'cake'} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.3 }}>
-                    {isTWC ? <Crown size={20} color="#1a1a1a" /> : <Cake size={20} color="#fff" />}
+                    {isTWC ? <span className="font-elegant" style={{ fontSize: '14px', letterSpacing: '1px', color: '#1a1a1a' }}>TWC</span> : <Cake size={20} color="#fff" />}
                   </motion.div>
                 </AnimatePresence>
               </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { heroConfig, twcHeroConfig } from '../config';
+import { heroConfig, twcHeroConfig, twcStoryConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
 import { getLenis } from '../hooks/useLenis';
 
@@ -27,6 +27,136 @@ export default function Hero() {
     }
   };
 
+  // ======== TWC: editorial split hero (mirrors the brand-deck cover) ========
+  if (isTWC) {
+    const ease = [0.16, 1, 0.3, 1] as const;
+    return (
+      <section
+        id="hero"
+        ref={sectionRef}
+        className="twc-hero-section"
+        style={{
+          position: 'relative',
+          width: '100%',
+          minHeight: '100vh',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1.05fr) minmax(0, 0.95fr)',
+          background: '#ffffff',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Left: typographic panel */}
+        <div
+          className="twc-hero-copy"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            padding: 'clamp(88px, 10vw, 140px) clamp(28px, 7vw, 110px) 64px',
+          }}
+        >
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease }}
+            className="twc-eyebrow"
+            style={{ fontSize: 'clamp(11px, 1.2vw, 13px)', marginBottom: 'clamp(28px, 4vw, 44px)', maxWidth: '320px', lineHeight: 1.7 }}
+          >
+            {twcHeroConfig.eyebrow}
+          </motion.span>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, delay: 0.1, ease }}
+            className="font-elegant twc-display"
+            style={{ fontSize: 'clamp(82px, 17vw, 188px)', letterSpacing: '0.06em' }}
+          >
+            TWC
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isLoaded ? { opacity: 1 } : {}}
+            transition={{ duration: 0.9, delay: 0.35, ease }}
+            style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: 'clamp(14px, 2vw, 22px)', width: '100%', maxWidth: '440px' }}
+          >
+            <span className="twc-rule" style={{ flex: 1 }} />
+            <span
+              className="font-elegant"
+              style={{ fontSize: 'clamp(15px, 1.9vw, 22px)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1a1a1a', whiteSpace: 'nowrap' }}
+            >
+              Tiramisu Wedding Cake
+            </span>
+            <span className="twc-rule" style={{ flex: 1 }} />
+          </motion.div>
+
+          <motion.button
+            initial={{ opacity: 0, y: 16 }}
+            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.55, ease }}
+            onClick={handleCtaClick}
+            className="btn-twc-outline"
+            style={{ marginTop: 'clamp(40px, 5vw, 60px)' }}
+          >
+            {twcHeroConfig.ctaText}
+          </motion.button>
+
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={isLoaded ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.8, ease }}
+            style={{
+              marginTop: 'clamp(40px, 6vw, 72px)',
+              fontFamily: "'EB Garamond', Georgia, serif",
+              fontStyle: 'italic',
+              fontSize: '13px',
+              letterSpacing: '1.5px',
+              color: 'rgba(0,0,0,0.45)',
+            }}
+          >
+            {twcStoryConfig.signatureLine}
+          </motion.span>
+        </div>
+
+        {/* Right: full-bleed image */}
+        <motion.div
+          className="twc-hero-image"
+          initial={{ opacity: 0, scale: 1.08 }}
+          animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 1.4, ease }}
+          style={{
+            position: 'relative',
+            backgroundImage: `url(${twcHeroConfig.imagePath})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(110deg, rgba(255,255,255,0.10) 0%, transparent 22%)' }} />
+        </motion.div>
+
+        <span className="twc-watermark">@TiramisuWeddingCake&nbsp;&nbsp;|&nbsp;&nbsp;@HangriDessert</span>
+
+        {/* Scroll cue */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={isLoaded ? { opacity: 0.6 } : {}}
+          transition={{ duration: 1, delay: 1.4 }}
+          style={{ position: 'absolute', bottom: '28px', left: 'clamp(28px, 7vw, 110px)', display: 'flex', alignItems: 'center', gap: '12px', zIndex: 6 }}
+        >
+          <span className="twc-eyebrow" style={{ fontSize: '10px', letterSpacing: '3px' }}>Scroll</span>
+          <motion.span
+            animate={{ scaleX: [0, 1, 0], transformOrigin: ['left', 'left', 'right'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ display: 'block', width: '48px', height: '1px', background: '#1a1a1a' }}
+          />
+        </motion.div>
+      </section>
+    );
+  }
+
+  // ======== Hangri Dessert hero (unchanged) ========
   return (
     <section
       id="hero"
@@ -51,21 +181,6 @@ export default function Hero() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           transform: 'scale(1.05)',
-          transition: 'opacity 1s ease',
-          opacity: isTWC ? 0 : 1,
-        }}
-      />
-      {/* Background Image — TWC */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `url(${twcHeroConfig.imagePath})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 75%',
-          transform: 'scale(1.05)',
-          transition: 'opacity 1s ease',
-          opacity: isTWC ? 1 : 0,
         }}
       />
 
@@ -74,10 +189,7 @@ export default function Hero() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: isTWC
-            ? 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(26,26,26,0.5) 50%, rgba(0,0,0,0.65) 100%)'
-            : 'linear-gradient(135deg, rgba(30,20,12,0.65) 0%, rgba(50,35,25,0.5) 50%, rgba(30,20,12,0.7) 100%)',
-          transition: 'background 1s ease',
+          background: 'linear-gradient(135deg, rgba(30,20,12,0.65) 0%, rgba(50,35,25,0.5) 50%, rgba(30,20,12,0.7) 100%)',
         }}
       />
 
@@ -102,12 +214,12 @@ export default function Hero() {
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className={isTWC ? 'font-elegant' : 'font-serif'}
+            className="font-serif"
             style={{
               fontSize: 'clamp(40px, 7vw, 72px)',
-              fontWeight: isTWC ? 400 : 300,
+              fontWeight: 300,
               lineHeight: 1.1,
-              color: isTWC ? '#ffffff' : '#fdf6e3',
+              color: '#fdf6e3',
               margin: 0,
               letterSpacing: '2px',
               textTransform: 'uppercase',
@@ -117,7 +229,7 @@ export default function Hero() {
             <br />
             <span
               style={{
-                color: isTWC ? '#ffffff' : '#e8954e',
+                color: '#e8954e',
                 fontStyle: 'normal',
               }}
             >
@@ -140,7 +252,7 @@ export default function Hero() {
               fontSize: 'clamp(13px, 2vw, 16px)',
               fontStyle: 'italic',
               lineHeight: 1.6,
-              color: isTWC ? 'rgba(255,255,255,0.78)' : 'rgba(253,246,227,0.75)',
+              color: 'rgba(253,246,227,0.75)',
               maxWidth: '420px',
               margin: '0',
             }}
@@ -159,7 +271,7 @@ export default function Hero() {
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.6, delay: 0.7 }}
             onClick={handleCtaClick}
-            className={`hero-cta-btn ${isTWC ? '' : 'hero-cta-btn--hangri'}`}
+            className="hero-cta-btn hero-cta-btn--hangri"
             style={{
               marginTop: '20px',
               fontFamily: 'Effra Trial Bold',
@@ -169,9 +281,9 @@ export default function Hero() {
               textTransform: 'uppercase',
               padding: '16px 48px',
               cursor: 'pointer',
-              color: isTWC ? '#ffffff' : '#fdf6e3',
+              color: '#fdf6e3',
               background: 'transparent',
-              border: isTWC ? '1.5px solid rgba(255,255,255,0.55)' : '1.5px solid rgba(253,246,227,0.5)',
+              border: '1.5px solid rgba(253,246,227,0.5)',
               borderRadius: '0',
               transition: 'all 0.4s ease',
             }}

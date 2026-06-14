@@ -315,6 +315,152 @@
     width: 80%;
   }
 
+  /* ======== TWC EDITORIAL SYSTEM (matches the brand deck) ======== */
+  /* Soft brand grey used for heading chips, bullets, and panels. */
+  .twc-section {
+    position: relative;
+  }
+
+  /* Italic serif eyebrow / kicker, letter-spaced — used above headings. */
+  .twc-eyebrow {
+    font-family: 'EB Garamond', Georgia, serif !important;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #1a1a1a;
+  }
+
+  /* The deck's signature: a display-serif heading seated on a soft grey block. */
+  .twc-display {
+    font-family: 'Brown Sugar', 'Italiana', 'EB Garamond', serif !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.02;
+    color: #1a1a1a;
+    margin: 0;
+  }
+
+  .twc-heading-chip {
+    display: inline-block;
+    background: #E9E8E9;
+    padding: 10px 30px 8px;
+  }
+
+  /* Grey circle markers used beside the deck's feature lists. */
+  .twc-bullet {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #E9E8E9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .twc-bullet-sm {
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    margin-top: 9px;
+  }
+
+  .twc-frame {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .twc-frame:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 28px 60px -24px rgba(0, 0, 0, 0.3);
+  }
+
+  .twc-img-zoom {
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .twc-img-hover:hover .twc-img-zoom {
+    transform: scale(1.06);
+  }
+
+  /* Thin hairline rule used under labels in the deck. */
+  .twc-rule {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  /* Outline button, fills on hover — the deck's restrained CTA style. */
+  .btn-twc-outline {
+    font-family: 'EB Garamond', Georgia, serif !important;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 16px 42px;
+    color: #1a1a1a;
+    background: transparent;
+    border: 1px solid #1a1a1a;
+    cursor: pointer;
+    transition: background 0.45s ease, color 0.45s ease;
+  }
+  .btn-twc-outline:hover {
+    background: #1a1a1a;
+    color: #ffffff;
+  }
+
+  .btn-twc-solid {
+    font-family: 'EB Garamond', Georgia, serif !important;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 16px 42px;
+    color: #ffffff;
+    background: #1a1a1a;
+    border: 1px solid #1a1a1a;
+    cursor: pointer;
+    transition: background 0.45s ease, color 0.45s ease;
+  }
+  .btn-twc-solid:hover {
+    background: #ffffff;
+    color: #1a1a1a;
+  }
+
+  /* Vertical Instagram watermark on the right margin, as in every deck page. */
+  .twc-watermark {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%) rotate(180deg);
+    writing-mode: vertical-rl;
+    font-family: 'EB Garamond', Georgia, serif !important;
+    font-style: italic;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(0, 0, 0, 0.26);
+    pointer-events: none;
+    user-select: none;
+    z-index: 5;
+  }
+  @media (max-width: 900px) {
+    .twc-watermark { display: none; }
+    .twc-hero-section {
+      grid-template-columns: 1fr !important;
+      grid-template-rows: 44vh auto;
+    }
+    .twc-hero-image { order: -1; min-height: 44vh; }
+    .twc-hero-copy { padding-top: 56px !important; padding-bottom: 64px !important; align-items: center !important; text-align: center; }
+    .twc-hero-copy .twc-eyebrow { text-align: center; }
+    .twc-story-grid { grid-template-columns: 1fr !important; }
+    .twc-story-img, .twc-story-img .twc-img-zoom { min-height: 320px !important; }
+    .twc-product-row { grid-template-columns: 1fr !important; }
+    .twc-product-img, .twc-product-img .twc-img-zoom { grid-column: 1 !important; grid-row: 1 !important; min-height: 300px !important; }
+    .twc-product-copy { grid-column: 1 !important; grid-row: 2 !important; }
+    .twc-consult-grid { grid-template-columns: 1fr !important; }
+    .twc-consult-img, .twc-consult-img .twc-img-zoom { order: -1; min-height: 300px !important; }
+  }
+
   /* ======== HERO CTA BUTTON ======== */
   .hero-cta-btn:hover {
     background: #fdf6e3 !important;

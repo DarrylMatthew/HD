@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { orderConfig, menuConfig, twcConsultationConfig, twcTheme } from '../config';
+import { orderConfig, menuConfig, twcConsultationConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
-import { Check, Plus, Minus, ShoppingBag, Phone, User, Calendar, Clock, CreditCard, Truck, Store, MessageCircle, Crown, Sparkles } from 'lucide-react';
+import { Check, Plus, Minus, ShoppingBag, Phone, User, Calendar, Clock, CreditCard, Truck, Store, MessageCircle } from 'lucide-react';
 
 interface OrderItem { productName: string; size: string; quantity: number; }
 interface FormData { name: string; phone: string; items: OrderItem[]; deliveryMethod: 'delivery' | 'pickup'; deliveryApp: string; date: string; time: string; paymentMethod: 'bank' | 'cash'; notes: string; }
@@ -52,38 +52,43 @@ export default function OrderForm() {
   const inputBaseStyle: React.CSSProperties = { width: '100%', padding: '14px 16px 14px 44px', fontSize: '14px', fontFamily: 'Effra Trial Bold', background: '#fffdf7', border: '1px solid #d8c3a5', borderRadius: '12px', color: '#2f2218', outline: 'none', transition: 'border-color 0.3s, box-shadow 0.3s' };
 
   return (
-    <section id="order" ref={sectionRef} style={{ padding: '120px 24px', position: 'relative', backgroundColor: isTWC ? twcTheme.backgroundAlt : '#f5ecd8', transition: 'background-color 0.8s ease' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <section id="order" ref={sectionRef} className={isTWC ? 'twc-section' : undefined} style={{ padding: isTWC ? 'clamp(96px, 12vw, 150px) 24px' : '120px 24px', position: 'relative', backgroundColor: isTWC ? '#ffffff' : '#f5ecd8', transition: 'background-color 0.8s ease', overflow: 'hidden' }}>
+      <div style={{ maxWidth: isTWC ? '1180px' : '1200px', margin: '0 auto' }}>
         <AnimatePresence mode="wait">
           {isTWC ? (
-            /* ======== TWC CONSULTATION CARD ======== */
-            <motion.div key="twc-consultation" initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
-              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '11px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: twcTheme.accent, display: 'block', marginBottom: '16px' }}>{twcConsultationConfig.sectionLabel}</span>
-              <h2 className="font-elegant" style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 400, color: twcTheme.foreground, margin: '0 0 16px', lineHeight: 1.2 }}>{twcConsultationConfig.title}</h2>
-              <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '16px', lineHeight: 1.7, color: twcTheme.muted, maxWidth: '500px', margin: '0 auto 48px' }}>{twcConsultationConfig.subtitle}</p>
-
-              <div className="elegant-card" style={{ background: '#ffffff', padding: '56px 48px', border: `1px solid ${twcTheme.cardBorder}`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px' }}>
-                <div style={{ width: '80px', height: '80px', background: twcTheme.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Crown size={36} color={twcTheme.accent} />
-                </div>
-                <p style={{ fontFamily: 'Effra Trial Bold', fontSize: '15px', lineHeight: 1.8, color: twcTheme.muted, maxWidth: '480px', margin: 0 }}>{twcConsultationConfig.description}</p>
-
-                {/* Features */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', width: '100%', maxWidth: '480px' }}>
-                  {twcConsultationConfig.features.map((feature) => (
-                    <div key={feature} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: twcTheme.backgroundAlt, border: `1px solid ${twcTheme.cardBorder}` }}>
-                      <Sparkles size={14} color={twcTheme.accent} />
-                      <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', color: twcTheme.foreground }}>{feature}</span>
-                    </div>
-                  ))}
+            /* ======== TWC CONSULTATION — editorial split (deck logistics page) ======== */
+            <motion.div key="twc-consultation" initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
+              <div className="twc-consult-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 'clamp(40px, 6vw, 88px)', alignItems: 'center' }}>
+                {/* Left: image */}
+                <div className="twc-consult-img twc-img-hover" style={{ overflow: 'hidden', minHeight: '480px' }}>
+                  <div className="twc-img-zoom" style={{ width: '100%', height: '100%', minHeight: '480px', backgroundImage: 'url(/images/twc/twc-gallery-1.png)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
                 </div>
 
-                {/* WhatsApp CTA */}
-                <motion.button onClick={handleTWCConsultation} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }} className="font-elegant" style={{ marginTop: '8px', padding: '18px 48px', fontSize: '14px', fontWeight: 600, color: '#ffffff', background: '#1a1a1a', border: 'none', cursor: 'pointer', letterSpacing: '2px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', transition: 'all 0.3s' }}>
-                  <MessageCircle size={18} />
-                  {twcConsultationConfig.ctaText}
-                </motion.button>
+                {/* Right: copy + checklist + CTA */}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span className="twc-eyebrow" style={{ fontSize: '12px', marginBottom: '20px' }}>{twcConsultationConfig.sectionLabel}</span>
+                  <h2 className="font-elegant twc-display" style={{ fontSize: 'clamp(32px, 4.4vw, 52px)', maxWidth: '14ch' }}>{twcConsultationConfig.title}</h2>
+                  <p style={{ fontFamily: "'EB Garamond', Georgia, serif", fontStyle: 'italic', fontSize: 'clamp(16px, 1.8vw, 20px)', lineHeight: 1.6, color: '#1a1a1a', margin: '20px 0 0' }}>{twcConsultationConfig.subtitle}</p>
+                  <p style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: 'clamp(15px, 1.5vw, 16px)', lineHeight: 1.8, color: '#4a4a4a', margin: '18px 0 0', maxWidth: '480px' }}>{twcConsultationConfig.description}</p>
+
+                  {/* Feature checklist with grey-circle markers */}
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '32px 0 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {twcConsultationConfig.features.map((feature) => (
+                      <li key={feature} style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+                        <span className="twc-bullet"><Check size={16} color="#1a1a1a" strokeWidth={1.5} /></span>
+                        <span style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: 'clamp(15px, 1.5vw, 17px)', color: '#1a1a1a' }}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* WhatsApp CTA */}
+                  <motion.button onClick={handleTWCConsultation} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className="btn-twc-solid" style={{ marginTop: '40px', alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+                    <MessageCircle size={17} />
+                    {twcConsultationConfig.ctaText}
+                  </motion.button>
+                </div>
               </div>
+              <span className="twc-watermark">@TiramisuWeddingCake&nbsp;&nbsp;|&nbsp;&nbsp;@HangriDessert</span>
             </motion.div>
           ) : (
             /* ======== HANGRI ORDER FORM (unchanged) ======== */

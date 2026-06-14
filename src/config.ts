@@ -501,9 +501,22 @@ export const footerConfig: FooterConfig = {
 
 export interface TWCProductConfig {
   name: string
+  // Short italic-serif descriptor shown under the name (deck-style).
+  tagline: string
   description: string
   servingInfo: string
+  // A few short feature lines shown with grey-circle bullets, as in the deck.
+  highlights: string[]
   image: string
+}
+
+export interface TWCStoryConfig {
+  eyebrow: string
+  title: string
+  lead: string
+  body: string[]
+  image: string
+  signatureLine: string
 }
 
 export interface TWCMenuConfig {
@@ -569,42 +582,73 @@ export const twcNavigationConfig: NavigationConfig = {
 }
 
 export const twcHeroConfig: HeroConfig = {
-  imagePath: "/images/twc/long-cake-twc.JPG",
-  eyebrow: "Luxury Wedding Desserts",
+  imagePath: "/images/twc/tiramisu-tower.jpg",
+  eyebrow: "For couples who break wedding cake traditions",
   titleLine: "Tiramisu",
   titleEmphasis: "Wedding Cake",
   subtitleLine1: "FOR COUPLES WHO BREAK WEDDING CAKE TRADITIONS",
   subtitleLine2: "crafted for your unforgettable celebration.",
-  ctaText: "Get Free Wedding Cake Sample",
+  ctaText: "Get a Free Wedding Cake Sample",
   ctaTargetId: "#order",
 }
 
+// Editorial "Why Tiramisu" story section, mirroring the brand deck.
+export const twcStoryConfig: TWCStoryConfig = {
+  eyebrow: "Why Tiramisu",
+  title: "This is not just a wedding cake",
+  lead: "Dusting the Tiramisu Wedding Cake with cocoa powder symbolises your first act of teamwork as a married couple.",
+  body: [
+    "A wedding is a sacred celebration, and having something exceptional to mark this once-in-a-lifetime moment makes the experience even more memorable.",
+    "Famous for its classic tiramisu, Hangri Dessert is loved across Java Island and Singapore — now reimagined as the centrepiece of your celebration.",
+  ],
+  image: "/images/twc/twc-gallery-2.png",
+  signatureLine: "A sister brand of Hangri Dessert",
+}
+
 export const twcMenuConfig: TWCMenuConfig = {
-  sectionLabel: "Our Collection",
-  title: "Exquisite Creations",
+  sectionLabel: "The Collection",
+  title: "Signature Centrepieces",
   subtitle: "Each piece is meticulously crafted to be the centrepiece of your celebration. Pricing is tailored to your vision.",
   products: [
     {
       name: "Tiramisu Tower",
-      description: "A breathtaking tower of hand-crafted tiramisu served in crystal coupe glasses. The ultimate showpiece for your wedding reception, customisable in height and presentation.",
-      servingInfo: "Available for 50–300+ guests",
+      tagline: "The showpiece toast",
+      description: "A breathtaking tower of hand-crafted tiramisu served in crystal coupe glasses — the ultimate moment for your wedding toast and for sharing with guests.",
+      servingInfo: "5–6 tiers · up to 97 glasses",
+      highlights: [
+        "Recommended for the wedding toast & guest interaction",
+        "Glass or acrylic coupe presentation",
+        "Free to add your preferred toppings",
+      ],
       image: "/images/twc/tiramisu-tower.jpg",
     },
     {
-      name: "Long Cake",
-      description: "An elegant elongated tiramisu cake, perfect for the main dessert table. Layers of espresso-kissed ladyfingers and silken mascarpone, finished with edible gold leaf.",
-      servingInfo: "Serves 30–80 guests",
+      name: "Long Sheet Cake",
+      tagline: "For the grand cutting moment",
+      description: "An elegant elongated tiramisu cake for the main dessert table — layers of espresso-kissed ladyfingers and silken mascarpone, finished by hand.",
+      servingInfo: "Up to 100 × 20 × 8 cm",
+      highlights: [
+        "Free ribbon, utensils & candles",
+        "100% tiramisu or 50% tiramisu / 50% dummy",
+        "Available to add your preferred toppings",
+      ],
       image: "/images/twc/twc-longcake.png",
     },
     {
-      name: "Giant Tiramisu Whole Cake",
-      description: "A grand tiered tiramisu cake that commands attention. Multiple layers of our signature recipe, beautifully decorated to match your wedding theme and colour palette.",
-      servingInfo: "Serves 80–200+ guests",
+      name: "Giant Whole Cake",
+      tagline: "Real tiramisu, grand scale",
+      description: "A full, real tiramisu made with premium ingredients and crowned with fresh florals — beautifully styled to match your wedding theme and palette.",
+      servingInfo: "From ⌀ 40 cm · scalable",
+      highlights: [
+        "Full, real tiramisu with premium ingredients",
+        "Free ribbon, utensils & candles",
+        "Available to add your preferred toppings",
+      ],
       image: "/images/twc/twc-wholecake.png",
     },
   ],
   bespokeTitle: "Bespoke Service",
-  bespokeDescription: "Every wedding is unique. We work closely with you to design a custom dessert experience that perfectly complements your venue, theme, and vision. From tasting sessions to day-of setup, we handle every detail.",
+  bespokeDescription: "Every wedding is unique. We work closely with you to design a custom dessert experience that perfectly complements your venue, theme, and vision — from tasting sessions to day-of setup, we handle every detail.",
   bespokeCta: "Start Your Consultation",
 }
 
@@ -614,7 +658,7 @@ export const twcConsultationConfig: TWCConsultationConfig = {
   subtitle: "Begin with a complimentary consultation to discuss your vision.",
   description: "Our team will guide you through flavour selections, presentation styles, and logistics to create a bespoke dessert experience for your special day.",
   ctaText: "Try the Wedding Cake Tester for Free",
-  whatsappNumber: "+0987654321", // Placeholder - replace with actual TWC WhatsApp number
+  whatsappNumber: "+6281386337200",
   features: [
     "Complimentary tasting session",
     "Custom flavour & design consultation",
@@ -653,7 +697,7 @@ export const twcFooterConfig: FooterConfig = {
     {
       heading: "Contact",
       links: [
-        { label: "WhatsApp", href: "https://wa.me/0987654321" },
+        { label: "WhatsApp", href: "https://wa.me/6281386337200" },
         { label: "Instagram", href: "#" },
         { label: "Email Us", href: "mailto:hello@tiramisuweddingcake.com" },
       ],

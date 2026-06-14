@@ -51,7 +51,8 @@ export default function Navigation() {
     };
   }, [menuOpen]);
 
-  const baseTextColor = scrolled ? (isTWC ? twcTheme.foreground : '#2f2218') : '#fdf6e3';
+  // TWC sits over a light, editorial hero, so its nav is always dark-on-frosted.
+  const baseTextColor = isTWC ? twcTheme.foreground : (scrolled ? '#2f2218' : '#fdf6e3');
   const hoverTextColor = isTWC ? twcTheme.accent : '#e8954e';
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -103,7 +104,7 @@ export default function Navigation() {
         }}
       >
       <div
-        className={`nav-inner ${scrolled ? (isTWC ? 'elegant-glass' : 'warm-glass') : ''}`}
+        className={`nav-inner ${isTWC ? 'elegant-glass' : (scrolled ? 'warm-glass' : '')}`}
         style={{
           flex: 1,
           minWidth: 0,
@@ -125,11 +126,11 @@ export default function Navigation() {
           style={{
             fontSize: '28px',
             fontWeight: isTWC ? 400 : 600,
-            color: scrolled ? (isTWC ? twcTheme.foreground : '#4e3b31') : '#fdf6e3',
+            color: isTWC ? twcTheme.foreground : (scrolled ? '#4e3b31' : '#fdf6e3'),
             border: 'none',
             textDecoration: 'none',
             transition: 'color 0.6s ease, font-size 0.6s ease',
-            letterSpacing: isTWC ? '4px' : '0px',
+            letterSpacing: isTWC ? '5px' : '0px',
             textTransform: isTWC ? 'uppercase' : 'none',
             display: 'flex',
             alignItems: 'center',
@@ -360,64 +361,68 @@ export default function Navigation() {
         </div>
       )}
 
-      {/* Cart icon - Hangri Dessert only; TWC has no online ordering cart */}
+      {/* Cart button - Hangri Dessert only, and only once the cart has items.
+          It springs into the navbar so a freshly-added item is obvious. */}
       {!isTWC && (
-      <motion.button
-        onClick={() => setShowCart(true)}
-        whileTap={{ scale: 0.92 }}
-        className="nav-cart-btn"
-        aria-label={`Open cart${cartCount > 0 ? ` (${cartCount} item${cartCount === 1 ? '' : 's'})` : ''}`}
-        style={{
-          position: 'relative',
-          border: 'none',
-          cursor: 'pointer',
-          padding: '0 20px',
-          background: '#e8954e',
-          color: '#fdf6e3',
-          display: 'none',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          borderRadius: scrolled ? '0.5rem' : '0',
-          boxShadow: '0 4px 16px rgba(232, 149, 78, 0.35)',
-          transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
-      >
-        <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ShoppingCart size={28} />
-          <AnimatePresence>
-            {cartCount > 0 && (
-              <motion.span
-                key="cart-badge"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', damping: 18, stiffness: 360 }}
-                style={{
-                  position: 'absolute',
-                  top: '-6px',
-                  right: '-8px',
-                  background: '#2f2218',
-                  color: '#fdf6e3',
-                  borderRadius: '999px',
-                  minWidth: '18px',
-                  height: '18px',
-                  padding: '0 5px',
-                  fontFamily: 'Effra Trial Bold',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
-                }}
-              >
-                {cartCount}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </span>
-      </motion.button>
+      <AnimatePresence>
+        {cartCount > 0 && (
+        <motion.button
+          key="nav-cart"
+          onClick={() => setShowCart(true)}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ type: 'spring', damping: 15, stiffness: 320 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.92 }}
+          className="nav-cart-btn"
+          aria-label={`Open cart (${cartCount} item${cartCount === 1 ? '' : 's'})`}
+          style={{
+            position: 'relative',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0 22px',
+            background: '#e8954e',
+            color: '#fdf6e3',
+            display: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            flexShrink: 0,
+            borderRadius: scrolled ? '0.5rem' : '0',
+            boxShadow: '0 4px 16px rgba(232, 149, 78, 0.35)',
+            transition: 'border-radius 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          <ShoppingCart size={24} />
+          <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '13px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Cart</span>
+          {/* Count chip — re-pops on every change so each add is felt */}
+          <motion.span
+            key={cartCount}
+            initial={{ scale: 0.4, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', damping: 13, stiffness: 380 }}
+            style={{
+              background: '#2f2218',
+              color: '#fdf6e3',
+              borderRadius: '999px',
+              minWidth: '22px',
+              height: '22px',
+              padding: '0 6px',
+              fontFamily: 'Effra Trial Bold',
+              fontSize: '12px',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
+            }}
+          >
+            {cartCount}
+          </motion.span>
+        </motion.button>
+        )}
+      </AnimatePresence>
       )}
       </div>
 

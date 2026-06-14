@@ -5,6 +5,7 @@ import { BrandProvider, useBrand } from './context/BrandContext';
 import { CartProvider, CartUI } from './context/CartContext';
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
+import Story from './sections/Story';
 import Menu from './sections/Menu';
 import OrderingPage from './sections/OrderingPage';
 import OrderGrid from './sections/OrderGrid';
@@ -38,6 +39,7 @@ function AppContent() {
       <Navigation />
       <main className={isTWC ? 'twc-mode' : undefined}>
         <Hero />
+        {isTWC && <Story />}
         {isTWC && <Menu />}
         {!isTWC && <OrderingPage />}
         {/* Mobile shows only "Choose Your Dessert"; the "Order Online" grid is desktop-only. */}
