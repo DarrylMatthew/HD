@@ -221,7 +221,7 @@ export const orderConfig: OrderConfig = {
   title: "Order Your Favorites",
   subtitle: "Fill in the details below and we'll confirm your order via WhatsApp.",
   image: "/images/order-form.jpg",
-  whatsappNumber: "+1234567890", // Placeholder - replace with actual number
+  whatsappNumber: "+6282111847742",
 }
 
 // Shared option sets so each menu item below stays short.
@@ -244,15 +244,16 @@ const RUM_BOX_500: OrderingAddonOption[] = [
   { label: "Add Rum", price: 10000 },
 ]
 const WHOLE_CAKE_SIZES = [
-  { label: "M", price: 265000 },
-  { label: "L", price: 275000 },
-  { label: "XL", price: 375000 },
+  { label: "M (Ø16cm, 6 layers)", price: 265000 },
+  { label: "L (Ø20cm, 4 layers)", price: 275000 },
+  { label: "XL (Ø20cm, 6 layers)", price: 375000 },
 ]
 // "with Ladyfingers" = same sizes, +Rp 100.000 on every size.
 const WHOLE_CAKE_LADYFINGERS_SIZES = WHOLE_CAKE_SIZES.map((s) => ({ label: s.label, price: s.price + 100000 }))
 const WHOLE_CAKE_DUSTINGS = ["Plain", "Happy Birthday", "Happy Anniversary", "Congrats"]
 const WHOLE_CAKE_EXTRAS: OrderingAddonOption[] = [
   { label: "Knife + Lighter + Candle", price: 1000 },
+  { label: "Cooler Bag", price: 25000 },
 ]
 const PANNA_COTTA_SAUCES = ["Strawberry", "Blueberry", "Lemon"]
 // Most categories have no sauce/extras step; spread this to keep items short.
@@ -312,6 +313,26 @@ export const orderingPageConfig: OrderingPageConfig = {
       customTextPricePerChar: 3000,
       isTBD: false,
     },
+    {
+      id: "whole-cake-acrylic",
+      groupId: "whole-cakes",
+      name: "Tiramisu Whole Cake in Acrylic Case 18x18cm",
+      image: "/images/wholecakeAcrylic.jpg",
+      imageFallback: "/images/whole-cake.jpg",
+      imagePosition: "center 47%",
+      description: "Our signature whole tiramisu cake presented in an elegant 18x18cm acrylic case. Add rum, pick a dusting, and personalize with custom text.",
+      startingPrice: 285000,
+      hideFromPrefix: true,
+      sizes: [],
+      addons: RUM_CAKE,
+      sauces: [],
+      dustingOptions: WHOLE_CAKE_DUSTINGS,
+      toppers: NO_TOPPER_OPTIONS,
+      extras: WHOLE_CAKE_EXTRAS,
+      hasCustomText: true,
+      customTextPricePerChar: 3000,
+      isTBD: false,
+    },
     // --- Classic Tiramisu ---
     {
       id: "classic-200",
@@ -345,8 +366,9 @@ export const orderingPageConfig: OrderingPageConfig = {
       id: "sakura-200",
       groupId: "sakura-tiramisu",
       name: "Sakura Tiramisu 200ml",
-      image: "/images/sakura-tiramisu-200.jpg",
+      image: "/images/sakura200.jpg",
       imageFallback: "/images/tiramisu-bowl.png",
+      imagePosition: "center 75%",
       description: "Sakura edition tiramisu with a luscious strawberry layer, in a personal 200ml cup.",
       startingPrice: 30000,
       sizes: [],
@@ -358,8 +380,9 @@ export const orderingPageConfig: OrderingPageConfig = {
       id: "sakura-500",
       groupId: "sakura-tiramisu",
       name: "Sakura Tiramisu 500ml",
-      image: "/images/sakura-tiramisu-500.jpg",
+      image: "/images/cropped500sakura1.png",
       imageFallback: "/images/dessert-box.png",
+      imagePosition: "center 60%",
       description: "Sakura edition tiramisu with a luscious strawberry layer, in a 500ml rectangle dessert box.",
       startingPrice: 88000,
       sizes: [],
@@ -372,8 +395,9 @@ export const orderingPageConfig: OrderingPageConfig = {
       id: "lemon-200",
       groupId: "lemon-tiramisu",
       name: "Lemon Tiramisu 200ml",
-      image: "/images/lemon-tiramisu-200.jpg",
+      image: "/images/lemon200.png",
       imageFallback: "/images/lemon-tiramisu.jpg",
+      imagePosition: "center 60%",
       description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a personal 200ml cup.",
       startingPrice: 30000,
       sizes: [],
@@ -385,8 +409,9 @@ export const orderingPageConfig: OrderingPageConfig = {
       id: "lemon-500",
       groupId: "lemon-tiramisu",
       name: "Lemon Tiramisu 500ml",
-      image: "/images/lemon-tiramisu-500.jpg",
+      image: "/images/lemon500.png",
       imageFallback: "/images/lemon-tiramisu.jpg",
+      imagePosition: "center 78%",
       description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a 500ml rectangle dessert box.",
       startingPrice: 88000,
       sizes: [],
@@ -416,6 +441,7 @@ export const orderingPageConfig: OrderingPageConfig = {
       name: "Panna Cotta 500ml",
       image: "/images/panna-cotta-500.jpg",
       imageFallback: "/images/panna-cotta.jpg",
+      imagePosition: "center 75%",
       description: "Silky panna cotta with real fruit sauce — choose strawberry, blueberry, or lemon. 500ml rectangle dessert box.",
       startingPrice: 88000,
       sizes: [],
@@ -472,25 +498,25 @@ export const footerConfig: FooterConfig = {
     {
       heading: "Quick Links",
       links: [
-        { label: "Menu", href: "#menu" },
-        { label: "Order Now", href: "#order" },
+        { label: "Menu", href: "#ordering" },
+        { label: "Order Now", href: "#ordering" },
         { label: "Gallery", href: "#gallery" },
       ],
     },
     {
       heading: "Contact",
       links: [
-        { label: "WhatsApp", href: "https://wa.me/1234567890" },
-        { label: "Instagram", href: "#" },
+        { label: "WhatsApp", href: "https://wa.me/6282111847742" },
+        { label: "Instagram", href: "https://www.instagram.com/hangridessert/" },
         { label: "Email Us", href: "mailto:hello@hangridessert.com" },
       ],
     },
     {
       heading: "Order Info",
       links: [
-        { label: "Delivery via App", href: "#order" },
-        { label: "Self Pickup", href: "#order" },
-        { label: "Catering", href: "#menu" },
+        { label: "Delivery via App", href: "#ordering" },
+        { label: "Self Pickup", href: "#ordering" },
+        { label: "Catering", href: "#ordering" },
       ],
     },
   ],
@@ -698,7 +724,7 @@ export const twcFooterConfig: FooterConfig = {
       heading: "Contact",
       links: [
         { label: "WhatsApp", href: "https://wa.me/6281386337200" },
-        { label: "Instagram", href: "#" },
+        { label: "Instagram", href: "https://www.instagram.com/tiramisuweddingcake/" },
         { label: "Email Us", href: "mailto:hello@tiramisuweddingcake.com" },
       ],
     },

@@ -51,12 +51,15 @@ export default function Footer() {
             {/* Social Links */}
             <div style={{ display: 'flex', gap: '12px' }}>
               {[
-                { icon: <Instagram size={18} />, href: '#', label: 'Instagram' },
+                { icon: <Instagram size={18} />, href: config.columns[1]?.links[1]?.href || '#', label: 'Instagram' },
                 { icon: <MessageCircle size={18} />, href: `https://wa.me/${config.columns[1]?.links[0]?.href?.split('/').pop() || ''}`, label: 'WhatsApp' },
                 { icon: <Mail size={18} />, href: config.columns[1]?.links[2]?.href || 'mailto:', label: 'Email' },
-              ].map((social) => (
-                <motion.a key={social.label} href={social.href} whileHover={{ scale: 1.1, y: -2 }} whileTap={{ scale: 0.95 }} style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: 'rgba(253, 246, 227, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: mutedTextColor, textDecoration: 'none', transition: 'all 0.3s' }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = accentColor; (e.currentTarget as HTMLElement).style.color = accentTextColor; }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(253, 246, 227, 0.1)'; (e.currentTarget as HTMLElement).style.color = mutedTextColor; }}>{social.icon}</motion.a>
-              ))}
+              ].map((social) => {
+                const external = social.href.startsWith('http');
+                return (
+                <motion.a key={social.label} href={social.href} aria-label={social.label} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} whileHover={{ scale: 1.1, y: -2 }} whileTap={{ scale: 0.95 }} style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: 'rgba(253, 246, 227, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: mutedTextColor, textDecoration: 'none', transition: 'all 0.3s' }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = accentColor; (e.currentTarget as HTMLElement).style.color = accentTextColor; }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(253, 246, 227, 0.1)'; (e.currentTarget as HTMLElement).style.color = mutedTextColor; }}>{social.icon}</motion.a>
+                );
+              })}
             </div>
           </motion.div>
 
@@ -65,9 +68,12 @@ export default function Footer() {
             <motion.div key={column.heading} initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: (colIndex + 1) * 0.1, ease: [0.16, 1, 0.3, 1] }}>
               <h4 style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, letterSpacing: isTWC ? '3px' : '2px', textTransform: 'uppercase', color: headingColor, margin: '0 0 20px', transition: 'color 0.6s ease' }}>{column.heading}</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {column.links.map((link) => (
-                  <li key={link.label}><a href={link.href} onClick={(e) => handleLinkClick(e, link.href)} style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: mutedTextColor, textDecoration: 'none', transition: 'color 0.3s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#fdf6e3'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = mutedTextColor; }}>{link.label}</a></li>
-                ))}
+                {column.links.map((link) => {
+                  const external = link.href.startsWith('http');
+                  return (
+                  <li key={link.label}><a href={link.href} onClick={(e) => handleLinkClick(e, link.href)} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: mutedTextColor, textDecoration: 'none', transition: 'color 0.3s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#fdf6e3'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = mutedTextColor; }}>{link.label}</a></li>
+                  );
+                })}
               </ul>
             </motion.div>
           ))}
