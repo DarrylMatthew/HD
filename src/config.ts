@@ -508,15 +508,6 @@ export const footerConfig: FooterConfig = {
       links: [
         { label: "WhatsApp", href: "https://wa.me/6282111847742" },
         { label: "Instagram", href: "https://www.instagram.com/hangridessert/" },
-        { label: "Email Us", href: "mailto:hello@hangridessert.com" },
-      ],
-    },
-    {
-      heading: "Order Info",
-      links: [
-        { label: "Delivery via App", href: "#ordering" },
-        { label: "Self Pickup", href: "#ordering" },
-        { label: "Catering", href: "#ordering" },
       ],
     },
   ],
@@ -725,7 +716,6 @@ export const twcFooterConfig: FooterConfig = {
       links: [
         { label: "WhatsApp", href: "https://wa.me/6281386337200" },
         { label: "Instagram", href: "https://www.instagram.com/tiramisuweddingcake/" },
-        { label: "Email Us", href: "mailto:hello@tiramisuweddingcake.com" },
       ],
     },
     {

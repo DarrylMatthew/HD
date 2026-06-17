@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { footerConfig, twcFooterConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
 import { getLenis } from '../hooks/useLenis';
-import { Cake, Instagram, Mail, MessageCircle } from 'lucide-react';
+import { Cake, Instagram, MessageCircle } from 'lucide-react';
 
 export default function Footer() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -53,7 +53,6 @@ export default function Footer() {
               {[
                 { icon: <Instagram size={18} />, href: config.columns[1]?.links[1]?.href || '#', label: 'Instagram' },
                 { icon: <MessageCircle size={18} />, href: `https://wa.me/${config.columns[1]?.links[0]?.href?.split('/').pop() || ''}`, label: 'WhatsApp' },
-                { icon: <Mail size={18} />, href: config.columns[1]?.links[2]?.href || 'mailto:', label: 'Email' },
               ].map((social) => {
                 const external = social.href.startsWith('http');
                 return (
