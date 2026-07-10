@@ -187,8 +187,18 @@ export function CartReview({
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', fontWeight: 600, color: '#2f2218' }}>{item.category.name} × {item.quantity}</div>
                   <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a', marginTop: '2px' }}>
-                    {[item.selectedSize, item.selectedAddon, item.selectedSauce, item.selectedDusting, item.selectedTopper, ...item.selectedExtras].filter(Boolean).join(' · ')}
+                    {item.category.id === "oval-whole-cake" ? (
+                      [
+                        item.selectedGlassDish,
+                        item.selectedDusting === "Custom dusting" ? `Dusting: "${item.customDustingText}"` : `Dusting: ${item.selectedDusting}`,
+                        item.selectedCandle === "Numerical candle" ? `Candle: "${item.customCandleNumber}"` : `Candle: ${item.selectedCandle}`,
+                        ...item.selectedExtras
+                      ].filter(Boolean).join(' · ')
+                    ) : (
+                      [item.selectedSize, item.selectedAddon, item.selectedSauce, item.selectedDusting, item.selectedTopper, ...item.selectedExtras].filter(Boolean).join(' · ')
+                    )}
                     {item.wantsCustomText && item.customText && ` · "${item.customText}"`}
+                    {item.selectedExtras.includes("Custom Greeting Card") && item.customCardText && ` · Card Msg: "${item.customCardText}"`}
                   </div>
                   {item.notes && (
                     <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '11px', color: '#a09488', marginTop: '2px', fontStyle: 'italic' }}>Note: {item.notes}</div>
@@ -545,6 +555,146 @@ export function CustomizeOptions({ cat, state, onChange }: { cat: OrderingCatego
       : [...state.selectedExtras, label];
     onChange({ ...state, selectedExtras });
   };
+
+  if (cat.id === "oval-whole-cake") {
+    return (
+      <>
+        {/* Glass Dish Options */}
+        <div>
+          <CustomizeSectionHeader title="Glass Dish Options" subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {[
+              "Keep the glass dish (Purchase)",
+              "Return the glass dish (Rp 200.000 of deposit refunded)"
+            ].map((dish, i) => (
+              <OptionRow
+                key={dish}
+                label={dish}
+                price="Free"
+                selected={state.selectedGlassDish === dish}
+                onClick={() => onChange({ ...state, selectedGlassDish: dish })}
+                isLast={i === 1}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Cake Dusting */}
+        <div>
+          <CustomizeSectionHeader title="Cake Dusting" subtitle="Required · Select 1" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {["Plain", "Custom dusting"].map((dust, i) => (
+              <OptionRow
+                key={dust}
+                label={dust}
+                price="Free"
+                selected={state.selectedDusting === dust}
+                onClick={() => onChange({ ...state, selectedDusting: dust })}
+                isLast={i === 1}
+              />
+            ))}
+          </div>
+          <AnimatePresence initial={false}>
+            {state.selectedDusting === "Custom dusting" && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden', marginTop: '12px' }}>
+                <CustomizeSectionHeader title="Custom Dusting Wordings" subtitle="Required" />
+                <textarea
+                  placeholder="E.g. HAPPY BIRTHDAY MOM"
+                  value={state.customDustingText}
+                  onChange={(e) => onChange({ ...state, customDustingText: e.target.value.toUpperCase() })}
+                  rows={2}
+                  style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none' }}
+                />
+                {(!state.customDustingText || state.customDustingText.trim().length === 0) && (
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#c0392b', marginTop: '4px' }}>
+                    Please enter the dusting wordings
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Candle */}
+        <div>
+          <CustomizeSectionHeader title="Candle" subtitle="Required · Select 1 · Max 1 Choice" />
+          <div style={{ borderTop: '1px solid #e8dcc6' }}>
+            {["Single candle", "Numerical candle", "No candle"].map((candle, i) => (
+              <OptionRow
+                key={candle}
+                label={candle}
+                price="Free"
+                selected={state.selectedCandle === candle}
+                onClick={() => onChange({ ...state, selectedCandle: candle })}
+                isLast={i === 2}
+              />
+            ))}
+          </div>
+          <AnimatePresence initial={false}>
+            {state.selectedCandle === "Numerical candle" && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden', marginTop: '12px' }}>
+                <CustomizeSectionHeader title="Candle Number" subtitle="Required · Max 2 digits" />
+                <input
+                  type="text"
+                  placeholder="E.g. 25"
+                  value={state.customCandleNumber}
+                  maxLength={2}
+                  onChange={(e) => onChange({ ...state, customCandleNumber: e.target.value.replace(/[^0-9]/g, '').slice(0, 2) })}
+                  style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', boxSizing: 'border-box', outline: 'none' }}
+                />
+                {(!state.customCandleNumber || state.customCandleNumber.trim().length === 0) && (
+                  <div style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#c0392b', marginTop: '4px' }}>
+                    Please enter the candle number
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Add-ons */}
+        {cat.extras.length > 0 && (
+          <div style={{ marginBottom: '24px' }}>
+            <CustomizeSectionHeader title="Add-ons" subtitle="Optional" />
+            <div style={{ borderTop: '1px solid #e8dcc6' }}>
+              {cat.extras.map((ex, i) => (
+                <OptionRow
+                  key={ex.label}
+                  label={ex.label}
+                  price={ex.price > 0 ? `+${formatRupiah(ex.price)}` : 'Free'}
+                  selected={state.selectedExtras.includes(ex.label)}
+                  onClick={() => toggleExtra(ex.label)}
+                  isLast={i === cat.extras.length - 1}
+                />
+              ))}
+            </div>
+            <AnimatePresence initial={false}>
+              {state.selectedExtras.includes("Custom Greeting Card") && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden', marginTop: '12px' }}>
+                  <CustomizeSectionHeader title="Greeting Card Message" subtitle="Express your thoughts through words and we’ll write it for you. (Max 160 characters)" />
+                  <textarea
+                    placeholder="Write your greeting card message here..."
+                    value={state.customCardText}
+                    maxLength={160}
+                    onChange={(e) => onChange({ ...state, customCardText: e.target.value.slice(0, 160) })}
+                    rows={3}
+                    style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: state.customCardText.trim().length === 0 ? '#c0392b' : '#999' }}>
+                      {state.customCardText.trim().length === 0 ? 'Please enter your greeting card message' : ' '}
+                    </span>
+                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999' }}>{state.customCardText.length}/160</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       {cat.sizes.length > 0 && (
@@ -605,6 +755,27 @@ export function CustomizeOptions({ cat, state, onChange }: { cat: OrderingCatego
               <OptionRow key={ex.label} label={ex.label} price={ex.price > 0 ? `+${formatRupiah(ex.price)}` : 'Free'} selected={state.selectedExtras.includes(ex.label)} onClick={() => toggleExtra(ex.label)} isLast={i === cat.extras.length - 1} />
             ))}
           </div>
+          <AnimatePresence initial={false}>
+            {state.selectedExtras.includes("Custom Greeting Card") && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden', marginTop: '12px' }}>
+                <CustomizeSectionHeader title="Greeting Card Message" subtitle="Express your thoughts through words and we’ll write it for you. (Max 160 characters)" />
+                <textarea
+                  placeholder="Write your greeting card message here..."
+                  value={state.customCardText}
+                  maxLength={160}
+                  onChange={(e) => onChange({ ...state, customCardText: e.target.value.slice(0, 160) })}
+                  rows={3}
+                  style={{ width: '100%', padding: '12px', fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#2f2218', background: '#f5f5f5', border: '1px solid #e8dcc6', borderRadius: '10px', resize: 'none', boxSizing: 'border-box', outline: 'none' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: state.customCardText.trim().length === 0 ? '#c0392b' : '#999' }}>
+                    {state.customCardText.trim().length === 0 ? 'Please enter your greeting card message' : ' '}
+                  </span>
+                  <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999' }}>{state.customCardText.length}/160</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
       {cat.hasCustomText && (

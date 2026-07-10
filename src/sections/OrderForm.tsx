@@ -45,7 +45,8 @@ export default function OrderForm() {
   };
 
   const handleTWCConsultation = () => {
-    const msg = encodeURIComponent(`*Wedding Cake Inquiry* 💒\n\nHi, I'd like to try the wedding cake tester and discuss my wedding dessert options.\n\nPlease let me know the available dates for a consultation. Thank you!`);
+    const messageText = `Hi TWC, nama saya ____.\n\nSaya mau lihat katalog wedding cake-nya!\n\nApakah masih available utk wedding tanggal ___ dan berlokasi di venue ___?`;
+    const msg = encodeURIComponent(messageText);
     window.open(`https://api.whatsapp.com/send?phone=${twcConsultationConfig.whatsappNumber.replace(/\+/g, '')}&text=${msg}`, '_blank');
   };
 

@@ -10,7 +10,7 @@ import Menu from './sections/Menu';
 import OrderingPage from './sections/OrderingPage';
 import OrderGrid from './sections/OrderGrid';
 import OrderForm from './sections/OrderForm';
-import Gallery from './sections/Gallery';
+// import Gallery from './sections/Gallery';
 import Footer from './sections/Footer';
 import { siteConfig, twcSiteConfig } from './config';
 
@@ -45,7 +45,7 @@ function AppContent() {
         {/* Mobile shows only "Choose Your Dessert"; the "Order Online" grid is desktop-only. */}
         {!isTWC && !isMobile && <OrderGrid />}
         {isTWC && <OrderForm />}
-        <Gallery />
+        {/* <Gallery /> */}
         <Footer />
       </main>
       {!isTWC && <CartUI />}

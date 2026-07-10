@@ -26,7 +26,7 @@ export default function OrderingPage() {
   const [activeCat, setActiveCat] = useState<OrderingCategory | null>(null);
   // Mobile-only: item detail popup (image + description) shown when a list row is tapped.
   const [previewCat, setPreviewCat] = useState<OrderingCategory | null>(null);
-  const [cState, setCState] = useState<CustomizeState>({ selectedSize: '', selectedAddon: '', selectedSauce: '', selectedDusting: '', selectedTopper: '', selectedExtras: [], notes: '', wantsCustomText: false, customText: '', quantity: 1 });
+  const [cState, setCState] = useState<CustomizeState>({ selectedSize: '', selectedAddon: '', selectedSauce: '', selectedDusting: '', selectedTopper: '', selectedExtras: [], notes: '', wantsCustomText: false, customText: '', quantity: 1, customCardText: '', selectedGlassDish: '', customDustingText: '', selectedCandle: '', customCandleNumber: '' });
 
   const openCustomize = useCallback((cat: OrderingCategory) => {
     if (cat.isTBD) return;

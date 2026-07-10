@@ -22,7 +22,7 @@ export default function OrderGrid() {
   const [activeCat, setActiveCat] = useState<OrderingCategory | null>(null);
   // Mobile-only: item detail popup (image + description) shown when a card is tapped.
   const [previewCat, setPreviewCat] = useState<OrderingCategory | null>(null);
-  const [cState, setCState] = useState<CustomizeState>({ selectedSize: '', selectedAddon: '', selectedSauce: '', selectedDusting: '', selectedTopper: '', selectedExtras: [], notes: '', wantsCustomText: false, customText: '', quantity: 1 });
+  const [cState, setCState] = useState<CustomizeState>({ selectedSize: '', selectedAddon: '', selectedSauce: '', selectedDusting: '', selectedTopper: '', selectedExtras: [], notes: '', wantsCustomText: false, customText: '', quantity: 1, customCardText: '', selectedGlassDish: '', customDustingText: '', selectedCandle: '', customCandleNumber: '' });
 
   const groupName = (cat: OrderingCategory) => menuGroups.find((g) => g.id === cat.groupId)?.name ?? '';
   const filters = ['All', ...menuGroups.filter((g) => menuCategories.some((c) => c.groupId === g.id)).map((g) => g.name)];

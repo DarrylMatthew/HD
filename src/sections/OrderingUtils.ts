@@ -28,6 +28,11 @@ export interface CustomizeState {
   wantsCustomText: boolean;
   customText: string;
   quantity: number;
+  customCardText: string;
+  selectedGlassDish: string;
+  customDustingText: string;
+  selectedCandle: string;
+  customCandleNumber: string;
 }
 
 export interface CartItem {
@@ -45,6 +50,11 @@ export interface CartItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  customCardText: string;
+  selectedGlassDish: string;
+  customDustingText: string;
+  selectedCandle: string;
+  customCandleNumber: string;
 }
 
 export const CUSTOM_TEXT_MAX = 30;
@@ -333,6 +343,11 @@ export function formatPickupDate(iso: string): string {
 
 export function isCustomizeValid(cat: OrderingCategory, s: CustomizeState): boolean {
   if (cat.hasCustomText && s.wantsCustomText && s.customText.trim().length === 0) return false;
+  if (s.selectedExtras.includes("Custom Greeting Card") && (!s.customCardText || s.customCardText.trim().length === 0)) return false;
+  if (cat.id === "oval-whole-cake") {
+    if (s.selectedDusting === "Custom dusting" && (!s.customDustingText || s.customDustingText.trim().length === 0)) return false;
+    if (s.selectedCandle === "Numerical candle" && (!s.customCandleNumber || s.customCandleNumber.trim().length === 0)) return false;
+  }
   return true;
 }
 
@@ -346,13 +361,18 @@ export function getInitialState(cat: OrderingCategory): CustomizeState {
     selectedSize: cat.sizes[0]?.label ?? '',
     selectedAddon: cat.addons[0]?.label ?? '',
     selectedSauce: cat.sauces[0] ?? '',
-    selectedDusting: cat.dustingOptions[0] ?? '',
+    selectedDusting: cat.dustingOptions[0] ?? (cat.id === 'oval-whole-cake' ? 'Plain' : ''),
     selectedTopper: cat.toppers[0]?.label ?? '',
     selectedExtras: [],
     notes: '',
     wantsCustomText: false,
     customText: '',
     quantity: 1,
+    customCardText: '',
+    selectedGlassDish: cat.id === 'oval-whole-cake' ? 'Keep the glass dish (Purchase)' : '',
+    customDustingText: '',
+    selectedCandle: cat.id === 'oval-whole-cake' ? 'Single candle' : '',
+    customCandleNumber: '',
   };
 }
 
@@ -369,6 +389,11 @@ export function stateFromCartItem(item: CartItem): CustomizeState {
     wantsCustomText: item.wantsCustomText,
     customText: item.customText,
     quantity: item.quantity,
+    customCardText: item.customCardText || '',
+    selectedGlassDish: item.selectedGlassDish || '',
+    customDustingText: item.customDustingText || '',
+    selectedCandle: item.selectedCandle || '',
+    customCandleNumber: item.customCandleNumber || '',
   };
 }
 
@@ -390,6 +415,11 @@ export function cartItemFromState(cat: OrderingCategory, s: CustomizeState): Omi
     quantity: s.quantity,
     unitPrice,
     totalPrice: unitPrice * s.quantity,
+    customCardText: s.customCardText || '',
+    selectedGlassDish: s.selectedGlassDish || '',
+    customDustingText: s.customDustingText || '',
+    selectedCandle: s.selectedCandle || '',
+    customCandleNumber: s.customCandleNumber || '',
   };
 }
 
@@ -435,17 +465,30 @@ export function buildWhatsAppMessage(
   msg += `--- PESANAN ---\n\n`;
   cart.forEach((item, i) => {
     msg += `${i + 1}. ${item.category.name}\n`;
-    if (item.selectedSize) msg += `   Size: ${item.selectedSize}\n`;
-    if (item.selectedAddon) msg += `   Rum: ${item.selectedAddon}\n`;
-    if (item.selectedSauce) msg += `   Sauce: ${item.selectedSauce}\n`;
-    if (item.selectedDusting) msg += `   Dusting: ${item.selectedDusting}\n`;
-    if (item.selectedTopper) {
-      const tp = item.category.toppers.find((x) => x.label === item.selectedTopper);
-      msg += `   Topper: ${item.selectedTopper}${tp && tp.price > 0 ? ` (+${formatRupiah(tp.price)})` : ''}\n`;
+    if (item.category.id === "oval-whole-cake") {
+      if (item.selectedGlassDish) msg += `   Dish Option: ${item.selectedGlassDish}\n`;
+      if (item.selectedDusting) {
+        msg += `   Dusting: ${item.selectedDusting}${item.selectedDusting === "Custom dusting" ? ` ("${item.customDustingText}")` : ''}\n`;
+      }
+      if (item.selectedCandle) {
+        msg += `   Candle: ${item.selectedCandle}${item.selectedCandle === "Numerical candle" ? ` ("${item.customCandleNumber}")` : ''}\n`;
+      }
+    } else {
+      if (item.selectedSize) msg += `   Size: ${item.selectedSize}\n`;
+      if (item.selectedAddon) msg += `   Rum: ${item.selectedAddon}\n`;
+      if (item.selectedSauce) msg += `   Sauce: ${item.selectedSauce}\n`;
+      if (item.selectedDusting) msg += `   Dusting: ${item.selectedDusting}\n`;
+      if (item.selectedTopper) {
+        const tp = item.category.toppers.find((x) => x.label === item.selectedTopper);
+        msg += `   Topper: ${item.selectedTopper}${tp && tp.price > 0 ? ` (+${formatRupiah(tp.price)})` : ''}\n`;
+      }
     }
     for (const exLabel of item.selectedExtras) {
       const ex = item.category.extras.find((x) => x.label === exLabel);
       msg += `   Add-on: ${exLabel}${ex && ex.price > 0 ? ` (+${formatRupiah(ex.price)})` : ''}\n`;
+      if (exLabel === "Custom Greeting Card" && item.customCardText) {
+        msg += `   Card Msg: "${item.customCardText}"\n`;
+      }
     }
     if (item.wantsCustomText && item.customText) {
       const cc = item.customText.length;

@@ -159,7 +159,6 @@ export const navigationConfig: NavigationConfig = {
   links: [
     { label: "Menu", target: "#ordering" },
     { label: "Order", target: "#order-grid" },
-    { label: "Gallery", target: "#gallery" },
   ],
 }
 
@@ -182,7 +181,7 @@ export const menuConfig: MenuConfig = {
   products: [
     {
       name: "Classic Tiramisu",
-      description: "Layers of coffee-soaked ladyfingers and velvety mascarpone cream, finished with a dusting of premium cocoa powder. Our signature recipe.",
+      description: "Coffee-soaked ladyfingers layered with velvety mascarpone cream and dusted with cocoa powder. Crafted using only premium, honest ingredients.",
       sizes: [
         { label: "Small (8oz)", price: "$XX" },
         { label: "Regular (16oz)", price: "$XX" },
@@ -254,6 +253,7 @@ const WHOLE_CAKE_DUSTINGS = ["Plain", "Happy Birthday", "Happy Anniversary", "Co
 const WHOLE_CAKE_EXTRAS: OrderingAddonOption[] = [
   { label: "Knife + Lighter + Candle", price: 1000 },
   { label: "Cooler Bag", price: 25000 },
+  { label: "Custom Greeting Card", price: 5000 },
 ]
 const PANNA_COTTA_SAUCES = ["Strawberry", "Blueberry", "Lemon"]
 // Most categories have no sauce/extras step; spread this to keep items short.
@@ -265,9 +265,9 @@ export const orderingPageConfig: OrderingPageConfig = {
   subtitle: "Select a product, customize your order, and send it straight to our WhatsApp.",
   whatsappNumber: "+6282111847742",
   groups: [
-    { id: "whole-cakes", name: "Whole Cakes", description: "Our signature whole tiramisu cakes, perfect for celebrations. Choose your size, add rum, pick a dusting, and personalize with custom text." },
-    { id: "classic-tiramisu", name: "Classic Tiramisu", description: "Coffee-soaked ladyfingers and velvety mascarpone cream, finished with premium cocoa powder. Our signature recipe." },
-    { id: "sakura-tiramisu", name: "Sakura Tiramisu", description: "Our sakura edition — classic tiramisu layered with a luscious strawberry sauce for a fresh, fruity finish." },
+    { id: "whole-cakes", name: "Whole Cakes", description: "Our signature whole tiramisu cakes, perfect for every celebration. Choose your preferred size, rum option, cocoa dusting, and personalized message." },
+    { id: "classic-tiramisu", name: "Classic Tiramisu", description: "Coffee-soaked ladyfingers layered with velvety mascarpone cream and dusted with cocoa powder. Crafted using only premium, honest ingredients." },
+    { id: "sakura-tiramisu", name: "Sakura Tiramisu", description: "Classic tiramisu with a twist: Extra layers of luscious mixed berries sauce for a fun, fruity finish." },
     { id: "lemon-tiramisu", name: "Lemon Tiramisu", description: "A bright, citrusy twist on the classic. Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish." },
     { id: "panna-cotta", name: "Panna Cotta", description: "Silky Italian panna cotta made with fresh cream and real fruit sauce — choose strawberry, blueberry, or lemon." },
   ],
@@ -280,7 +280,7 @@ export const orderingPageConfig: OrderingPageConfig = {
       image: "/images/whole-cake.jpg",
       imageFallback: "/images/whole-cake.png",
       imagePosition: "center 75%",
-      description: "Our signature whole tiramisu cake, perfect for celebrations. Choose your size, add rum, pick a dusting, and personalize with custom text.",
+      description: "Our signature whole tiramisu cake, perfect for every celebration. Choose your preferred size, rum option, cocoa dusting, and personalized message.",
       startingPrice: 265000,
       hideFromPrefix: true,
       sizes: WHOLE_CAKE_SIZES,
@@ -333,14 +333,39 @@ export const orderingPageConfig: OrderingPageConfig = {
       customTextPricePerChar: 3000,
       isTBD: false,
     },
+    {
+      id: "oval-whole-cake",
+      groupId: "whole-cakes",
+      name: "Oval Whole Cake",
+      image: "/images/HD logo background remove.png",
+      imageFallback: "/images/whole-cake.png",
+      imagePosition: "center center",
+      description: "Made for life's biggest moments: Whether you're celebrating love, family, or achievements, our signature Oval Whole Cake brings people together. Presented in a timeless oval glass dish, it's as elegant on the table as it is delicious to share.",
+      startingPrice: 2800000,
+      hideFromPrefix: true,
+      sizes: [],
+      addons: [],
+      sauces: [],
+      dustingOptions: [],
+      toppers: [],
+      extras: [
+        { label: "1 cake assistant & transport", price: 1000000 },
+        { label: "Rum", price: 100000 },
+        { label: "Custom Greeting Card", price: 5000 },
+        { label: "Knife & lighter", price: 0 }
+      ],
+      hasCustomText: false,
+      customTextPricePerChar: 0,
+      isTBD: false,
+    },
     // --- Classic Tiramisu ---
     {
       id: "classic-200",
       groupId: "classic-tiramisu",
-      name: "Classic Tiramisu 200ml",
+      name: "Classic Tiramisu 200ml bowl",
       image: "/images/classic-tiramisu-200.jpg",
       imageFallback: "/images/tiramisu-bowl.png",
-      description: "Our classic tiramisu in a personal 200ml cup — perfect for gifting or personal indulgence.",
+      description: "Our classic tiramisu in a personal 200ml bowl — perfect for gifting or personal indulgence.",
       startingPrice: 30000,
       sizes: [],
       addons: RUM_CUP_200,
@@ -350,26 +375,28 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "classic-500",
       groupId: "classic-tiramisu",
-      name: "Classic Tiramisu 500ml",
+      name: "Classic Tiramisu 500ml acrylic box",
       image: "/images/classic-tiramisu-500.jpg",
       imageFallback: "/images/dessert-box.png",
       imagePosition: "center 70%",
-      description: "Classic tiramisu in a 500ml rectangle dessert box — ideal for sharing, events, or a luxurious treat at home.",
+      description: "Classic tiramisu in a 500ml acrylic box — ideal for sharing, events, or a luxurious treat at home.",
       startingPrice: 88000,
       sizes: [],
       addons: RUM_BOX_500,
       toppers: NO_TOPPER_OPTIONS,
       ...NO_OPTIONS,
+      hasCustomText: true,
+      customTextPricePerChar: 8000,
     },
     // --- Sakura Tiramisu --- (temporary images until sakura photos are added)
     {
       id: "sakura-200",
       groupId: "sakura-tiramisu",
-      name: "Sakura Tiramisu 200ml",
+      name: "Sakura Tiramisu 200ml bowl",
       image: "/images/sakura200.jpg",
       imageFallback: "/images/tiramisu-bowl.png",
       imagePosition: "center 75%",
-      description: "Sakura edition tiramisu with a luscious strawberry layer, in a personal 200ml cup.",
+      description: "Sakura edition tiramisu with a luscious mixed berries layer, in a personal 200ml bowl.",
       startingPrice: 30000,
       sizes: [],
       addons: RUM_CUP_200,
@@ -379,26 +406,28 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "sakura-500",
       groupId: "sakura-tiramisu",
-      name: "Sakura Tiramisu 500ml",
+      name: "Sakura Tiramisu 500ml acrylic box",
       image: "/images/cropped500sakura1.png",
       imageFallback: "/images/dessert-box.png",
       imagePosition: "center 60%",
-      description: "Sakura edition tiramisu with a luscious strawberry layer, in a 500ml rectangle dessert box.",
+      description: "Sakura edition tiramisu with a luscious mixed berries layer, in a 500ml acrylic box.",
       startingPrice: 88000,
       sizes: [],
       addons: RUM_BOX_500,
       toppers: NO_TOPPER_OPTIONS,
       ...NO_OPTIONS,
+      hasCustomText: true,
+      customTextPricePerChar: 8000,
     },
     // --- Lemon Tiramisu ---
     {
       id: "lemon-200",
       groupId: "lemon-tiramisu",
-      name: "Lemon Tiramisu 200ml",
+      name: "Lemon Tiramisu 200ml bowl",
       image: "/images/lemon200.png",
       imageFallback: "/images/lemon-tiramisu.jpg",
       imagePosition: "center 60%",
-      description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a personal 200ml cup.",
+      description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a personal 200ml bowl.",
       startingPrice: 30000,
       sizes: [],
       addons: [],
@@ -408,26 +437,28 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "lemon-500",
       groupId: "lemon-tiramisu",
-      name: "Lemon Tiramisu 500ml",
+      name: "Lemon Tiramisu 500ml acrylic box",
       image: "/images/lemon500.png",
       imageFallback: "/images/lemon-tiramisu.jpg",
       imagePosition: "center 78%",
-      description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a 500ml rectangle dessert box.",
+      description: "Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish, in a 500ml acrylic box.",
       startingPrice: 88000,
       sizes: [],
       addons: [],
       toppers: NO_TOPPER_OPTIONS,
       ...NO_OPTIONS,
+      hasCustomText: true,
+      customTextPricePerChar: 8000,
     },
     // --- Panna Cotta ---
     {
       id: "panna-cotta-200",
       groupId: "panna-cotta",
-      name: "Panna Cotta 200ml",
+      name: "Panna Cotta 200ml bowl",
       image: "/images/panna-cotta-200.jpg",
       imageFallback: "/images/panna-cotta-product.png",
       imagePosition: "center 65%",
-      description: "Silky panna cotta with real fruit sauce — choose strawberry, blueberry, or lemon. Personal 200ml cup.",
+      description: "Silky panna cotta with real fruit sauce — choose strawberry, blueberry, or lemon. Personal 200ml bowl.",
       startingPrice: 27000,
       sizes: [],
       addons: [],
@@ -438,11 +469,11 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "panna-cotta-500",
       groupId: "panna-cotta",
-      name: "Panna Cotta 500ml",
-      image: "/images/panna-cotta-500.jpg",
+      name: "Panna Cotta 500ml acrylic box",
+      image: "/images/pannacottaIMG_3886.jpg",
       imageFallback: "/images/panna-cotta.jpg",
       imagePosition: "center 75%",
-      description: "Silky panna cotta with real fruit sauce — choose strawberry, blueberry, or lemon. 500ml rectangle dessert box.",
+      description: "Silky panna cotta with real fruit sauce — choose strawberry, blueberry, or lemon. 500ml acrylic box.",
       startingPrice: 88000,
       sizes: [],
       addons: [],
@@ -500,7 +531,6 @@ export const footerConfig: FooterConfig = {
       links: [
         { label: "Menu", href: "#ordering" },
         { label: "Order Now", href: "#ordering" },
-        { label: "Gallery", href: "#gallery" },
       ],
     },
     {
@@ -511,7 +541,7 @@ export const footerConfig: FooterConfig = {
       ],
     },
   ],
-  copyright: "© 2025 Hangri Dessert. All rights reserved.",
+  copyright: "© 2026 Hangri Dessert. All rights reserved.",
 }
 
 // ======== TIRAMISU WEDDING CAKE (TWC) CONFIGURATION ========
@@ -594,7 +624,6 @@ export const twcNavigationConfig: NavigationConfig = {
   links: [
     { label: "Collection", target: "#menu" },
     { label: "Inquire", target: "#order" },
-    { label: "Gallery", target: "#gallery" },
   ],
 }
 
@@ -707,7 +736,6 @@ export const twcFooterConfig: FooterConfig = {
       heading: "Explore",
       links: [
         { label: "Collection", href: "#menu" },
-        { label: "Portfolio", href: "#gallery" },
         { label: "Inquire", href: "#order" },
       ],
     },
