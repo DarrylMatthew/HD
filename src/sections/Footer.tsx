@@ -18,11 +18,24 @@ export default function Footer() {
   const mutedTextColor = isTWC ? 'rgba(255,255,255,0.5)' : '#d8c3a5';
   const headingColor = isTWC ? '#ffffff' : '#e8954e';
 
+  const getHref = (href: string, label: string) => {
+    if (label.toLowerCase() === 'whatsapp' && isTWC) {
+      const phone = "6281386337200";
+      const messageText = `Hi TWC, nama saya ____.\n\nSaya mau lihat katalog wedding cake-nya!\n\nApakah masih available utk wedding tanggal ___ dan berlokasi di venue ___?`;
+      return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
+    }
+    return href;
+  };
+
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('#')) {
       e.preventDefault();
+      let target = href;
+      if (target === '#order-grid' && !document.querySelector('#order-grid')) {
+        target = '#ordering';
+      }
       const lenis = getLenis();
-      if (lenis) { lenis.scrollTo(href); } else { const el = document.querySelector(href); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+      if (lenis) { lenis.scrollTo(target); } else { const el = document.querySelector(target); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
     }
   };
 
@@ -52,7 +65,7 @@ export default function Footer() {
             <div style={{ display: 'flex', gap: '12px' }}>
               {[
                 { icon: <Instagram size={18} />, href: config.columns[1]?.links[1]?.href || '#', label: 'Instagram' },
-                { icon: <MessageCircle size={18} />, href: `https://wa.me/${config.columns[1]?.links[0]?.href?.split('/').pop() || ''}`, label: 'WhatsApp' },
+                { icon: <MessageCircle size={18} />, href: getHref(`https://wa.me/${config.columns[1]?.links[0]?.href?.split('/').pop() || ''}`, 'WhatsApp'), label: 'WhatsApp' },
               ].map((social) => {
                 const external = social.href.startsWith('http');
                 return (
@@ -61,7 +74,7 @@ export default function Footer() {
               })}
             </div>
           </motion.div>
-
+ 
           {/* Link Columns */}
           {config.columns.map((column, colIndex) => (
             <motion.div key={column.heading} initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: (colIndex + 1) * 0.1, ease: [0.16, 1, 0.3, 1] }}>
@@ -69,8 +82,9 @@ export default function Footer() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {column.links.map((link) => {
                   const external = link.href.startsWith('http');
+                  const targetHref = getHref(link.href, link.label);
                   return (
-                  <li key={link.label}><a href={link.href} onClick={(e) => handleLinkClick(e, link.href)} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: mutedTextColor, textDecoration: 'none', transition: 'color 0.3s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#fdf6e3'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = mutedTextColor; }}>{link.label}</a></li>
+                  <li key={link.label}><a href={targetHref} onClick={(e) => handleLinkClick(e, targetHref)} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: mutedTextColor, textDecoration: 'none', transition: 'color 0.3s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#fdf6e3'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = mutedTextColor; }}>{link.label}</a></li>
                   );
                 })}
               </ul>

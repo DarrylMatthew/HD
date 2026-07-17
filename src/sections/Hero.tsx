@@ -128,7 +128,7 @@ export default function Hero() {
           transition={{ duration: 1.4, ease }}
           style={{
             position: 'relative',
-            backgroundImage: `url(${twcHeroConfig.imagePath})`,
+            backgroundImage: `url("${twcHeroConfig.imagePath}")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -177,7 +177,7 @@ export default function Hero() {
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `url(${heroConfig.imagePath})`,
+          backgroundImage: `url("${heroConfig.imagePath}")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           transform: 'scale(1.05)',

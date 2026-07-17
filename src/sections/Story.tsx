@@ -42,7 +42,7 @@ export default function Story() {
               width: '100%',
               height: '100%',
               minHeight: '520px',
-              backgroundImage: `url(${s.image})`,
+              backgroundImage: `url("${s.image}")`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}

@@ -337,9 +337,9 @@ export const orderingPageConfig: OrderingPageConfig = {
       id: "oval-whole-cake",
       groupId: "whole-cakes",
       name: "Oval Whole Cake",
-      image: "/images/HD logo background remove.png",
+      image: "/images/Oval Whole Cake.png",
       imageFallback: "/images/whole-cake.png",
-      imagePosition: "center center",
+      imagePosition: "center 70%",
       description: "Made for life's biggest moments: Whether you're celebrating love, family, or achievements, our signature Oval Whole Cake brings people together. Presented in a timeless oval glass dish, it's as elegant on the table as it is delicious to share.",
       startingPrice: 2800000,
       hideFromPrefix: true,
@@ -362,7 +362,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "classic-200",
       groupId: "classic-tiramisu",
-      name: "Classic Tiramisu 200ml bowl",
+      name: "Classic Tiramisu 200ml",
       image: "/images/classic-tiramisu-200.jpg",
       imageFallback: "/images/tiramisu-bowl.png",
       description: "Our classic tiramisu in a personal 200ml bowl — perfect for gifting or personal indulgence.",
@@ -375,7 +375,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "classic-500",
       groupId: "classic-tiramisu",
-      name: "Classic Tiramisu 500ml acrylic box",
+      name: "Classic Tiramisu 500ml",
       image: "/images/classic-tiramisu-500.jpg",
       imageFallback: "/images/dessert-box.png",
       imagePosition: "center 70%",
@@ -392,7 +392,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "sakura-200",
       groupId: "sakura-tiramisu",
-      name: "Sakura Tiramisu 200ml bowl",
+      name: "Sakura Tiramisu 200ml",
       image: "/images/sakura200.jpg",
       imageFallback: "/images/tiramisu-bowl.png",
       imagePosition: "center 75%",
@@ -406,7 +406,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "sakura-500",
       groupId: "sakura-tiramisu",
-      name: "Sakura Tiramisu 500ml acrylic box",
+      name: "Sakura Tiramisu 500ml",
       image: "/images/cropped500sakura1.png",
       imageFallback: "/images/dessert-box.png",
       imagePosition: "center 60%",
@@ -423,7 +423,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "lemon-200",
       groupId: "lemon-tiramisu",
-      name: "Lemon Tiramisu 200ml bowl",
+      name: "Lemon Tiramisu 200ml",
       image: "/images/lemon200.png",
       imageFallback: "/images/lemon-tiramisu.jpg",
       imagePosition: "center 60%",
@@ -437,7 +437,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "lemon-500",
       groupId: "lemon-tiramisu",
-      name: "Lemon Tiramisu 500ml acrylic box",
+      name: "Lemon Tiramisu 500ml",
       image: "/images/lemon500.png",
       imageFallback: "/images/lemon-tiramisu.jpg",
       imagePosition: "center 78%",
@@ -454,7 +454,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "panna-cotta-200",
       groupId: "panna-cotta",
-      name: "Panna Cotta 200ml bowl",
+      name: "Panna Cotta 200ml",
       image: "/images/panna-cotta-200.jpg",
       imageFallback: "/images/panna-cotta-product.png",
       imagePosition: "center 65%",
@@ -469,7 +469,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "panna-cotta-500",
       groupId: "panna-cotta",
-      name: "Panna Cotta 500ml acrylic box",
+      name: "Panna Cotta 500ml",
       image: "/images/pannacottaIMG_3886.jpg",
       imageFallback: "/images/panna-cotta.jpg",
       imagePosition: "center 75%",
@@ -523,14 +523,14 @@ export const galleryConfig: GalleryConfig = {
 }
 
 export const footerConfig: FooterConfig = {
-  brandName: "Hangri Dessert",
-  brandTagline: "Handcrafted sweetness, delivered to your door.",
+  brandName: "HANGRI DESSERT",
+  brandTagline: "Tiramisu whole cake specialist, ready 24/7",
   columns: [
     {
       heading: "Quick Links",
       links: [
         { label: "Menu", href: "#ordering" },
-        { label: "Order Now", href: "#ordering" },
+        { label: "Order Now", href: "#order-grid" },
       ],
     },
     {
@@ -555,6 +555,7 @@ export interface TWCProductConfig {
   // A few short feature lines shown with grey-circle bullets, as in the deck.
   highlights: string[]
   image: string
+  imagePosition?: string
 }
 
 export interface TWCStoryConfig {
@@ -584,6 +585,7 @@ export interface TWCConsultationConfig {
   ctaText: string
   whatsappNumber: string
   features: string[]
+  image?: string
 }
 
 export interface TWCTheme {
@@ -647,7 +649,7 @@ export const twcStoryConfig: TWCStoryConfig = {
     "A wedding is a sacred celebration, and having something exceptional to mark this once-in-a-lifetime moment makes the experience even more memorable.",
     "Famous for its classic tiramisu, Hangri Dessert is loved across Java Island and Singapore — now reimagined as the centrepiece of your celebration.",
   ],
-  image: "/images/twc/twc-gallery-2.png",
+  image: "/images/Long Sheet Cake.JPG",
   signatureLine: "A sister brand of Hangri Dessert",
 }
 
@@ -660,11 +662,11 @@ export const twcMenuConfig: TWCMenuConfig = {
       name: "Tiramisu Tower",
       tagline: "The showpiece toast",
       description: "A breathtaking tower of hand-crafted tiramisu served in crystal coupe glasses — the ultimate moment for your wedding toast and for sharing with guests.",
-      servingInfo: "5–6 tiers · up to 97 glasses",
+      servingInfo: "5–7 tiers · up to 142 glasses",
       highlights: [
         "Recommended for the wedding toast & guest interaction",
         "Glass or acrylic coupe presentation",
-        "Free to add your preferred toppings",
+        "Add your preferred toppings",
       ],
       image: "/images/twc/tiramisu-tower.jpg",
     },
@@ -678,7 +680,7 @@ export const twcMenuConfig: TWCMenuConfig = {
         "100% tiramisu or 50% tiramisu / 50% dummy",
         "Available to add your preferred toppings",
       ],
-      image: "/images/twc/twc-longcake.png",
+      image: "/images/Long Sheet Cake2.png",
     },
     {
       name: "Giant Whole Cake",
@@ -690,7 +692,8 @@ export const twcMenuConfig: TWCMenuConfig = {
         "Free ribbon, utensils & candles",
         "Available to add your preferred toppings",
       ],
-      image: "/images/twc/twc-wholecake.png",
+      image: "/images/Giant Whole Cake.jpg",
+      imagePosition: "center 70%",
     },
   ],
   bespokeTitle: "Bespoke Service",
@@ -711,6 +714,7 @@ export const twcConsultationConfig: TWCConsultationConfig = {
     "Venue visit & setup coordination",
     "Day-of delivery & presentation",
   ],
+  image: "/images/Close up - Glass.jpg",
 }
 
 export const twcGalleryConfig: GalleryConfig = {
@@ -755,5 +759,5 @@ export const twcFooterConfig: FooterConfig = {
       ],
     },
   ],
-  copyright: "© 2025 Tiramisu Wedding Cake. All rights reserved.",
+  copyright: "© 2026 Tiramisu Wedding Cake. All rights reserved.",
 }

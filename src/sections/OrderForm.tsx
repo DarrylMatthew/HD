@@ -62,7 +62,7 @@ export default function OrderForm() {
               <div className="twc-consult-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 'clamp(40px, 6vw, 88px)', alignItems: 'center' }}>
                 {/* Left: image */}
                 <div className="twc-consult-img twc-img-hover" style={{ overflow: 'hidden', minHeight: '480px' }}>
-                  <div className="twc-img-zoom" style={{ width: '100%', height: '100%', minHeight: '480px', backgroundImage: 'url(/images/twc/twc-gallery-1.png)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div className="twc-img-zoom" style={{ width: '100%', height: '100%', minHeight: '480px', backgroundImage: `url("${twcConsultationConfig.image || '/images/twc/twc-gallery-1.png'}")`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                 </div>
 
                 {/* Right: copy + checklist + CTA */}

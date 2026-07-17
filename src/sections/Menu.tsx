@@ -5,6 +5,7 @@ import { useBrand } from '../context/BrandContext';
 import { getLenis } from '../hooks/useLenis';
 import { UtensilsCrossed } from 'lucide-react';
 import type { TWCProductConfig, ProductConfig } from '../config';
+import SlidingGallery from './SlidingGallery';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -57,6 +58,9 @@ export default function Menu() {
               <TWCProductRow key={product.name} product={product} index={index} reversed={index % 2 === 1} />
             ))}
           </div>
+
+          {/* Sliding Gallery */}
+          <SlidingGallery />
 
           {/* Bespoke band */}
           <motion.div
@@ -356,9 +360,9 @@ function TWCProductRow({
             width: '100%',
             height: '100%',
             minHeight: '420px',
-            backgroundImage: `url(${product.image})`,
+            backgroundImage: `url("${product.image}")`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: product.imagePosition || 'center',
           }}
         />
       </div>
