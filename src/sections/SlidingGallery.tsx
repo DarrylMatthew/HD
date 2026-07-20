@@ -163,11 +163,10 @@ export default function SlidingGallery() {
           style={{
             display: 'flex',
             gap: 'clamp(16px, 2.5vw, 24px)',
-            overflowX: 'auto',
+            overflowX: 'scroll',
             scrollSnapType: 'none',
             scrollbarWidth: 'none',
             padding: '0 max(24px, calc((100vw - 1180px) / 2))',
-            WebkitOverflowScrolling: 'touch',
             cursor: 'default',
           }}
           className="hide-scrollbar"
