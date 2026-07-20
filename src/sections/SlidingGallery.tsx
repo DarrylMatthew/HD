@@ -21,29 +21,69 @@ export default function SlidingGallery() {
 
   // Direction tracking ref for auto-slide ping-pong
   const autoSlideDirection = useRef(1); // 1 = right, -1 = left
-  const isArrowScrolling = useRef(false);
-  const arrowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isInteracting = useRef(false);
+  const touchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
-    const scrollAmount = window.innerWidth < 768 ? 280 : 360; // slide width + gap
+    const scrollAmount = window.innerWidth < 768 ? 280 : 360;
 
-    // Set auto-slide direction to match arrow click
     autoSlideDirection.current = direction === 'left' ? -1 : 1;
-
-    // Temporarily pause 60fps frame overwrite so smooth scroll animation executes cleanly
-    isArrowScrolling.current = true;
-    if (arrowTimeoutRef.current) clearTimeout(arrowTimeoutRef.current);
+    isInteracting.current = true;
+    if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
 
     container.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
     });
 
-    arrowTimeoutRef.current = setTimeout(() => {
-      isArrowScrolling.current = false;
+    touchTimeoutRef.current = setTimeout(() => {
+      isInteracting.current = false;
     }, 700);
+  };
+
+  const isMouseDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftStart = useRef(0);
+
+  const handleTouchStart = () => {
+    isInteracting.current = true;
+    if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
+    touchTimeoutRef.current = setTimeout(() => {
+      isInteracting.current = false;
+    }, 1500);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isMouseDown.current = true;
+    isInteracting.current = true;
+    if (scrollContainerRef.current) {
+      startX.current = e.pageX - scrollContainerRef.current.offsetLeft;
+      scrollLeftStart.current = scrollContainerRef.current.scrollLeft;
+    }
+  };
+
+  const handleMouseLeaveOrUp = () => {
+    if (isMouseDown.current) {
+      isMouseDown.current = false;
+      if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
+      touchTimeoutRef.current = setTimeout(() => {
+        isInteracting.current = false;
+      }, 1500);
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMouseDown.current || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    scrollContainerRef.current.scrollLeft = scrollLeftStart.current - walk;
   };
 
   // Continuous Auto-slide Loop
@@ -55,7 +95,7 @@ export default function SlidingGallery() {
     const speed = 0.6; // slow speed, 0.6px per frame
 
     const step = () => {
-      if (!isArrowScrolling.current) {
+      if (!isInteracting.current) {
         const maxScroll = container.scrollWidth - container.clientWidth;
         if (maxScroll > 0) {
           let nextScroll = container.scrollLeft + speed * autoSlideDirection.current;
@@ -114,8 +154,8 @@ export default function SlidingGallery() {
             </h2>
           </motion.div>
 
-          {/* Navigation Controls - Exclusively active */}
-          <div style={{ display: 'flex', gap: '10px', pointerEvents: 'auto', zIndex: 10 }}>
+          {/* Navigation Controls */}
+          <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={() => scroll('left')}
               aria-label="Previous slide"
@@ -156,18 +196,27 @@ export default function SlidingGallery() {
         </div>
       </div>
 
-      {/* Sliding Track - Non-interactive (Unable to be hovered or clicked) */}
-      <div style={{ position: 'relative', width: '100%', pointerEvents: 'none', userSelect: 'none' }}>
+      {/* Sliding Track - Native Touch & Mouse Swipe/Drag Enabled */}
+      <div style={{ position: 'relative', width: '100%' }}>
         <div
           ref={scrollContainerRef}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeaveOrUp}
+          onMouseUp={handleMouseLeaveOrUp}
+          onMouseMove={handleMouseMove}
           style={{
             display: 'flex',
             gap: 'clamp(16px, 2.5vw, 24px)',
-            overflowX: 'scroll',
+            overflowX: 'auto',
             scrollSnapType: 'none',
             scrollbarWidth: 'none',
             padding: '0 max(24px, calc((100vw - 1180px) / 2))',
-            cursor: 'default',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x pan-y',
+            cursor: 'grab',
+            userSelect: 'none',
           }}
           className="hide-scrollbar"
         >
