@@ -44,7 +44,7 @@ function AppContent() {
         {!isTWC && <OrderingPage />}
         {/* Mobile shows only "Choose Your Dessert"; the "Order Online" grid is desktop-only. */}
         {!isTWC && !isMobile && <OrderGrid />}
-        <Gallery />
+        {isTWC && <Gallery />}
         {isTWC && <OrderForm />}
         <Footer />
       </main>
