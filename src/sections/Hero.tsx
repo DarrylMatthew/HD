@@ -97,7 +97,7 @@ export default function Hero() {
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.55, ease }}
             onClick={handleCtaClick}
-            className="btn-twc-outline"
+            className="btn-twc-solid"
             style={{ marginTop: 'clamp(40px, 5vw, 60px)' }}
           >
             {twcHeroConfig.ctaText}

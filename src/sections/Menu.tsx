@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { menuConfig, twcMenuConfig } from '../config';
+import { menuConfig, twcMenuConfig, twcConsultationConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
 import { getLenis } from '../hooks/useLenis';
 import { UtensilsCrossed } from 'lucide-react';
@@ -82,7 +82,7 @@ export default function Menu() {
               className="twc-eyebrow"
               style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}
             >
-              Tailored to you
+              {twcMenuConfig.bespokeEyebrow || 'Tailored to you'}
             </span>
             <h3
               className="font-elegant twc-display"
@@ -103,12 +103,9 @@ export default function Menu() {
               {twcMenuConfig.bespokeDescription}
             </p>
             <motion.a
-              href="#order"
-              onClick={(e) => {
-                e.preventDefault();
-                const lenis = getLenis();
-                if (lenis) lenis.scrollTo('#order');
-              }}
+              href={`https://api.whatsapp.com/send?phone=${twcConsultationConfig.whatsappNumber.replace(/\+/g, '')}&text=${encodeURIComponent(`Hi TWC, nama saya ____.\n\nSaya mau lihat katalog wedding cake-nya!\n\nApakah masih available utk wedding tanggal ___ dan berlokasi di venue ___?`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ y: -2 }}
               className="btn-twc-solid"
               style={{ marginTop: '14px', background: '#ffffff', color: '#1a1a1a', textDecoration: 'none', display: 'inline-block' }}

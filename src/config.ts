@@ -572,6 +572,7 @@ export interface TWCMenuConfig {
   title: string
   subtitle: string
   products: TWCProductConfig[]
+  bespokeEyebrow?: string
   bespokeTitle: string
   bespokeDescription: string
   bespokeCta: string
@@ -696,9 +697,10 @@ export const twcMenuConfig: TWCMenuConfig = {
       imagePosition: "center 70%",
     },
   ],
-  bespokeTitle: "Bespoke Service",
-  bespokeDescription: "Every wedding is unique. We work closely with you to design a custom dessert experience that perfectly complements your venue, theme, and vision — from tasting sessions to day-of setup, we handle every detail.",
-  bespokeCta: "Start Your Consultation",
+  bespokeEyebrow: "Tailored For Your Special Day",
+  bespokeTitle: "Create Your Unique Wedding Experience",
+  bespokeDescription: "Your wedding deserves a show-stopping dessert centerpiece. Work directly with our master artisans to design a custom tiramisu experience tailored to your venue, theme, and vision — from private tasting sessions to seamless day-of setup.",
+  bespokeCta: "Book For Your Wedding Now",
 }
 
 export const twcConsultationConfig: TWCConsultationConfig = {
@@ -721,14 +723,23 @@ export const twcGalleryConfig: GalleryConfig = {
   sectionLabel: "Portfolio",
   title: "Moments We've Created",
   images: [
-    "/images/twc/twc-gallery-1.png",
-    "/images/twc/twc-gallery-2.png",
-    "/images/twc/twc-gallery-3.png",
-    "/images/twc/twc-gallery-4.png",
-    "/images/twc/twc-tower.png",
-    "/images/twc/twc-wholecake.png",
-    "/images/twc/twc-longcake.png",
-    "/images/twc/twc-hero.png",
+    "/images/twc/collection-01.jpg",
+    "/images/twc/collection-02.png",
+    "/images/twc/collection-03.png",
+    "/images/twc/collection-04.png",
+    "/images/twc/collection-05.jpg",
+    "/images/twc/collection-06.jpg",
+    "/images/twc/collection-07.jpg",
+    "/images/twc/collection-08.jpg",
+    "/images/twc/collection-09.jpg",
+    "/images/twc/collection-10.jpg",
+    "/images/twc/collection-11.png",
+    "/images/twc/collection-12.png",
+    "/images/twc/collection-13.jpg",
+    "/images/twc/collection-14.jpg",
+    "/images/twc/collection-15.png",
+    "/images/twc/collection-16.jpg",
+    "/images/twc/collection-17.png",
   ],
 }
 
