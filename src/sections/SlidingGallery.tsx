@@ -4,9 +4,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-// 31 Canva portfolio slides in public/images/twc/portfolio/ (excluding 21 and 33)
+// 28 Canva portfolio slides in public/images/twc/portfolio/ (excluding 21 and 30-33)
 const portfolioSlideNumbers = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29
 ];
 
 const portfolioSlides = portfolioSlideNumbers.map((num) => ({
@@ -19,8 +19,8 @@ export default function SlidingGallery() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
-  // Direction tracking ref for auto-slide ping-pong
-  const autoSlideDirection = useRef(1); // 1 = right, -1 = left
+  // Direction tracking ref for auto-slide ping-pong (1 = right, -1 = left)
+  const autoSlideDirection = useRef(1);
   const isInteracting = useRef(false);
   const touchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -29,18 +29,36 @@ export default function SlidingGallery() {
     const container = scrollContainerRef.current;
     const scrollAmount = window.innerWidth < 768 ? 280 : 360;
 
-    autoSlideDirection.current = direction === 'left' ? -1 : 1;
+    // Set auto-slide direction matching button clicked
+    const dir = direction === 'left' ? -1 : 1;
+    autoSlideDirection.current = dir;
+
+    // Pause auto-step during smooth scroll animation
     isInteracting.current = true;
     if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
 
-    container.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
+    const currentScroll = container.scrollLeft;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+
+    if (direction === 'right') {
+      if (currentScroll >= maxScroll - 15) {
+        // If at the end, wrap smoothly to start
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    } else {
+      if (currentScroll <= 15) {
+        // If at the start, wrap smoothly to end
+        container.scrollTo({ left: maxScroll, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      }
+    }
 
     touchTimeoutRef.current = setTimeout(() => {
       isInteracting.current = false;
-    }, 700);
+    }, 800);
   };
 
   const isMouseDown = useRef(false);
@@ -56,7 +74,7 @@ export default function SlidingGallery() {
     if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
     touchTimeoutRef.current = setTimeout(() => {
       isInteracting.current = false;
-    }, 1500);
+    }, 1200);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -74,7 +92,7 @@ export default function SlidingGallery() {
       if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
       touchTimeoutRef.current = setTimeout(() => {
         isInteracting.current = false;
-      }, 1500);
+      }, 1200);
     }
   };
 
@@ -97,15 +115,15 @@ export default function SlidingGallery() {
     const step = () => {
       if (!isInteracting.current) {
         const maxScroll = container.scrollWidth - container.clientWidth;
-        if (maxScroll > 0) {
+        if (maxScroll > 10) {
           let nextScroll = container.scrollLeft + speed * autoSlideDirection.current;
           
           if (nextScroll >= maxScroll) {
             nextScroll = maxScroll;
-            autoSlideDirection.current = -1; // reverse direction to left
+            autoSlideDirection.current = -1; // reverse direction to left when hitting end
           } else if (nextScroll <= 0) {
             nextScroll = 0;
-            autoSlideDirection.current = 1; // reverse direction to right
+            autoSlideDirection.current = 1; // reverse direction to right when hitting start
           }
           
           container.scrollLeft = nextScroll;
@@ -235,7 +253,7 @@ export default function SlidingGallery() {
               <div
                 style={{
                   width: '100%',
-                  height: 'clamp(380px, 42vw, 540px)',
+                  aspectRatio: '1080 / 1920',
                   overflow: 'hidden',
                   position: 'relative',
                   background: '#ffffff',
@@ -250,8 +268,8 @@ export default function SlidingGallery() {
                   style={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'top center',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
                     display: 'block',
                   }}
                 />
