@@ -302,7 +302,7 @@ export function parseMenuCsv(csv: string): SeasonalMenu {
       id: `sheet-${slugify(name)}`,
       groupId,
       name,
-      image: cell(cells, idx.image) || '/images/additional-dessert.png',
+      image: cell(cells, idx.image) || '/images/additional-dessert.webp',
       description: cell(cells, idx.description),
       startingPrice: price,
       sizes: [],

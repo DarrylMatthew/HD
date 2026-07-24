@@ -59,6 +59,8 @@ export default function Gallery() {
                 <img
                   src={image}
                   alt={`TWC creation ${i + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
                 <div
@@ -86,7 +88,7 @@ export default function Gallery() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {config.images.map((image, i) => (
               <motion.div key={`hd-${i}`} initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }} className="organic-card" style={{ overflow: 'hidden', position: 'relative', height: '240px' }}>
-                <img src={image} alt={`Hangri Dessert creation ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <img src={image} alt={`Hangri Dessert creation ${i + 1}`} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </motion.div>
             ))}
           </div>

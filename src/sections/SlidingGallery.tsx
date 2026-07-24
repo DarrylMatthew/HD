@@ -11,7 +11,7 @@ const portfolioSlideNumbers = [
 
 const portfolioSlides = portfolioSlideNumbers.map((num) => ({
   id: `portfolio-${num}`,
-  image: `/images/twc/portfolio/${num}.png`,
+  image: `/images/twc/portfolio/${num}.webp`,
 }));
 
 export default function SlidingGallery() {
@@ -265,6 +265,8 @@ export default function SlidingGallery() {
                 <img
                   src={slide.image}
                   alt={`Stories of Love ${i + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: '100%',
                     height: '100%',
