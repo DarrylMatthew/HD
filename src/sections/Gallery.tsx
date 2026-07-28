@@ -52,37 +52,19 @@ export default function Gallery() {
                   aspectRatio: '3 / 4',
                   position: 'relative',
                   overflow: 'hidden',
-                  background: '#141414',
                   borderRadius: '4px',
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
                 }}
                 className="elegant-card group"
               >
-                {/* Soft blurred background for visual depth */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: -10,
-                    backgroundImage: `url("${image}")`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    filter: 'blur(16px) brightness(0.4)',
-                    opacity: 0.6,
-                    pointerEvents: 'none',
-                  }}
-                />
-                {/* Uncropped portrait image */}
                 <img
                   src={image}
                   alt={`TWC creation ${i + 1}`}
                   loading="lazy"
                   decoding="async"
                   style={{
-                    position: 'relative',
-                    zIndex: 1,
                     width: '100%',
                     height: '100%',
-                    objectFit: 'contain',
+                    objectFit: 'cover',
                     objectPosition: 'center',
                     display: 'block'
                   }}

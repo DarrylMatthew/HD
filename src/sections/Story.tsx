@@ -34,32 +34,18 @@ export default function Story() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 1, ease }}
-          style={{ overflow: 'hidden', minHeight: '520px', position: 'relative', background: '#141414' }}
+          style={{ overflow: 'hidden', minHeight: '520px', position: 'relative' }}
         >
-          <div
-            style={{
-              position: 'absolute',
-              inset: -10,
-              backgroundImage: `url("${s.image}")`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'blur(16px) brightness(0.4)',
-              opacity: 0.6,
-              pointerEvents: 'none',
-            }}
-          />
           <img
             src={s.image}
             alt={s.title}
             loading="lazy"
             className="twc-img-zoom"
             style={{
-              position: 'relative',
-              zIndex: 1,
               width: '100%',
               height: '100%',
               minHeight: '520px',
-              objectFit: 'contain',
+              objectFit: 'cover',
               objectPosition: 'center',
               display: 'block',
             }}

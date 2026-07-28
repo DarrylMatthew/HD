@@ -460,7 +460,7 @@
     .twc-story-img .twc-img-zoom {
       min-height: 100% !important;
       height: 100% !important;
-      object-fit: contain !important;
+      object-fit: cover !important;
     }
     .twc-product-row { grid-template-columns: 1fr !important; }
     .twc-product-img {
@@ -472,7 +472,7 @@
     .twc-product-img .twc-img-zoom {
       min-height: 100% !important;
       height: 100% !important;
-      object-fit: contain !important;
+      object-fit: cover !important;
     }
     .twc-product-copy { grid-column: 1 !important; grid-row: 2 !important; }
     .twc-consult-grid { grid-template-columns: 1fr !important; }
@@ -484,7 +484,7 @@
     .twc-consult-img .twc-img-zoom {
       min-height: 100% !important;
       height: 100% !important;
-      object-fit: contain !important;
+      object-fit: cover !important;
     }
   }
 
