@@ -246,7 +246,7 @@ export default function SlidingGallery() {
               transition={{ duration: 0.8, delay: (i % 6) * 0.08, ease }}
               style={{
                 flex: '0 0 auto',
-                width: 'clamp(240px, 26vw, 340px)',
+                width: 'clamp(250px, 70vw, 340px)',
               }}
             >
               {/* Canva Slide Card */}

@@ -349,17 +349,41 @@ function TWCProductRow({
       {/* Image */}
       <div
         className="twc-img-hover twc-product-img"
-        style={{ overflow: 'hidden', minHeight: '420px', gridColumn: reversed ? 2 : 1, gridRow: 1 }}
+        style={{
+          overflow: 'hidden',
+          minHeight: '420px',
+          gridColumn: reversed ? 2 : 1,
+          gridRow: 1,
+          position: 'relative',
+          background: '#141414',
+        }}
       >
         <div
+          style={{
+            position: 'absolute',
+            inset: -10,
+            backgroundImage: `url("${product.image}")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(16px) brightness(0.4)',
+            opacity: 0.6,
+            pointerEvents: 'none',
+          }}
+        />
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
           className="twc-img-zoom"
           style={{
+            position: 'relative',
+            zIndex: 1,
             width: '100%',
             height: '100%',
             minHeight: '420px',
-            backgroundImage: `url("${product.image}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: product.imagePosition || 'center',
+            objectFit: 'contain',
+            objectPosition: product.imagePosition || 'center',
+            display: 'block',
           }}
         />
       </div>

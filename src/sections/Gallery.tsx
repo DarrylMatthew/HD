@@ -35,6 +35,7 @@ export default function Gallery() {
         {/* Compact Collection Grid for TWC - fits all 17 images neatly on page */}
         {isTWC ? (
           <div
+            className="twc-gallery-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))',
@@ -48,31 +49,56 @@ export default function Gallery() {
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: (i % 10) * 0.04, ease: [0.16, 1, 0.3, 1] }}
                 style={{
-                  height: '210px',
+                  aspectRatio: '3 / 4',
                   position: 'relative',
                   overflow: 'hidden',
-                  background: '#1a1a1a',
-                  borderRadius: '2px',
+                  background: '#141414',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
                 }}
                 className="elegant-card group"
               >
+                {/* Soft blurred background for visual depth */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: -10,
+                    backgroundImage: `url("${image}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    filter: 'blur(16px) brightness(0.4)',
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                  }}
+                />
+                {/* Uncropped portrait image */}
                 <img
                   src={image}
                   alt={`TWC creation ${i + 1}`}
                   loading="lazy"
                   decoding="async"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    display: 'block'
+                  }}
                 />
                 <div
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 60%)',
+                    zIndex: 2,
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)',
                     opacity: 0,
                     transition: 'opacity 0.3s ease',
                     display: 'flex',
                     alignItems: 'flex-end',
                     padding: '12px 14px',
+                    pointerEvents: 'none',
                   }}
                   className="group-hover:!opacity-100"
                 >

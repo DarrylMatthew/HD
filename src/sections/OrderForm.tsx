@@ -61,8 +61,35 @@ export default function OrderForm() {
             <motion.div key="twc-consultation" initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
               <div className="twc-consult-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 'clamp(40px, 6vw, 88px)', alignItems: 'center' }}>
                 {/* Left: image */}
-                <div className="twc-consult-img twc-img-hover" style={{ overflow: 'hidden', minHeight: '480px' }}>
-                  <div className="twc-img-zoom" style={{ width: '100%', height: '100%', minHeight: '480px', backgroundImage: `url("${twcConsultationConfig.image || '/images/twc/collection-01.webp'}")`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                <div className="twc-consult-img twc-img-hover" style={{ overflow: 'hidden', minHeight: '480px', position: 'relative', background: '#141414', borderRadius: '4px' }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: -10,
+                      backgroundImage: `url("${twcConsultationConfig.image || '/images/twc/collection-01.webp'}")`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      filter: 'blur(16px) brightness(0.4)',
+                      opacity: 0.6,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                  <img
+                    src={twcConsultationConfig.image || '/images/twc/collection-01.webp'}
+                    alt="Consultation"
+                    loading="lazy"
+                    className="twc-img-zoom"
+                    style={{
+                      position: 'relative',
+                      zIndex: 1,
+                      width: '100%',
+                      height: '100%',
+                      minHeight: '480px',
+                      objectFit: 'contain',
+                      objectPosition: 'center',
+                      display: 'block',
+                    }}
+                  />
                 </div>
 
                 {/* Right: copy + checklist + CTA */}
