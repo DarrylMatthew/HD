@@ -150,7 +150,7 @@ export interface FooterConfig {
 
 export const siteConfig: SiteConfig = {
   language: "en",
-  siteTitle: "Hangri Dessert | Artisanal Tiramisu & Panna Cotta",
+  siteTitle: "Hangri Dessert",
   siteDescription: "Handcrafted tiramisu and panna cotta made with love. Order online for delivery or pickup.",
 }
 
