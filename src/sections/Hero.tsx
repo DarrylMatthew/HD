@@ -120,7 +120,9 @@ export default function Hero() {
           </motion.span>
         </div>
 
-        {/* Right: full-bleed image */}
+        {/* Right: full-bleed image. Rendered as a real <img> with a srcset so the
+            browser can start it early and pick a phone-sized file on phones; the
+            blurred LQIP sits underneath until the photo decodes. */}
         <motion.div
           className="twc-hero-image"
           initial={{ opacity: 0, scale: 1.08 }}
@@ -128,11 +130,22 @@ export default function Hero() {
           transition={{ duration: 1.4, ease }}
           style={{
             position: 'relative',
-            backgroundImage: `url("${twcHeroConfig.imagePath}")`,
+            overflow: 'hidden',
+            backgroundImage: twcHeroConfig.imageLqip ? `url("${twcHeroConfig.imageLqip}")` : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         >
+          <img
+            src={twcHeroConfig.imagePath}
+            srcSet={twcHeroConfig.imageSrcSet}
+            sizes={twcHeroConfig.imageSizes}
+            alt=""
+            aria-hidden="true"
+            fetchPriority="high"
+            decoding="async"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(110deg, rgba(255,255,255,0.10) 0%, transparent 22%)' }} />
         </motion.div>
 
@@ -172,17 +185,30 @@ export default function Hero() {
         justifyContent: 'center',
       }}
     >
-      {/* Background Image — Hangri */}
+      {/* Background Image — Hangri. A real <img> (not a CSS background) so the
+          browser can fetch it from the preload in index.html instead of waiting
+          for the JS bundle, and so phones download the 640w file. The blurred
+          LQIP behind it means the hero is never blank. */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `url("${heroConfig.imagePath}")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          overflow: 'hidden',
+          background: `#241811 ${heroConfig.imageLqip ? `url("${heroConfig.imageLqip}")` : ''} center / cover no-repeat`,
           transform: 'scale(1.05)',
         }}
-      />
+      >
+        <img
+          src={heroConfig.imagePath}
+          srcSet={heroConfig.imageSrcSet}
+          sizes={heroConfig.imageSizes}
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+      </div>
 
       {/* Dark Overlay */}
       <div

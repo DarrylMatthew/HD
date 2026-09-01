@@ -108,7 +108,7 @@ function GridCard({ cat, groupName, index, isInView, onOrder }: { cat: OrderingC
     <motion.div layout initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.5, delay: index * 0.08 }}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} onClick={() => !cat.isTBD && onOrder(cat)} style={{ cursor: cat.isTBD ? 'default' : 'pointer' }}>
       <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', aspectRatio: '4/3', marginBottom: '16px' }}>
-        <motion.img animate={{ scale: hovered && !cat.isTBD ? 1.05 : 1 }} transition={{ duration: 0.5 }} src={cat.image} alt={cat.name} onError={handleImgError(cat.imageFallback)} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: cat.imagePosition ?? 'center center', filter: cat.isTBD ? 'grayscale(25%) brightness(0.9)' : 'none' }} />
+        <motion.img animate={{ scale: hovered && !cat.isTBD ? 1.05 : 1 }} transition={{ duration: 0.5 }} src={cat.image} alt={cat.name} onError={handleImgError(cat.imageFallback)} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: cat.imagePosition ?? 'center center', filter: cat.isTBD ? 'grayscale(25%) brightness(0.9)' : 'none' }} />
         {cat.isTBD && (
           <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(47,34,24,0.85)', color: '#fdf6e3', fontFamily: 'Effra Trial Bold', fontSize: '9px', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', padding: '5px 12px', borderRadius: '2rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Clock size={10} />Coming Soon

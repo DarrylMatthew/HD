@@ -15,7 +15,14 @@ export interface NavigationConfig {
 }
 
 export interface HeroConfig {
+  /** Fallback src — the widest variant, used by browsers that ignore srcset. */
   imagePath: string
+  /** Responsive variants of imagePath so phones download a small file, not the desktop one. */
+  imageSrcSet?: string
+  /** How wide the image renders, so the browser can pick the right variant. */
+  imageSizes?: string
+  /** Tiny blurred stand-in (inline data URI) painted while the real photo downloads. */
+  imageLqip?: string
   eyebrow: string
   titleLine: string
   titleEmphasis: string
@@ -163,7 +170,13 @@ export const navigationConfig: NavigationConfig = {
 }
 
 export const heroConfig: HeroConfig = {
-  imagePath: "/images/hero-bg.webp",
+  // NOTE: index.html preloads these exact URLs — change them in both places.
+  imagePath: "/images/hero-bg-1344.webp",
+  imageSrcSet:
+    "/images/hero-bg-640.webp 640w, /images/hero-bg-960.webp 960w, /images/hero-bg-1344.webp 1344w",
+  imageSizes: "100vw",
+  imageLqip:
+    "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAABQBACdASoYAA4APu1iqU2ppaQiMAgBMB2JYgCdMoRwACxxjorVHYeZDYmQAP7Zz2fUVqIFLQNp489Sco5Ya22L0XsX4thx/X577MqBX2PvpaM0XS+gXvFemjvr3fq30Eopn1ZqkIIprUJFRHs0aWAAAAA=",
   eyebrow: "Handcrafted with Love",
   titleLine: "The Best Tiramisu",
   titleEmphasis: "in Town",
@@ -631,7 +644,13 @@ export const twcNavigationConfig: NavigationConfig = {
 }
 
 export const twcHeroConfig: HeroConfig = {
-  imagePath: "/images/twc/tiramisu-tower.webp",
+  imagePath: "/images/twc/tiramisu-tower-1280.webp",
+  imageSrcSet:
+    "/images/twc/tiramisu-tower-480.webp 480w, /images/twc/tiramisu-tower-800.webp 800w, /images/twc/tiramisu-tower-1280.webp 1280w",
+  // The photo fills the right-hand column on desktop, the full width on mobile.
+  imageSizes: "(max-width: 900px) 100vw, 48vw",
+  imageLqip:
+    "data:image/webp;base64,UklGRroAAABXRUJQVlA4IK4AAAAQBgCdASoYACQAPu1op08ppiMiKqwBMB2JQBAjwkHVOyjIiSB+r8AhFZzyfaXqtbm5v/jmiejke+AA/vtmPF/eKhBQ0ob/uYaWmE4KUxd/zPKjT9/s2xMe3DNR8V54k7h1yL3zf8XyZcQg0PQxl4wVMObQGQz9rpJ8sc32eiNRa9arQdEtQ+OdF0dKxDhd8UG12NG//C6+4hqQ9iREtqbndt6aFnM4iFqrnYAAAAA=",
   eyebrow: "For couples who break wedding cake traditions",
   titleLine: "Tiramisu",
   titleEmphasis: "Wedding Cake",

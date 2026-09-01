@@ -193,7 +193,7 @@ function MobileListItem({ cat, index, isInView, onAdd, onPress }: { cat: Orderin
         )}
       </div>
       <div style={{ position: 'relative', flexShrink: 0 }}>
-        <img src={cat.image} alt={cat.name} onError={handleImgError(cat.imageFallback)} style={{ width: '80px', height: '80px', borderRadius: '12px', objectFit: 'cover', objectPosition: cat.imagePosition ?? 'center center', filter: cat.isTBD ? 'grayscale(30%) brightness(0.9)' : 'none' }} />
+        <img src={cat.image} alt={cat.name} onError={handleImgError(cat.imageFallback)} loading="lazy" decoding="async" style={{ width: '80px', height: '80px', borderRadius: '12px', objectFit: 'cover', objectPosition: cat.imagePosition ?? 'center center', filter: cat.isTBD ? 'grayscale(30%) brightness(0.9)' : 'none' }} />
         {!cat.isTBD && (
           <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)' }}>
             <motion.button whileTap={{ scale: 0.9 }} onClick={(e) => { e.stopPropagation(); onAdd(cat); }}

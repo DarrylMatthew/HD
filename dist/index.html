@@ -13,21 +13,47 @@
     <meta property="og:site_name" content="Hangri Dessert" />
     <meta property="og:title" content="Hangri Dessert | Artisanal Tiramisu & Panna Cotta" />
     <meta property="og:description" content="Handcrafted tiramisu and panna cotta made with love. Order online for delivery or pickup." />
-    <meta property="og:image" content="/images/hero-bg.jpg" />
+    <meta property="og:image" content="./images/hero-bg.webp" />
 
     <!-- Twitter card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Hangri Dessert | Artisanal Tiramisu & Panna Cotta" />
     <meta name="twitter:description" content="Handcrafted tiramisu and panna cotta made with love. Order online for delivery or pickup." />
-    <meta name="twitter:image" content="/images/hero-bg.jpg" />
+    <meta name="twitter:image" content="./images/hero-bg.webp" />
+
+    <!-- Start the hero image download while the JS bundle is still loading.
+         Must stay in sync with heroConfig.imagePath / imageSrcSet in src/config.ts,
+         otherwise the browser downloads the picture twice. -->
+    <link
+      rel="preload"
+      as="image"
+      href="./images/hero-bg-1344.webp"
+      imagesrcset="images/hero-bg-640.webp 640w, images/hero-bg-960.webp 960w, images/hero-bg-1344.webp 1344w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="./assets/index-DaM7dCA9.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CegWZAGs.css">
+    <!-- Every Google family the app uses, requested here rather than via @import
+         in index.css so it is not chained behind the CSS bundle. -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Italiana&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="./assets/index-BL1IqAWG.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BxFSGFoz.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- First-paint placeholder: the hero's dark ground plus a 180-byte blurred
+           preview of the hero photo, so the very first frame (before the JS bundle
+           has even downloaded) already looks like the site. React discards this the
+           moment it mounts. Keep the gradient in sync with the hero overlay. -->
+      <div
+        style="position:fixed;inset:0;background:#241811 url('data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAABQBACdASoYAA4APu1iqU2ppaQiMAgBMB2JYgCdMoRwACxxjorVHYeZDYmQAP7Zz2fUVqIFLQNp489Sco5Ya22L0XsX4thx/X577MqBX2PvpaM0XS+gXvFemjvr3fq30Eopn1ZqkIIprUJFRHs0aWAAAAA=') center/cover no-repeat"
+      >
+        <div
+          style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,20,12,0.65) 0%,rgba(50,35,25,0.5) 50%,rgba(30,20,12,0.7) 100%)"
+        ></div>
+      </div>
+    </div>
   </body>
 </html>
