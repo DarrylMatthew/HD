@@ -19,9 +19,11 @@ export default function Footer() {
   const headingColor = isTWC ? '#ffffff' : '#e8954e';
 
   const getHref = (href: string, label: string) => {
-    if (label.toLowerCase() === 'whatsapp' && isTWC) {
-      const phone = "6281386337200";
-      const messageText = `Hi TWC, nama saya ____.\n\nSaya mau lihat katalog wedding cake-nya!\n\nApakah masih available utk wedding tanggal ___ dan berlokasi di venue ___?`;
+    if (label.toLowerCase() === 'whatsapp') {
+      const phone = href.replace(/\D/g, '');
+      const messageText = isTWC
+        ? `Hi TWC, nama saya ____.\n\nSaya mau lihat katalog wedding cake-nya!\n\nApakah masih available utk wedding tanggal ___ dan berlokasi di venue ___?`
+        : `Halo Hangri Dessert, saya mau pesan ___`;
       return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
     }
     return href;
