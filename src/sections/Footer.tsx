@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { footerConfig, twcFooterConfig } from '../config';
 import { useBrand } from '../context/BrandContext';
 import { getLenis } from '../hooks/useLenis';
-import { Cake, Instagram, MessageCircle } from 'lucide-react';
+import { Instagram, MessageCircle } from 'lucide-react';
 
 export default function Footer() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -49,10 +49,10 @@ export default function Footer() {
           {/* Brand Column */}
           <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} style={{ gridColumn: 'span 1' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : '50%', background: isTWC ? 'linear-gradient(135deg, #ffffff 0%, #E9E8E9 100%)' : 'linear-gradient(135deg, #e8954e 0%, #d4a373 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-radius 0.6s ease, background 0.6s ease' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: isTWC ? '0' : undefined, background: isTWC ? 'linear-gradient(135deg, #ffffff 0%, #E9E8E9 100%)' : undefined, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', transition: 'border-radius 0.6s ease, background 0.6s ease' }}>
                 <AnimatePresence mode="wait">
-                  <motion.div key={isTWC ? 'crown' : 'cake'} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.3 }}>
-                    {isTWC ? <span className="font-elegant" style={{ fontSize: '14px', letterSpacing: '1px', color: '#1a1a1a' }}>TWC</span> : <Cake size={20} color="#fff" />}
+                  <motion.div key={isTWC ? 'crown' : 'cake'} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.3 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isTWC ? <span className="font-elegant" style={{ fontSize: '14px', letterSpacing: '1px', color: '#1a1a1a' }}>TWC</span> : <img src="/favicon.png" alt="Hangri Dessert" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
                   </motion.div>
                 </AnimatePresence>
               </div>
