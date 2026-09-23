@@ -631,7 +631,7 @@ export const twcTheme: TWCTheme = {
 
 export const twcSiteConfig: SiteConfig = {
   language: "en",
-  siteTitle: "Tiramisu Wedding Cake | Luxury Wedding Desserts",
+  siteTitle: "Tiramisu Wedding Cake by Hangri Dessert",
   siteDescription: "Bespoke tiramisu towers and wedding cakes. Elevate your special day with our luxurious handcrafted desserts.",
 }
 
