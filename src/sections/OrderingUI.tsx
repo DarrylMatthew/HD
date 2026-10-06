@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Plus, Minus, ShoppingCart, Trash2, MessageCircle, ChevronRight, X, MapPin, User, Calendar, Clock, Check, ArrowLeft, Pencil } from 'lucide-react';
 import type { CartItem, CheckoutDetails, HoursSchedule, DayHours, CustomizeState } from './OrderingUtils';
-import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots, resolveDayHours, formatTimeLabel, calcUnitPrice, isCustomizeValid, CUSTOM_TEXT_MAX, NOTES_MAX, handleImgError } from './OrderingUtils';
+import { formatRupiah, todayISODate, CUSTOMER_NAME_MAX, isPickupTimeValid, getAvailableTimeSlots, resolveDayHours, formatTimeLabel, calcUnitPrice, isCustomizeValid, CUSTOM_TEXT_MAX, NOTES_MAX, handleImgError, countBillableChars } from './OrderingUtils';
 import type { OrderingCategory, PickupLocation } from '../config';
 import { useIsMobile } from '../hooks/use-mobile';
 import { useScrollLock } from '../hooks/useScrollLock';
@@ -548,7 +548,7 @@ function OptionRow({ label, price, selected, onClick, isLast }: { label: string;
 }
 
 export function CustomizeOptions({ cat, state, onChange }: { cat: OrderingCategory; state: CustomizeState; onChange: (s: CustomizeState) => void }) {
-  const txtPrice = cat.hasCustomText && state.wantsCustomText && state.customText.length > 0 ? state.customText.length * cat.customTextPricePerChar : 0;
+  const txtPrice = cat.hasCustomText && state.wantsCustomText ? countBillableChars(state.customText) * cat.customTextPricePerChar : 0;
   const toggleExtra = (label: string) => {
     const selectedExtras = state.selectedExtras.includes(label)
       ? state.selectedExtras.filter((x) => x !== label)
@@ -813,9 +813,9 @@ export function CustomizeOptions({ cat, state, onChange }: { cat: OrderingCatego
                   </span>
                   <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#999' }}>{state.customText.length}/{CUSTOM_TEXT_MAX}</span>
                 </div>
-                {state.customText.length > 0 && (
+                {countBillableChars(state.customText) > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', marginTop: '4px' }}>
-                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a' }}>{state.customText.length} character{state.customText.length === 1 ? '' : 's'} × {formatRupiah(cat.customTextPricePerChar)}</span>
+                    <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', color: '#5a4a3a' }}>{countBillableChars(state.customText)} character{countBillableChars(state.customText) === 1 ? '' : 's'} × {formatRupiah(cat.customTextPricePerChar)}</span>
                     <span style={{ fontFamily: 'Effra Trial Bold', fontSize: '14px', color: '#e8954e', fontWeight: 600 }}>{formatRupiah(txtPrice)}</span>
                   </div>
                 )}

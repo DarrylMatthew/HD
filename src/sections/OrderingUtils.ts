@@ -1,6 +1,11 @@
 import type { SyntheticEvent } from 'react';
 import type { OrderingCategory, OrderingGroup, PickupLocation } from '../config';
 
+/** Number of characters billed for custom text — spaces/blanks are free. */
+export function countBillableChars(text: string): number {
+  return text.replace(/\s/g, '').length;
+}
+
 export function formatRupiah(amount: number): string {
   return 'Rp ' + amount.toLocaleString('id-ID');
 }
@@ -438,8 +443,8 @@ export function calcUnitPrice(cat: OrderingCategory, s: CustomizeState): number 
   for (const ex of cat.extras) {
     if (s.selectedExtras.includes(ex.label)) t += ex.price;
   }
-  if (cat.hasCustomText && s.wantsCustomText && s.customText.length > 0) {
-    t += s.customText.length * cat.customTextPricePerChar;
+  if (cat.hasCustomText && s.wantsCustomText) {
+    t += countBillableChars(s.customText) * cat.customTextPricePerChar;
   }
   return t;
 }
@@ -491,7 +496,7 @@ export function buildWhatsAppMessage(
       }
     }
     if (item.wantsCustomText && item.customText) {
-      const cc = item.customText.length;
+      const cc = countBillableChars(item.customText);
       const tp = cc * item.category.customTextPricePerChar;
       msg += `   Custom Text: "${item.customText}" (${cc} character${cc === 1 ? '' : 's'} x ${formatRupiah(item.category.customTextPricePerChar)} = ${formatRupiah(tp)})\n`;
     }
