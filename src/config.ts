@@ -37,6 +37,8 @@ export interface ProductConfig {
   description: string
   sizes: { label: string; price: string }[]
   image: string
+  // Set to true to temporarily hide this item from the site (e.g. sold out).
+  hidden?: boolean
 }
 
 export interface MenuConfig {
@@ -72,12 +74,16 @@ export interface OrderingAddonOption {
 // A menu group shown as a heading on the ordering page (e.g. "Whole Cakes").
 // Categories reference a group via groupId; groups render in array order.
 export interface OrderingGroup {
+  // Set to true to temporarily hide this from the site (e.g. sold out).
+  hidden?: boolean
   id: string
   name: string
   description: string
 }
 
 export interface OrderingCategory {
+  // Set to true to temporarily hide this from the site (e.g. sold out).
+  hidden?: boolean
   id: string
   groupId: string
   name: string
@@ -211,6 +217,7 @@ export const menuConfig: MenuConfig = {
         { label: "Large (32oz)", price: "$XX" },
       ],
       image: "/images/lemon-tiramisu.webp",
+      hidden: true, // temporarily unavailable — remove this line to show it again
     },
     {
       name: "Panna Cotta",
@@ -281,7 +288,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     { id: "whole-cakes", name: "Whole Cakes", description: "Our signature whole tiramisu cakes, perfect for every celebration. Choose your preferred size, rum option, cocoa dusting, and personalized message." },
     { id: "classic-tiramisu", name: "Classic Tiramisu", description: "Coffee-soaked ladyfingers layered with velvety mascarpone cream and dusted with cocoa powder. Crafted using only premium, honest ingredients." },
     { id: "sakura-tiramisu", name: "Sakura Tiramisu", description: "Classic tiramisu with a twist: Extra layers of luscious mixed berries sauce for a fun, fruity finish." },
-    { id: "lemon-tiramisu", name: "Lemon Tiramisu", description: "A bright, citrusy twist on the classic. Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish." },
+    { id: "lemon-tiramisu", hidden: true, name: "Lemon Tiramisu", description: "A bright, citrusy twist on the classic. Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish." },
     { id: "panna-cotta", name: "Panna Cotta", description: "Silky Italian panna cotta made with fresh cream and real fruit sauce — choose strawberry, blueberry, or lemon." },
   ],
   categories: [
@@ -435,6 +442,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     // --- Lemon Tiramisu ---
     {
       id: "lemon-200",
+      hidden: true, // temporarily unavailable — remove this line to show it again
       groupId: "lemon-tiramisu",
       name: "Lemon Tiramisu 200ml",
       image: "/images/lemon200.webp",
@@ -449,6 +457,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     },
     {
       id: "lemon-500",
+      hidden: true, // temporarily unavailable — remove this line to show it again
       groupId: "lemon-tiramisu",
       name: "Lemon Tiramisu 500ml",
       image: "/images/lemon500.webp",

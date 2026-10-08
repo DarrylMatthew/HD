@@ -86,11 +86,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const menuGroups = useMemo(
-    () => [...orderingPageConfig.groups, ...seasonalGroups],
+    () => [...orderingPageConfig.groups, ...seasonalGroups].filter((g) => !g.hidden),
     [seasonalGroups],
   );
   const menuCategories = useMemo(
-    () => [...orderingPageConfig.categories, ...seasonalCategories],
+    () => [...orderingPageConfig.categories, ...seasonalCategories].filter((c) => !c.hidden),
     [seasonalCategories],
   );
 

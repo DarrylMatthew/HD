@@ -188,7 +188,7 @@ export default function Menu() {
             marginBottom: '100px',
           }}
         >
-          {menuConfig.products.map((product, index) => (
+          {menuConfig.products.filter((p) => !p.hidden).map((product, index) => (
             <HangriProductCard key={product.name} product={product} index={index} isInView={isInView} />
           ))}
         </div>

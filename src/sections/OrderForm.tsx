@@ -133,7 +133,7 @@ export default function OrderForm() {
                       {/* Item Selector */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <label style={{ fontFamily: 'Effra Trial Bold', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: '#e8954e', display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={16} />Select Items</label>
-                        {menuConfig.products.map((product) => (
+                        {menuConfig.products.filter((p) => !p.hidden).map((product) => (
                           <div key={product.name} style={{ padding: '16px', background: '#fdf6e3', borderRadius: '12px', border: '1px solid #f0e6d3' }}>
                             <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '18px', fontWeight: 500, color: '#2f2218', display: 'block', marginBottom: '10px' }}>{product.name}</span>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
