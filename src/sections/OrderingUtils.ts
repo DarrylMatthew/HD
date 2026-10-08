@@ -331,6 +331,39 @@ export async function fetchSeasonalMenu(url: string): Promise<SeasonalMenu> {
   return parseMenuCsv(await res.text());
 }
 
+// --- Google Sheet menu availability ------------------------------------------
+
+// Item id -> whether it's available. Ids missing from the map fall back to config.
+export type Availability = Record<string, boolean>;
+
+// Parse the published "Availability" tab CSV. Columns: id, name, available.
+// `available` is a Sheet checkbox, exported as TRUE/FALSE (yes/1 also accepted).
+export function parseAvailabilityCsv(csv: string): Availability {
+  const lines = csv.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length < 2) return {};
+  const header = splitCsvLine(lines[0]).map((c) => c.trim().toLowerCase());
+  const idIdx = header.indexOf('id');
+  const availIdx = header.indexOf('available');
+  // Defensive: a missing tab returns Google's error page, not our CSV.
+  if (idIdx < 0 || availIdx < 0) return {};
+  const result: Availability = {};
+  for (let i = 1; i < lines.length; i++) {
+    const cells = splitCsvLine(lines[i]);
+    const id = (cells[idIdx] ?? '').trim();
+    if (!id) continue;
+    const value = (cells[availIdx] ?? '').trim().toLowerCase();
+    result[id] = ['true', 'yes', 'y', '1'].includes(value);
+  }
+  return result;
+}
+
+export async function fetchAvailability(url: string): Promise<Availability> {
+  const sep = url.includes('?') ? '&' : '?';
+  const res = await fetch(`${url}${sep}_=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Availability fetch failed: ${res.status}`);
+  return parseAvailabilityCsv(await res.text());
+}
+
 export function todayISODate(): string {
   const d = new Date();
   const yyyy = d.getFullYear();

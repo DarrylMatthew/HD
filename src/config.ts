@@ -144,6 +144,12 @@ export interface OrderingPageConfig {
   // Rows with active = yes/y/true/1 appear on the site under their "group" heading,
   // no redeploy needed. Leave "" to disable.
   menuSheetUrl: string
+  // Published Google Sheet CSV URL for switching regular menu items on/off.
+  // Tab named "Availability" with header row: id, name, available
+  //   id must match a category id below; available is a checkbox (TRUE shows, FALSE hides).
+  // A Sheet row overrides that item's `hidden` flag; items missing from the Sheet
+  // (or every item, if the Sheet can't load) fall back to `hidden`. Leave "" to disable.
+  availabilitySheetUrl: string
 }
 
 export interface GalleryConfig {
@@ -288,7 +294,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     { id: "whole-cakes", name: "Whole Cakes", description: "Our signature whole tiramisu cakes, perfect for every celebration. Choose your preferred size, rum option, cocoa dusting, and personalized message." },
     { id: "classic-tiramisu", name: "Classic Tiramisu", description: "Coffee-soaked ladyfingers layered with velvety mascarpone cream and dusted with cocoa powder. Crafted using only premium, honest ingredients." },
     { id: "sakura-tiramisu", name: "Sakura Tiramisu", description: "Classic tiramisu with a twist: Extra layers of luscious mixed berries sauce for a fun, fruity finish." },
-    { id: "lemon-tiramisu", hidden: true, name: "Lemon Tiramisu", description: "A bright, citrusy twist on the classic. Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish." },
+    { id: "lemon-tiramisu", name: "Lemon Tiramisu", description: "A bright, citrusy twist on the classic. Lemon-infused mascarpone with delicate ladyfingers and a zesty lemon curd finish." },
     { id: "panna-cotta", name: "Panna Cotta", description: "Silky Italian panna cotta made with fresh cream and real fruit sauce — choose strawberry, blueberry, or lemon." },
   ],
   categories: [
@@ -527,6 +533,8 @@ export const orderingPageConfig: OrderingPageConfig = {
   pickupHoursSheetUrl: "https://docs.google.com/spreadsheets/d/1FJxREcJnsdOLyfy1saimebMXzmt6Ub6_BTCTuzyB6pM/gviz/tq?tqx=out:csv",
   // Seasonal items tab in the same spreadsheet (tab must be named "Menu").
   menuSheetUrl: "https://docs.google.com/spreadsheets/d/1FJxREcJnsdOLyfy1saimebMXzmt6Ub6_BTCTuzyB6pM/gviz/tq?tqx=out:csv&sheet=Menu",
+  // Show/hide regular menu items without redeploying (tab must be named "Availability").
+  availabilitySheetUrl: "https://docs.google.com/spreadsheets/d/1FJxREcJnsdOLyfy1saimebMXzmt6Ub6_BTCTuzyB6pM/gviz/tq?tqx=out:csv&sheet=Availability",
 }
 
 export const galleryConfig: GalleryConfig = {

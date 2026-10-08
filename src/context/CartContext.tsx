@@ -9,10 +9,11 @@ import {
   isCheckoutValid,
   fetchPickupHours,
   fetchSeasonalMenu,
+  fetchAvailability,
   stateFromCartItem,
   cartItemFromState,
 } from '../sections/OrderingUtils';
-import type { CartItem, CheckoutDetails, HoursSchedule, CustomizeState } from '../sections/OrderingUtils';
+import type { Availability, CartItem, CheckoutDetails, HoursSchedule, CustomizeState } from '../sections/OrderingUtils';
 import { CartBar, CartReview, CustomizePanel } from '../sections/OrderingUI';
 import { orderingPageConfig } from '../config';
 import type { OrderingCategory, OrderingGroup } from '../config';
@@ -59,6 +60,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Seasonal items from the "Menu" Sheet tab; empty until loaded (or on failure).
   const [seasonalGroups, setSeasonalGroups] = useState<OrderingGroup[]>([]);
   const [seasonalCategories, setSeasonalCategories] = useState<OrderingCategory[]>([]);
+  // On/off switches from the "Availability" Sheet tab; empty until loaded (or on failure).
+  const [availability, setAvailability] = useState<Availability>({});
 
   useEffect(() => {
     const url = orderingPageConfig.pickupHoursSheetUrl;
@@ -85,13 +88,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    const url = orderingPageConfig.availabilitySheetUrl;
+    if (!url) return;
+    let cancelled = false;
+    fetchAvailability(url)
+      .then((a) => { if (!cancelled) setAvailability(a); })
+      .catch((err) => { if (!cancelled) console.error('Failed to load menu availability:', err); });
+    return () => { cancelled = true; };
+  }, []);
+
   const menuGroups = useMemo(
     () => [...orderingPageConfig.groups, ...seasonalGroups].filter((g) => !g.hidden),
     [seasonalGroups],
   );
   const menuCategories = useMemo(
-    () => [...orderingPageConfig.categories, ...seasonalCategories].filter((c) => !c.hidden),
-    [seasonalCategories],
+    () => [...orderingPageConfig.categories, ...seasonalCategories].filter((c) => availability[c.id] ?? !c.hidden),
+    [seasonalCategories, availability],
   );
 
   const cartTotal = useMemo(() => cart.reduce((s, i) => s + i.totalPrice, 0), [cart]);
