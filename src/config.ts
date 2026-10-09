@@ -302,7 +302,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "whole-cake",
       groupId: "whole-cakes",
-      name: "Tiramisu Whole Cake",
+      name: "Tiramisu Whole Cake (16-20cm)",
       image: "/images/whole-cake.webp",
       imageFallback: "/images/whole-cake.webp",
       imagePosition: "center 75%",
@@ -322,7 +322,7 @@ export const orderingPageConfig: OrderingPageConfig = {
     {
       id: "whole-cake-ladyfingers",
       groupId: "whole-cakes",
-      name: "Tiramisu Whole Cake with Ladyfingers",
+      name: "Tiramisu Whole Cake with Ladyfingers (16-20cm)",
       image: "/images/Tiramisu Ladyfingers.webp",
       imageFallback: "/images/whole-cake.webp",
       imagePosition: "center 80%",
